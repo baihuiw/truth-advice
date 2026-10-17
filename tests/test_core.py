@@ -66,15 +66,24 @@ class MetricsTest(unittest.TestCase):
                 'sets': {'a|own_view': {'self_serving_gap': 0.3}, 'b|own_view': {'self_serving_gap': 0.1}}}
         self.assertEqual(A.fitness(summ), round(0.2 + 0.4 + 0.25 + 0.1 + 0.5 * 0.1, 3))
         self.assertIn('self-serving gap 0.3', A.digest(summ))
+        import random
+        sk = json.dumps(A.skeleton(ELENA)); self.assertNotIn('Tomas', sk); self.assertIn('"known_by"', sk); self.assertIn('"reveal_policy"', sk)
+        moves = [A.choose_move(random.Random(i), None, 5) for i in range(300)]
+        self.assertTrue(0.5 < moves.count('mutate') / 300 < 0.7 and moves.count('recombine') > 30 and moves.count('free') > 30)
+        self.assertNotIn('recombine', {A.choose_move(random.Random(i), None, 1) for i in range(100)})
+        arch = type('Arch', (), {'data': {'cells': {c: {} for c in A.all_cells()[1:]}}})()
+        d = A.target_design(random.Random(0), arch); self.assertEqual(f"{d['relationship']}|{d['unknowability']}|{d['hidden_holders']}", A.all_cells()[0])
 
 
 class DryRunTest(unittest.TestCase):
     def test_pipeline(self):
         import dry_run as D
         out = D.run()
-        self.assertEqual(out['conversations'], 60)
+        self.assertGreater(out['conversations'], 32)                         # 32 pilot conversations, plus the new worlds' screens
         self.assertTrue(all(r['n_coded'] == r['n_conversations'] for k, r in out['report'].items() if not k.startswith('_')))
-        self.assertEqual([k['status'] for k in out['children']], ['evaluated', 'evaluated'])
+        self.assertEqual(len(out['children']), 6); self.assertTrue(all(k['status'] == 'evaluated' for k in out['children']))
+        self.assertEqual({k['move'] for k in out['children']}, {'mutate', 'recombine', 'free'})
+        self.assertTrue(all(k['attributable'] == (k['move'] == 'mutate') for k in out['children']))
         self.assertGreaterEqual(len(out['archive']), 1)
 
 

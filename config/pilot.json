@@ -144,6 +144,11 @@
   "operator_weights": {
    "transpose": 1.5,
    "move_hidden_fact": 1.5
+  },
+  "move_shares": {
+   "mutate": 0.6,
+   "recombine": 0.2,
+   "free": 0.2
   }
  }
 }

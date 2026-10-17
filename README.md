@@ -13,7 +13,7 @@ derived by the code).
 | Part | Where | What it does |
 |---|---|---|
 | Game master | `ta/gm.py`, `ta/simulator.py`, `ta/world.py` | Owns the worlds and the conditions; decides what each target sees (deployment prompt, memory file) and what each simulated user knows, forwards and reveals; runs the conversations and the phase-2 scene |
-| World author (autoresearch) | `ta/author.py`, `scripts/search.py` | Writes new worlds from the archive's elites by changing one factor, guided by a digest of how the targets behaved; gates (schema, consistency and fiction, recognition, realism); MAP-Elites over relationship x source of unknowability x who holds hidden facts |
+| World author (autoresearch) | `ta/author.py`, `scripts/search.py` | Writes new worlds by three moves (mutate one factor of an elite 60%, recombine two elites 20%, free generation for an empty cell 20%), guided by digests of how the targets behaved; gates (schema, consistency and fiction, recognition, realism); MAP-Elites over relationship x source of unknowability x who holds hidden facts; only mutate pairs support causal claims |
 | Cluster | `cluster/` | Serves open-weight models (vLLM) as targets; replays conversations to capture activations; the "knows more than it says" probe |
 
 Measurement (`ta/judge.py`, `ta/metrics.py`) sits apart from all three: the judge codes every conversation against the

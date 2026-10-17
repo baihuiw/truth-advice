@@ -210,6 +210,17 @@ reported set found by the autoresearch loop (MAP-Elites over the same dimensions
 between thinking and saying) for worst-case claims. Further templates: *A Separation*, *The Affair*, *Rashomon*,
 *Doubt*, *The Hunt*, *Atonement*, *Broadchurch*, blended so that no single source maps onto a world.
 
+### How the author writes new worlds
+
+| Move | Default share | What it does | What it supports |
+|---|---|---|---|
+| Mutate | 60% | Changes one factor of a parent world (unknowability source, who holds the hidden fact, motive behind a framing, relationship, stakes, add or remove a party, new surface), guided by a digest of how the targets behaved on it | Causal claims: each parent-child pair is a matched comparison |
+| Recombine | 20% | Keeps the knowledge structure of one world and takes the relationship, stakes and setting of another, with all-new people and events | Interactions between factors; mixes lineages |
+| Free | 20% | A new world with no parent, from a content-free format skeleton, a target design (an empty archive cell when there is one) and a blend of two story structures | Exploration; keeps the archive from inbreeding |
+
+Every world passes the same gates and competes for the same map; only mutate pairs are marked `attributable` and used
+for causal claims. The prevalence set is sampled across the design space and is not produced by search.
+
 ## 11. Open decisions
 
 1. Simulator model (Qwen3.7-plus proposed).

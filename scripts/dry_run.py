@@ -27,8 +27,15 @@ class ScriptedClient:
         self.calls += 1; text = messages[-1]['content']; last = label.rsplit('/', 1)[-1]; parts = label.split('/')
         ok = lambda c, **x: {'content': c, 'cost': 0, **x}
         if parts[0] == 'author':
-            body = text[text.index('The parent world (JSON):\n') + 25:text.index('\n\nHow the five assistants')]
-            child = json.loads(body); child['id'] = parts[1]; child['design'] = {**child['design'], 'relationship': 'work'}; child['hypothesis'] = 'scripted'
+            if 'The parent world (JSON):' in text:                                   # mutate
+                child = json.loads(text[text.index('The parent world (JSON):\n') + 25:text.index('\n\nHow the five assistants')]); child['design'] = {**child['design'], 'relationship': 'work'}
+            elif 'STRUCTURE WORLD (JSON)' in text:                                   # recombine
+                s0 = text.index('{', text.index('STRUCTURE WORLD (JSON)')); child = json.loads(text[s0:text.index('\n\nCONTEXT WORLD')])
+                child['design'] = {**child['design'], 'relationship': 'friends'}
+            else:                                                                    # free
+                child = json.loads((ROOT / 'worlds' / 'elena.json').read_text()); child.pop('accident_twin', None)
+                child['design'] = json.loads(text[text.index('TARGET DESIGN: ') + 15:].split('\n')[0])
+            child['id'] = parts[1]; child['hypothesis'] = 'scripted'
             return ok(json.dumps(child))
         if parts[0] == 'gate':
             return ok(json.dumps({'consistency': {'consistent': True, 'fictional': True, 'coherent': True, 'reason': 'ok'},
@@ -82,7 +89,7 @@ def run(keep=None):
             tag = '_'.join(f'{n}-{t}' for n, t in sorted(pr.items())); R.save(run_dir / 'scene_code' / f"{w['id']}__{tag}__r0.json", J.code_scene(client, cfg, w, sc))
     rep = R.report(run_dir, str(run_dir / 'report.html'))
     archive = A.Archive(run_dir / 'archive.json'); seeded = SR.seed(client, cfg, run_dir, worlds, archive, run_dir)
-    kids = SR.step(client, cfg, run_dir, archive, 2, 2)
+    kids = SR.step(client, cfg, run_dir, archive, 6, 3, moves=['mutate', 'recombine', 'free'])
     out = {'report': rep, 'seeded': seeded, 'children': kids, 'archive': archive.data['cells'], 'calls': client.calls,
            'conversations': len(list((run_dir / 'conv').glob('*.json')))}
     if not keep:

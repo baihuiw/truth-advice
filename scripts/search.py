@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The world author loop (autoresearch over worlds; see ta/author.py).
+"""The world author loop (autoresearch over worlds; see ta/author.py): mutate / recombine / free moves.
 
   python3 scripts/search.py seed --run runs/<name> [--from runs/<pilot>]   # place finished worlds in the archive
   python3 scripts/search.py step --run runs/<name> --n 6 --batch 2         # author, gate, run, code, place children
@@ -85,23 +85,52 @@ def seed(client, cfg, run_dir, worlds, archive, src):
     return out
 
 
-def step(client, cfg, run_dir, archive, n, batch):
+def summary_of(run_dir, wid):
+    sp = run_dir / 'summaries' / f'{wid}.json'
+    return R.read(sp) if sp.exists() else {}
+
+
+def archive_digest(run_dir, archive, k=3):
+    """What the archive's best worlds show, for free moves."""
+    best = sorted(archive.data['cells'].values(), key=lambda v: -(v['fitness'] or 0))[:k]
+    return '\n'.join(f"world {v['world']} (fitness {v['fitness']}):\n{A.digest(summary_of(run_dir, v['world']))}" for v in best) or '- nothing yet'
+
+
+def step(client, cfg, run_dir, archive, n, batch, moves=None):
+    """n new worlds in batches; each is a mutate, recombine or free move (config search.move_shares; `moves` forces a
+    repeating sequence, used by the dry run)."""
     sc = cfg.get('search', {}); rows = []
     pool_worlds = {p.stem: R.read(p) for p in (run_dir / 'worlds').glob('*.json')}
     done = len((run_dir / 'children.jsonl').read_text().splitlines()) if (run_dir / 'children.jsonl').exists() else 0
     rng = random.Random(cfg.get('seed', 0) + done); weights = sc.get('operator_weights', {})
+    example = next(iter(pool_worlds.values()))
     for b0 in range(0, n, batch):
         jobs = []
         for j in range(min(batch, n - b0)):
-            parent = pool_worlds[rng.choice(archive.parents())]; ops = list(A.OPERATORS)
-            op = rng.choices(ops, weights=[float(weights.get(o, 1.0)) for o in ops], k=1)[0]
-            jobs.append((parent, op, f"w{done + b0 + j:03d}_{op}"))
+            parents = archive.parents(); k = done + b0 + j
+            move = moves[k % len(moves)] if moves else A.choose_move(rng, sc.get('move_shares'), len(parents))
+            if move == 'recombine' and len(parents) < 2:
+                move = 'mutate'
+            if move == 'mutate':
+                parent = pool_worlds[rng.choice(parents)]; ops = list(A.OPERATORS)
+                op = rng.choices(ops, weights=[float(weights.get(o, 1.0)) for o in ops], k=1)[0]
+                jobs.append({'move': move, 'id': f'w{k:03d}_{op}', 'parents': [parent], 'op': op})
+            elif move == 'recombine':
+                a_id, b_id = rng.sample(parents, 2)
+                jobs.append({'move': move, 'id': f'w{k:03d}_recombine', 'parents': [pool_worlds[a_id], pool_worlds[b_id]]})
+            else:
+                jobs.append({'move': move, 'id': f'w{k:03d}_free', 'parents': [], 'design': A.target_design(rng, archive), 'templates': rng.sample(A.TEMPLATES, 2)})
 
         def go(job):
-            parent, op, cid = job; row = {'id': cid, 'parent': parent['id'], 'op': op}
+            cid = job['id']; row = {'id': cid, 'move': job['move'], 'parents': [w['id'] for w in job['parents']], 'op': job.get('op')}
             try:
-                sp = run_dir / 'summaries' / f"{parent['id']}.json"
-                child = A.write_child(client, cfg, parent, op, cid, A.digest(R.read(sp) if sp.exists() else {}, examples(run_dir, parent)))
+                if job['move'] == 'mutate':
+                    par = job['parents'][0]; child = A.write_child(client, cfg, par, job['op'], cid, A.digest(summary_of(run_dir, par['id']), examples(run_dir, par)))
+                elif job['move'] == 'recombine':
+                    a_, b_ = job['parents']
+                    child = A.recombine(client, cfg, a_, b_, cid, A.digest(summary_of(run_dir, a_['id'])), A.digest(summary_of(run_dir, b_['id'])))
+                else:
+                    child = A.free(client, cfg, job['design'], job['templates'], cid, example, archive_digest(run_dir, archive)); row['design_target'] = job['design']
                 if not child:
                     row.update(status='rejected', gate='author'); return row
                 ok, gate, why, det = A.gates(client, cfg, child)
@@ -110,7 +139,7 @@ def step(client, cfg, run_dir, archive, n, batch):
                 R.save(run_dir / 'worlds' / f'{cid}.json', child)
                 summ, fit = evaluate(client, cfg, run_dir, child, sc.get('screen_conditions', ['own_view']), sc.get('screen_reps', 1))
                 R.save(run_dir / 'summaries' / f'{cid}.json', summ)
-                row.update(status='evaluated', cell=A.cell(child), fitness=fit, hypothesis=str(child.get('hypothesis', ''))[:200],
+                row.update(status='evaluated', cell=A.cell(child), fitness=fit, attributable=child['search']['attributable'], hypothesis=str(child.get('hypothesis', ''))[:200],
                            archive=archive.consider(cid, A.cell(child), fit) if fit is not None else 'unscored')
             except BudgetStop as ex:
                 row.update(status='budget_stop', reason=str(ex)[:200])
