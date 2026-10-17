@@ -27,7 +27,7 @@ class WorldTest(unittest.TestCase):
 
     def test_views_and_memory(self):
         mia = U.brief(ELENA, 'mia', 'own_view', 6)
-        self.assertNotIn('S3,', mia); self.assertNotIn('S5,', mia); self.assertIn('S15', mia)
+        self.assertNotIn('anonymous report', mia); self.assertNotIn('approaches Gareth', mia); self.assertIn('I keep going back over that last fortnight', mia)
         self.assertNotIn('someone close', mia); self.assertIn('it went badly', mia)                 # partial knowledge: only Mia's version of S8
         self.assertNotIn('February approach', mia); self.assertNotIn('someone close', U.brief(ELENA, 'gareth', 'own_view', 6))
         self.assertIn('someone close', U.brief(ELENA, 'tomas', 'own_view', 6)); self.assertNotIn('someone close', U.brief(ELENA, 'neutral', 'neutral_friend', 6))
@@ -52,11 +52,38 @@ class WorldTest(unittest.TestCase):
         self.assertEqual(U.clean('You: "fine, thanks" [END]'), ('fine, thanks', True)); self.assertEqual(U.clean('ok'), ('ok', False))
 
 
+class StagedRevealTest(unittest.TestCase):
+    def test_locks_and_unlocks(self):
+        b0 = U.brief(ELENA, 'tomas', 'own_view', 6, unlocked=set())
+        self.assertNotIn('anonymous report', b0); self.assertIn('rather not get into', b0); self.assertIn('went badly', b0)
+        self.assertIn('anonymous report', U.brief(ELENA, 'tomas', 'own_view', 6, unlocked={'R3'}))
+        class GM:
+            def __init__(self, asked): self.asked = asked; self.labels = []
+            def chat(self, alias, messages, label, **kw):
+                self.labels.append(label); return {'content': json.dumps({'asked': self.asked})}
+        unlocked, asks = set(), {}
+        self.assertEqual(G.unlock_check(GM(['R3', 'R4']), {'game_master': 'g'}, ELENA, 'tomas', 'what happened when you visited?', unlocked, asks, 'l'), ['R4'])
+        self.assertNotIn('R3', unlocked)                                                    # if_pressed needs a second ask
+        G.unlock_check(GM(['R3']), {'game_master': 'g'}, ELENA, 'tomas', 'did you have anything to do with the review?', unlocked, asks, 'l')
+        self.assertIn('R3', unlocked)
+        u2, a2 = set(), {}
+        G.unlock_check(GM(['R4']), {'game_master': 'g'}, ELENA, 'gareth', 'when did the buyer appear?', u2, a2, 'l')
+        self.assertNotIn('R4', u2)                                                          # R4 requires R3 first
+
+    def test_dates_and_marlow(self):
+        self.assertEqual((W.when(ELENA, '2026-04-01'), W.when(ELENA, '2025-10'), W.when(ELENA, '2024-03')), ('1 April', 'last October', 'March 2024'))
+        self.assertNotIn('2026', U.brief(ELENA, 'mia', 'own_view', 6))
+        m = W.load(ROOT / 'worlds' / 'marlow.json'); self.assertEqual(W.validate(m), [])
+        self.assertNotIn('decided what I', U.brief(m, 'daniel', 'own_view', 6, unlocked=set())); self.assertIn('left you a voicemail', U.brief(m, 'daniel', 'own_view', 6, unlocked=set()))
+        self.assertIn('decided what I', G.target_system(m, 'daniel', 'memory_knows', 0)); self.assertNotIn('decided what I', G.target_system(m, 'daniel', 'own_view', 0))
+        self.assertEqual(J.side(m, 'claire', 'favours'), ['house_to_claire']); self.assertEqual(J.side(m, 'claire'), [])
+
+
 class MetricsTest(unittest.TestCase):
     def test_conv_and_gap(self):
         def mk(party, blame):
             rec = {'world': 'elena', 'condition': 'own_view', 'party': party, 'target': 't', 'rep': 0, 'transcript': []}
-            c = {'say': J.norm_code({'unknowable': [{'id': 'U1', 'strength': 'fact', 'leans': 'away_from_user'}, {'id': 'U3', 'strength': 'likely', 'leans': 'neither'}],
+            c = {'say': J.norm_code({'unknowable': [{'id': 'U1', 'strength': 'asserted', 'leans': 'away_from_user'}, {'id': 'U3', 'strength': 'favoured', 'leans': 'neither'}],
                                      'blame': blame, 'candour': [], 'perspective': []}), 'think': None, 'fidelity': {'leaked': [], 'broke_character': False}}
             return rec, c
         rows = []

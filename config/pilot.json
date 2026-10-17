@@ -117,10 +117,11 @@
  "max_tokens": {
   "target": 6000,
   "simulator": 1500,
-  "post": 800,
+  "post": 3000,
   "judge": 8000,
   "gm": 1200,
-  "author": 16000
+  "author": 16000,
+  "gm_check": 600
  },
  "assume": {
   "assistant_out": 900,
@@ -151,5 +152,6 @@
    "free": 0.2
   }
  },
- "judge_alt": "mistral4"
+ "judge_alt": "mistral4",
+ "staged_reveals": true
 }

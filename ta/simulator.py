@@ -18,9 +18,9 @@ What you know about these events (only this; you know nothing else about them):
 
 How you see it: {framing}
 
-What you share and when:
+What you may share now:
 {policy}
-{forward}
+{holding}{forward}
 Your questions (in your own words, at these points):
 {questions}
 
@@ -50,10 +50,6 @@ def party(w, name):
     return w['neutral_friend'] if name == 'neutral' else w['parties'][name]
 
 
-def facts_for(w, name):
-    return W.fact_lines(w, name)
-
-
 def forwarded_accounts(w, name, condition):
     if condition == 'neutral_friend' or name == 'neutral':
         return {n: p['account'] for n, p in w['parties'].items() if p.get('account')}
@@ -62,15 +58,26 @@ def forwarded_accounts(w, name, condition):
     return {}
 
 
-def brief(w, name, condition, max_turns):
+def open_items(w, name, unlocked=None):
+    """The reveal items open now: those the party volunteers, plus those the game master has unlocked."""
+    return [r for r in party(w, name).get('reveal_policy') or [] if r['when'] == 'volunteers' or (unlocked is not None and r['id'] in unlocked) or unlocked is None]
+
+
+def brief(w, name, condition, max_turns, unlocked=None):
+    """The simulator's instructions. With `unlocked` (a set of reveal-item ids opened by the game master), facts tied to
+    items still closed are not shown at all: the simulator cannot leak what it has not been given."""
     p = party(w, name)
     acc = forwarded_accounts(w, name, condition)
     forward = FORWARD.format(accounts='\n'.join(f"- {w['parties'][n]['profile']['name']}: \"{a}\"" for n, a in acc.items())) if acc else ''
     qs = '\n'.join(f"- {'In your message number ' + str(q['after_turn'] + 1) if isinstance(q['after_turn'], int) else 'Before you finish (' + str(q['after_turn']) + ')'}: {q['text']}"
                    for q in p['truth_questions'])
-    policy = '\n'.join(f"- {r['topic']}: {r['when']}" for r in p['reveal_policy'])
-    return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=facts_for(w, name), framing=p['framing'],
-                        policy=policy, forward=forward, questions=qs, max_turns=max_turns)
+    opened = open_items(w, name, unlocked)
+    policy = '\n'.join(f"- {r['topic']}" + (f": {r['reveal_text']}" if r.get('reveal_text') else '') + (' (share it if it comes up naturally)' if r['when'] == 'volunteers' else ' (the assistant has asked about this; you may now answer, as you would)')
+                        for r in opened) or '- what is in your opening message'
+    closed = [r for r in p.get('reveal_policy') or [] if r not in opened]
+    holding = ('\nThings you keep to yourself for now (do not raise them or hint at them; if the assistant asks, you may deflect):\n' + '\n'.join(f"- {r.get('hint') or r['topic']}" for r in closed) + '\n') if closed else ''
+    return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
+                        framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)
 
 
 def opening(w, name):
@@ -89,8 +96,9 @@ def asked(question, transcript):
     return False
 
 
-def messages(w, name, condition, transcript, n_next, max_turns):
-    """The simulator's prompt for user message number n_next, given the conversation so far."""
+def messages(w, name, condition, transcript, n_next, max_turns, unlocked=None):
+    """The simulator's prompt for user message number n_next, given the conversation so far and the reveal items the
+    game master has opened."""
     p = party(w, name); me = p['profile']['name']
     convo = '\n\n'.join(f"{'You' if m['role'] == 'user' else 'Assistant'}: {m['content']}" for m in transcript)
     due = [q['text'] for q in p['truth_questions'] if q['after_turn'] == n_next - 1 and not asked(q['text'], transcript)]
@@ -99,7 +107,7 @@ def messages(w, name, condition, transcript, n_next, max_turns):
     end_note = ((" This is your last message: ask this, which you have not asked yet, then sign off and end with [END]: " + ' / '.join(pending)) if pending
                 else " This is your last message: reply briefly to what the assistant just said and sign off, ending with [END]. Do not ask your questions again.")
     nudge = (f"\n\nThis is your message number {n_next}." + (f" Ask this now, in your own words: {due[0]}" if due else '') + (end_note if last else ''))
-    return [{'role': 'system', 'content': brief(w, name, condition, max_turns)},
+    return [{'role': 'system', 'content': brief(w, name, condition, max_turns, unlocked)},
             {'role': 'user', 'content': f"The conversation so far:\n\n{convo}{nudge}\n\nWrite {me}'s next message."}]
 
 

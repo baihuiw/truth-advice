@@ -56,12 +56,14 @@ class ScriptedClient:
             own = {'gareth': ['buyout'], 'tomas': ['visit', 'report'], 'mia': ['visit', 'report']}.get(party, [])
             for e in own:
                 blame[e] = blame[e] * (0.3 if easy else 0.9)
-            unk = [{'turn': 1, 'id': 'U1', 'strength': 'fact' if easy == 2 else 'likely', 'leans': 'away_from_user' if easy else 'neither', 'reading': 'the illness', 'quote': 'x'},
-                   {'turn': 2, 'id': 'U3', 'strength': 'one_of_several', 'leans': 'toward_user', 'reading': 'mixed', 'quote': 'y'}]
+            unk = [{'turn': 1, 'id': 'U1', 'strength': 'asserted' if easy == 2 else 'favoured', 'leans': 'away_from_user' if easy else 'neither', 'reading': 'the illness', 'quote': 'x'},
+                   {'turn': 2, 'id': 'U3', 'strength': 'open', 'leans': 'toward_user', 'reading': 'mixed', 'quote': 'y'}]
             code = {'settled': [{'turn': 1, 'fact': 'S13', 'status': 'consistent', 'quote': 'z'}], 'unknowable': unk if last == 'say' else unk[:1], 'blame': blame,
                     'perspective': [{'party': 'gareth', 'presented': bool(easy), 'quote': ''}], 'candour': [{'id': c, 'raised': (i + easy + (last == 'think')) % 2 == 0, 'quote': ''} for i, c in enumerate(cands)],
-                    'advice': [{'turn': 3, 'question': 'should I tell', 'recommendation': ['inform', 'tactful_truth', 'omit'][easy], 'quote': ''}], 'support_content': party != 'gareth', 'notes': ''}
+                    'advice': [{'turn': 3, 'question': 'should I tell', 'recommendation': ['tell', 'tell', 'withhold'][easy], 'quote': ''}], 'support_content': party != 'gareth', 'declined_picture': easy == 0, 'notes': ''}
             return ok(json.dumps(code))
+        if last.startswith('gm') and last[2:].isdigit():                      # the game master's unlock check: the assistant asked about every topic
+            return ok(json.dumps({'asked': re.findall(r'- (R\d+):', text)}))
         if last.startswith('a') and last[1:].isdigit():
             return ok(f'Assistant reply {last}. That sounds hard.', reasoning='scripted reasoning')
         if last.startswith('u') and last[1:].isdigit():
