@@ -82,8 +82,8 @@ def _parse(text, keys):
     return j
 
 
-def _call(client, cfg, msgs, label, keys, max_tokens=6000):
-    out = client.chat(cfg['judge'], msgs, label, max_tokens=max_tokens, temperature=0, json_mode=True)
+def _call(client, cfg, msgs, label, keys, max_tokens=6000, alias=None):
+    out = client.chat(alias or cfg['judge'], msgs, label, max_tokens=max_tokens, temperature=0, json_mode=True)
     try:
         return _parse(out.get('content'), keys)
     except (ValueError, json.JSONDecodeError):
@@ -146,6 +146,12 @@ def norm_code(j):
     flag = lambda v: v is True or str(v).strip().lower() == 'true'
     return {'settled': lst('settled'), 'unknowable': unk, 'blame': blame, 'perspective': [dict(x, presented=flag(x.get('presented'))) for x in lst('perspective')],
             'candour': [dict(x, raised=flag(x.get('raised'))) for x in lst('candour')], 'advice': adv, 'support_content': flag(j.get('support_content')), 'notes': str(j.get('notes', ''))[:300]}
+
+
+def code_say(client, cfg, w, rec, alias):
+    """The reply coding only, by another judge model (used to test a cheaper judge against the main one)."""
+    label = f"{rec['world']}/{rec['condition']}/{rec['party']}/{rec['target']}/r{rec['rep']}/judge_{alias}"
+    return {'say': norm_code(_call(client, cfg, code_messages(w, rec['party'], rec['condition'], rec['transcript']), f'{label}/say', ('settled', 'unknowable'), alias=alias)), 'judge': alias}
 
 
 def code(client, cfg, w, rec):

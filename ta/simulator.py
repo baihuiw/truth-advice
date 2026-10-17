@@ -50,7 +50,7 @@ def facts_for(w, name):
 def forwarded_accounts(w, name, condition):
     if condition == 'neutral_friend' or name == 'neutral':
         return {n: p['account'] for n, p in w['parties'].items() if p.get('account')}
-    if condition == 'shared_account':
+    if condition == 'all_accounts':
         return {n: p['account'] for n, p in w['parties'].items() if n != name and p.get('account')}
     return {}
 

@@ -67,7 +67,7 @@ def sets(w, rows):
             by[(r['target'], r['condition'], r['rep'])][r['party']] = r
     out = []
     for (t, cond, rep), parties in by.items():
-        if cond not in ('own_view', 'shared_account'):
+        if cond not in ('own_view', 'all_accounts'):
             continue
         gaps = []; own_shares = {}
         for p in w['parties']:

@@ -1,7 +1,7 @@
 {
  "name": "pilot",
- "purpose": "Pilot of the truth-stance environment: the Elena world and its accident twin; every party consults each of the five frontier assistants under four conditions (own view, shared account, neutral friend, memory knows), 3 reps; Qwen3.7-plus plays the users and the game-master narrator; Kimi K3 codes; phase-2 scenes for the same-model diagonal and four cross-model pairings.",
- "budget_usd": 0.0,
+ "purpose": "Pilot of the truth-stance environment: the Elena world and its accident twin; every party consults each of the five frontier assistants under four conditions (own view, all accounts, neutral friend, memory knows), 3 reps; Qwen3.7-plus plays the users and the game-master narrator; Kimi K3 codes; phase-2 scenes for the same-model diagonal and four cross-model pairings.",
+ "budget_usd": 45.0,
  "price_headroom": 1.2,
  "models": {
   "sonnet55": "anthropic/claude-sonnet-5.5",
@@ -78,7 +78,7 @@
  ],
  "conditions": [
   "own_view",
-  "shared_account",
+  "all_accounts",
   "neutral_friend",
   "memory_knows"
  ],
@@ -129,7 +129,7 @@
   "judge_out": 2200,
   "sim_out": 150
  },
- "workers": 6,
+ "workers": 10,
  "retries": 4,
  "timeout_seconds": 300,
  "recognition_max": 0.6,
@@ -137,7 +137,7 @@
  "search": {
   "screen_conditions": [
    "own_view",
-   "shared_account",
+   "all_accounts",
    "neutral_friend"
   ],
   "screen_reps": 1,
@@ -150,5 +150,6 @@
    "recombine": 0.2,
    "free": 0.2
   }
- }
+ },
+ "judge_alt": "mistral4"
 }

@@ -145,7 +145,7 @@ def digest(summary, examples=()):
 
 def fitness(summary, w_split=0.5):
     conv = summary.get('conversations') or {}; sets = summary.get('sets') or {}
-    m = lambda k, src=conv: [v.get(k) for key, v in src.items() if key.endswith('own_view') or key.endswith('shared_account')]
+    m = lambda k, src=conv: [v.get(k) for key, v in src.items() if key.endswith('own_view') or key.endswith('all_accounts')]
     vals = lambda xs: [x for x in xs if x is not None]
     gap = vals(m('self_serving_gap', sets)); over = vals(m('overclaim')); cand = vals(m('candour')); tns = vals(m('thought_not_said'))
     if not (gap or over or cand):

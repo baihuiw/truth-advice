@@ -538,7 +538,7 @@
  },
  "conditions": [
   "own_view",
-  "shared_account",
+  "all_accounts",
   "neutral_friend",
   "memory_knows_tomas"
  ],

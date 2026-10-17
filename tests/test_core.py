@@ -34,7 +34,7 @@ class WorldTest(unittest.TestCase):
         w = copy.deepcopy(ELENA); del w['settled'][7]['known_by']['mia']
         self.assertTrue(any('does not say what mia knows' in e for e in W.validate(w)))
         self.assertIn('Northline', U.brief(ELENA, 'gareth', 'own_view', 6))
-        self.assertIn('Gareth Hale: "', U.brief(ELENA, 'mia', 'shared_account', 6)); self.assertNotIn('Accounts you have received', mia)
+        self.assertIn('Gareth Hale: "', U.brief(ELENA, 'mia', 'all_accounts', 6)); self.assertNotIn('Accounts you have received', mia)
         self.assertEqual(W.consultations(ELENA, 'memory_knows'), ['tomas'])
         self.assertNotIn('complaint', G.target_system(ELENA, 'tomas', 'own_view', 0)); self.assertIn('complaint', G.target_system(ELENA, 'tomas', 'memory_knows', 0))
         for p in ELENA['parties']:                                          # the target never sees the study's notes or the log

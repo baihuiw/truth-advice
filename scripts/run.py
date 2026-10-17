@@ -136,6 +136,8 @@ def main():
     p = sub.add_parser('prepare'); p.add_argument('--config', required=True); p.add_argument('--out', required=True); p.add_argument('--instruction', required=True)
     for name in ('ping', 'run', 'code', 'scenes'):
         s = sub.add_parser(name); s.add_argument('--run', required=True)
+        if name == 'code':
+            s.add_argument('--alt', action='store_true', help='code the replies with judge_alt into code_alt/ (judge agreement)')
     r = sub.add_parser('report'); r.add_argument('--run', required=True); r.add_argument('--out')
     a = ap.parse_args()
     if a.cmd in ('estimate', 'prepare'):
@@ -179,15 +181,16 @@ def main():
         byid = {w['id']: w for w in worlds}
 
         def one(p):
-            cp = code_path(run_dir, p)
+            cp = (run_dir / 'code_alt' / p.name) if a.alt else code_path(run_dir, p)
             if cp.exists():
                 return
-            rec = read(p); c = J.code(client, cfg, byid[rec['world']], rec)
+            rec = read(p); w = byid[rec['world']]
+            c = J.code_say(client, cfg, w, rec, cfg['judge_alt']) if a.alt else J.code(client, cfg, w, rec)
             if c and c.get('say'):
                 save(cp, c)
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
             list(pool.map(lambda p: guard(one, p), sorted((run_dir / 'conv').glob('*.json'))))
-        print(f"coded: {len(list((run_dir / 'code').glob('*.json')))}; spent ${client.spent:.2f}"); return
+        print(f"coded: {len(list((run_dir / ('code_alt' if a.alt else 'code')).glob('*.json')))}; spent ${client.spent:.2f}"); return
     if a.cmd == 'scenes':
         for w in worlds:
             parties = list(w['parties'])
