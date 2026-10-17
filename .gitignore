@@ -1,0 +1,8 @@
+runs/
+review/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+items*.jsonl
+probe_scores*.json
