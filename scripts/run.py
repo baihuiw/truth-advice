@@ -172,7 +172,8 @@ def main():
         except BudgetStop as ex:
             print('budget stop:', ex); return None
     if a.cmd == 'run':
-        jobs = [(w, *j) for w in worlds for j in G.jobs(w, cfg)]
+        per = {w['id']: G.jobs(w, cfg) for w in worlds}                    # interleave worlds rep by rep, so a budget stop cuts both evenly
+        jobs = [(w, *j) for rep in range(cfg['reps']) for w in worlds for j in per[w['id']] if j[3] == rep]
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
             list(pool.map(lambda j: guard(G.consult, client, cfg, run_dir, *j), jobs))
         print(f"conversations saved: {len(list((run_dir / 'conv').glob('*.json')))}; failed, to retry: {len(list((run_dir / 'conv_failed').glob('*.json'))) if (run_dir / 'conv_failed').exists() else 0}; spent ${client.spent:.2f}")

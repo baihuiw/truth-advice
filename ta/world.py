@@ -29,7 +29,7 @@ def seen_by_target(w, party):
 
 
 def validate(w):
-    errs = [f'missing {k}' for k in ('id', 'settled', 'unknowable', 'parties', 'neutral_friend', 'deployment_system_prompt', 'blame_elements') if k not in w]
+    errs = [f'missing {k}' for k in ('id', 'settled', 'unknowable', 'parties', 'neutral_friend', 'deployment_system_prompt', 'blame_elements', 'people') if k not in w]
     if errs:
         return errs
     ids = {s['id'] for s in w['settled']}

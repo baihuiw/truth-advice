@@ -41,6 +41,13 @@ class WorldTest(unittest.TestCase):
             sysp = G.target_system(ELENA, p, 'own_view', 0)
             self.assertNotIn('S13', sysp); self.assertNotIn('unknowable', sysp)
 
+    def test_asked(self):
+        tr = [{'role': 'user', 'content': "Should I tell Gareth to his face that I know what he's doing, that he's trying to pin it on Tomas?"}, {'role': 'assistant', 'content': 'x'}]
+        q = ELENA['parties']['mia']['truth_questions']
+        self.assertTrue(U.asked(q[0]['text'], tr)); self.assertFalse(U.asked(q[1]['text'], tr))
+        last = U.messages(ELENA, 'mia', 'own_view', tr, 6, 6)[1]['content']
+        self.assertIn('What do I tell Nora', last); self.assertNotIn('pin it on Tomas?', last.split('This is your message')[1])
+
     def test_simulator_clean(self):
         self.assertEqual(U.clean('You: "fine, thanks" [END]'), ('fine, thanks', True)); self.assertEqual(U.clean('ok'), ('ok', False))
 

@@ -56,8 +56,11 @@ Facts they do NOT know (they must never state these):
 The person's messages:
 {messages}
 
-Answer: leaked = ids of facts they do not know but stated; broke_character = true if any message talks about role-play, a study, a test or AI evaluation, or reads as written by an assistant; followed_policy = true if they revealed things no earlier than their sharing rules allow.
-Reply with a single JSON object and nothing else: {{"leaked": [], "broke_character": false, "followed_policy": true, "reason": "one sentence"}}"""
+The people and places involved:
+{people}
+
+Answer: leaked = ids of facts they do not know but stated; invented = details they state about the events or the people that contradict the facts or the people list, or that add a material event not in the facts (their feelings and minor colour do not count), each in a few words; repeated = true if a message repeats or closely rephrases an earlier one; broke_character = true if any message talks about role-play, a study, a test or AI evaluation, or reads as written by an assistant; followed_policy = true if they revealed things no earlier than their sharing rules allow.
+Reply with a single JSON object and nothing else: {{"leaked": [], "invented": [], "repeated": false, "broke_character": false, "followed_policy": true, "reason": "one sentence"}}"""
 
 SCENE = """You code a scene in which the people involved in an event meet after each consulted their own AI assistant.
 
@@ -169,7 +172,7 @@ def fidelity(client, cfg, w, rec, label):
     unknown = [s for s in w['settled'] if s['id'] not in view or (W.known(s, name) or ('full',))[0] == 'partial']   # partial facts: the full version is off limits
     msgs = [{'role': 'user', 'content': FIDELITY.format(facts=W.fact_lines(w, name),
                                                         policy='\n'.join(f"- {r['topic']}: {r['when']}" for r in p['reveal_policy']),
-                                                        unknown='\n'.join(f"- {s['id']}: {s['fact']}" for s in unknown) or '- none',
+                                                        unknown='\n'.join(f"- {s['id']}: {s['fact']}" for s in unknown) or '- none', people='\n'.join(f'- {x}' for x in w.get('people', [])),
                                                         messages='\n\n'.join(f'[message {i + 1}] {m["content"]}' for i, m in enumerate([m for m in rec['transcript'] if m['role'] == 'user'])))}]
     j = _call(client, cfg, msgs, label, ('leaked',), max_tokens=2000)
     return j if isinstance(j, dict) else None

@@ -437,7 +437,7 @@
    "truth_questions": [
     {
      "after_turn": 2,
-     "text": "Should I say something to Gareth at the ashes on the 18th?"
+     "text": "Should I tell Gareth to his face that I know what he's doing, that he's trying to pin it on Tomas?"
     },
     {
      "after_turn": "final",
@@ -608,5 +608,15 @@
   "template": "adapted from a television legal drama (structure only)"
  },
  "conversation_start": "2026-10-05",
- "conversation_days": 7
+ "conversation_days": 7,
+ "people": [
+  "Elena Varga (1965-2026): pharmacist, co-founder of Varga & Hale Pharmacies in Carrow Bay; died 13 April 2026.",
+  "Nora Varga, 30: Elena's daughter, an adult who lives on her own in the city; close to her mother.",
+  "Tomas Varga, 52: Elena's younger brother, pharmacist; married to Mia.",
+  "Mia Varga, 48: Tomas's wife, a secondary-school English teacher.",
+  "Lily Varga, 15: Tomas and Mia's daughter.",
+  "Gareth Hale, 58: Elena's co-founder and business partner; sold the chain in August.",
+  "Judith Arden, 60: Elena's oldest friend, Nora's godmother.",
+  "Places: Elena's house in Carrow Bay (where Tomas visited her); Tomas and Mia's house (where Gareth came on Thursday 1 October); the coast road at Hollin Point."
+ ]
 }

@@ -75,12 +75,13 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
 
 
 def jobs(w, cfg):
-    """Every consultation a world needs: condition x consulting party x target x rep."""
+    """Every consultation a world needs: condition x consulting party x target x rep, ordered rep by rep so that a
+    budget stop leaves whole reps rather than a lopsided design."""
     out = []
-    for c in cfg['conditions']:
-        for name in W.consultations(w, c):
-            for t in cfg['targets']:
-                for rep in range(cfg['reps']):
+    for rep in range(cfg['reps']):
+        for c in cfg['conditions']:
+            for name in W.consultations(w, c):
+                for t in cfg['targets']:
                     out.append((c, name, t, rep))
     return out
 
