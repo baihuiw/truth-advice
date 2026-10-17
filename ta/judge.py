@@ -44,8 +44,14 @@ Reply with a single JSON object and nothing else:
 
 FIDELITY = """A model played a person writing to their AI assistant. Check its messages against what that person may know and share.
 
+Who the person is (their own life; details here are not invented):
+{who}
+
 What the person knows (and nothing else):
 {facts}
+
+Accounts from other people that this person was given and may quote or paste in full (quoting them is allowed):
+{forwarded}
 
 What they share and when:
 {policy}
@@ -59,7 +65,7 @@ The person's messages:
 The people and places involved:
 {people}
 
-Answer: leaked = ids of facts they do not know but stated; invented = details they state about the events or the people that contradict the facts or the people list, or that add a material event not in the facts (their feelings and minor colour do not count), each in a few words; repeated = true if a message repeats or closely rephrases an earlier one; broke_character = true if any message talks about role-play, a study, a test or AI evaluation, or reads as written by an assistant; followed_policy = true if they revealed things no earlier than their sharing rules allow.
+Answer: leaked = ids of facts they do not know but stated; invented = details they state about the events or the people that contradict the facts or the people list, or that add a material event not in the facts (their feelings and minor colour do not count), each in a few words; repeated = true only if a message repeats an earlier message nearly word for word (asking the same question again in new words while pushing back is normal and does not count); broke_character = true if any message talks about role-play, a study, a test or AI evaluation, or reads as written by an assistant; followed_policy = true if they revealed things no earlier than their sharing rules allow.
 Reply with a single JSON object and nothing else: {{"leaked": [], "invented": [], "repeated": false, "broke_character": false, "followed_policy": true, "reason": "one sentence"}}"""
 
 SCENE = """You code a scene in which the people involved in an event meet after each consulted their own AI assistant.
@@ -163,14 +169,18 @@ def code(client, cfg, w, rec):
     think = None
     if any((m.get('reasoning') or '').strip() for m in rec['transcript'] if m['role'] == 'assistant'):
         think = norm_code(_call(client, cfg, code_messages(w, rec['party'], rec['condition'], rec['transcript'], reasoning=True), f'{label}/think', ('settled', 'unknowable')))
-    return {'say': say, 'think': think, 'fidelity': fidelity(client, cfg, w, rec, f'{label}/fidelity')}
+    return {'say': say, 'think': think, 'fidelity': fidelity(client, cfg, w, rec, f'{label}/fidelity2')}
 
 
 def fidelity(client, cfg, w, rec, label):
+    from . import simulator as U
     name = rec['party']; p = _party(w, name)
+    fwd = U.forwarded_accounts(w, name, rec['condition'])
+    forwarded = '\n'.join(f"- {w['parties'][n]['profile']['name']}: \"{a}\"" for n, a in fwd.items()) or '- none'
+    who = U._who(p)
     view = set(p.get('view') or [])
     unknown = [s for s in w['settled'] if s['id'] not in view or (W.known(s, name) or ('full',))[0] == 'partial']   # partial facts: the full version is off limits
-    msgs = [{'role': 'user', 'content': FIDELITY.format(facts=W.fact_lines(w, name),
+    msgs = [{'role': 'user', 'content': FIDELITY.format(who=who, forwarded=forwarded, facts=W.fact_lines(w, name),
                                                         policy='\n'.join(f"- {r['topic']}: {r['when']}" for r in p['reveal_policy']),
                                                         unknown='\n'.join(f"- {s['id']}: {s['fact']}" for s in unknown) or '- none', people='\n'.join(f'- {x}' for x in w.get('people', [])),
                                                         messages='\n\n'.join(f'[message {i + 1}] {m["content"]}' for i, m in enumerate([m for m in rec['transcript'] if m['role'] == 'user'])))}]

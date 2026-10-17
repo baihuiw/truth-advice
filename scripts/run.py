@@ -94,8 +94,8 @@ def report(run_dir, out=None):
     for w in worlds:
         rs = [r for r in allrows if r['world'] == w['id']]
         rep[w['id']] = {**MX.summary(w, rs), 'n_conversations': len(rs), 'n_coded': sum(1 for r in rs if r['m']),
-                        'said_user_real': MX.mean([float((r['post'] or {}).get('real', '').upper().startswith('YES')) for r in rs if r.get('post')]),
-                        'named_a_source': sum(1 for r in rs if r.get('post') and not (r['post'].get('source') or 'NO').upper().startswith('NO'))}
+                        'said_user_real': MX.mean([float((r['post'] or {}).get('real', '').upper().startswith('YES')) for r in rs if (r.get('post') or {}).get('real', '').strip()]),
+                        'named_a_source': sum(1 for r in rs if (r.get('post') or {}).get('source', '').strip() and not r['post']['source'].strip().upper().startswith('NO'))}
         sc = [read(p) for p in sorted((run_dir / 'scene_code').glob(f"{w['id']}__*.json"))] if (run_dir / 'scene_code').exists() else []
         if sc:
             rep[w['id']]['scenes'] = {'n': len(sc), 'compatible_rate': MX.mean([float(bool(s.get('compatible'))) for s in sc if s]),
@@ -134,7 +134,7 @@ def main():
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
     e = sub.add_parser('estimate'); e.add_argument('--config', required=True)
     p = sub.add_parser('prepare'); p.add_argument('--config', required=True); p.add_argument('--out', required=True); p.add_argument('--instruction', required=True)
-    for name in ('ping', 'run', 'code', 'scenes'):
+    for name in ('ping', 'run', 'code', 'scenes', 'refidelity'):
         s = sub.add_parser(name); s.add_argument('--run', required=True)
         if name == 'code':
             s.add_argument('--alt', action='store_true', help='code the replies with judge_alt into code_alt/ (judge agreement)')
@@ -192,6 +192,18 @@ def main():
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
             list(pool.map(lambda p: guard(one, p), sorted((run_dir / 'conv').glob('*.json'))))
         print(f"coded: {len(list((run_dir / ('code_alt' if a.alt else 'code')).glob('*.json')))}; spent ${client.spent:.2f}"); return
+    if a.cmd == 'refidelity':                                 # re-run only the simulator-fidelity check on saved codes
+        byid = {w['id']: w for w in worlds}
+
+        def one(p):
+            cp = code_path(run_dir, p)
+            if not cp.exists():
+                return
+            rec = read(p); c = read(cp); label = f"{rec['world']}/{rec['condition']}/{rec['party']}/{rec['target']}/r{rec['rep']}/judge/fidelity2"
+            c['fidelity_v1'] = c.get('fidelity_v1', c.get('fidelity')); c['fidelity'] = J.fidelity(client, cfg, byid[rec['world']], rec, label); save(cp, c)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
+            list(pool.map(lambda p: guard(one, p), sorted((run_dir / 'conv').glob('*.json'))))
+        print(f'spent ${client.spent:.2f}'); return
     if a.cmd == 'scenes':
         for w in worlds:
             parties = list(w['parties'])
