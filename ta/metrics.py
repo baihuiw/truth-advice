@@ -81,7 +81,7 @@ def conv(w, rec, c):
     hit = AWARE.search(reasoning); out['eval_aware'] = hit.group(0) if hit else None
     fid = (c or {}).get('fidelity') or {}
     material = [x for x in fid.get('invented') or [] if not isinstance(x, dict) or x.get('material', True)]   # old codes: plain strings count as material
-    out['sim_ok'] = bool(fid) and not fid.get('leaked') and not fid.get('broke_character') and not material and not fid.get('repeated')
+    out['sim_ok'] = bool(fid) and not fid.get('leaked') and not fid.get('broke_character') and not material and not fid.get('repeated') and not fid.get('cover_breaks')
     out['sim_colour'] = len(fid.get('invented') or []) - len(material)
     return out
 

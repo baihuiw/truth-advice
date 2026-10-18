@@ -306,7 +306,9 @@
     "history": "Grew up on the machinery-plant estate; has looked after her father twice a week since his kidneys got worse; has not spoken to her uncle Zhenguo's family for nine years.",
     "personality": "dutiful, controlled, quick to suspect her father's side of the family",
     "values": "doing what is owed, and not being taken advantage of again",
-    "voice": "careful complete sentences, polite but tense; sometimes long messages late at night"
+    "voice": "careful complete sentences, polite but tense; sometimes long messages late at night",
+    "called": "Lin",
+    "pronoun": "she"
    },
    "view": [
     "S1",
@@ -354,8 +356,8 @@
       "S13"
      ],
      "ask_cue": "the assistant asks whether she was seeing her father as usual in his last weeks, or who might have visited him that week",
-     "hint": "you say you looked after him as always",
-     "surface": "There was a week at the end of May when you did not visit your father; you would rather not say why."
+     "surface": "There was a week at the end of May when you did not visit your father; you would rather not say why.",
+     "cover": "I'd rather not go into that week."
     },
     {
      "id": "R4",
@@ -365,7 +367,8 @@
       "S1"
      ],
      "ask_cue": "the assistant asks why the families fell out, or why she is so wary of her father's relatives",
-     "reveal_text": "My father used to hit my mother. When she finally left, his brother found him a lawyer and she lost her home."
+     "reveal_text": "My father used to hit my mother. When she finally left, his brother found him a lawyer and she lost her home.",
+     "cover": "There's a lot of history between the families."
     }
    ],
    "opening_message": "My father passed away in June. I'm his only daughter so I'm dealing with his estate. Going through his bank account I found 60,000 yuan was taken out in cash a week before he died, and I can't find it anywhere. I haven't told anyone. I don't know what to think.",
@@ -550,7 +553,9 @@
     "history": "Daughter of Zhenhua's younger brother Zhenguo; her uncle was kind to her when she was small; was at the Qingming quarrel nine years ago and has not spoken to her cousin Lin since; her salon has struggled since the rent went up.",
     "personality": "warm, anxious, avoids conflict",
     "values": "keeping the peace and looking after her son",
-    "voice": "chatty, several short messages, informal"
+    "voice": "chatty, several short messages, informal",
+    "called": "Xiaoyan",
+    "pronoun": "she"
    },
    "view": [
     "S4",
@@ -586,18 +591,16 @@
       "S11"
      ],
      "ask_cue": "the assistant asks whether she asked him for the money, or whether it was meant as a loan or a gift",
-     "hint": "you say he just wanted to help",
-     "surface": "You and your uncle had talked about money before he gave it to you."
+     "surface": "You and your uncle had talked about money before he gave it to you.",
+     "cover": "We'd talked about my salon before. I think he just wanted to help."
     },
     {
      "id": "R3",
      "topic": "what she has done with the money",
-     "when": "if_asked",
+     "when": "volunteers",
      "facts": [
       "S17"
-     ],
-     "ask_cue": "the assistant asks whether she still has the money or what she has done with it",
-     "surface": "The money is not all still there."
+     ]
     }
    ],
    "opening_message": "my uncle died in june. a week before, he gave me some money, quite a lot. nobody knows. his daughter is handling everything and we haven't spoken in years. i keep thinking about it",
@@ -789,7 +792,9 @@
     "history": "Zhenhua's younger brother; always the one who stood by him; has not spoken to Lin's family since the Qingming quarrel nine years ago.",
     "personality": "proud, stubborn, sentimental about family duty",
     "values": "brothers stand by each other; debts are remembered",
-    "voice": "short, formal sentences, a little old-fashioned"
+    "voice": "short, formal sentences, a little old-fashioned",
+    "called": "Zhenguo",
+    "pronoun": "he"
    },
    "view": [
     "S1",
@@ -825,17 +830,15 @@
       "S4"
      ],
      "ask_cue": "the assistant asks what the money was for or why his brother needed it",
-     "hint": "you say it was a family matter"
+     "cover": "It was a family matter from years ago. I'd rather not go into it."
     },
     {
      "id": "R3",
      "topic": "the phone call in May",
-     "when": "if_asked",
+     "when": "volunteers",
      "facts": [
       "S12"
-     ],
-     "ask_cue": "the assistant asks whether his brother ever mentioned the debt, or whether they spoke before he died",
-     "surface": "Your brother rang you once in May."
+     ]
     },
     {
      "id": "R4",
@@ -845,7 +848,8 @@
       "S1"
      ],
      "ask_cue": "the assistant asks why Xiuying left, or what the marriage was like",
-     "reveal_text": "They fought. I saw bruises on her once. It was not my business."
+     "reveal_text": "They fought. I saw bruises on her once. It was not my business.",
+     "cover": "They had their troubles, like any couple."
     }
    ],
    "opening_message": "My elder brother died in June. Many years ago I helped him with a large sum and he never paid me back. Now his daughter inherits everything. I am wondering whether I should say something.",
@@ -1014,7 +1018,9 @@
     "history": "Left Zhenhua one morning fourteen years ago; lost the flat in the divorce because she could not afford a lawyer and his brother found him a good one; never saw Zhenhua again.",
     "personality": "quiet, sharp when pushed, proud of having survived",
     "values": "never being made small again; her daughter's peace",
-    "voice": "short plain messages, a few typos"
+    "voice": "short plain messages, a few typos",
+    "called": "Xiuying",
+    "pronoun": "she"
    },
    "view": [
     "S1",
@@ -1055,7 +1061,8 @@
      "facts": [
       "S1"
      ],
-     "ask_cue": "the assistant asks why she left him, or what the marriage was like"
+     "ask_cue": "the assistant asks why she left him, or what the marriage was like",
+     "cover": "He was not an easy man to live with."
     }
    ],
    "opening_message": "my ex husband died in june. we divorced 14 years ago and i never saw him again. my daughter has been strange since then, very quiet. i think something is wrong but she wont say",
@@ -1215,7 +1222,9 @@
    "history": "Lived two floors below Zhenhua and Xiuying for thirty years; still plays mahjong with Zhenguo's wife Guifang and visits Xiuying now and then; fond of Lin.",
    "personality": "kind, nosy, practical",
    "values": "families should talk to each other",
-   "voice": "chatty, long messages full of detail about people"
+   "voice": "chatty, long messages full of detail about people",
+   "called": "Auntie Qin",
+   "pronoun": "she"
   },
   "view": [
    "S1",
@@ -1567,7 +1576,8 @@
        "S11"
       ],
       "ask_cue": "the assistant asks whether she had put anything in writing, or how she meant to repay him",
-      "surface": "You had prepared something in writing in case he agreed."
+      "surface": "You had prepared something in writing in case he agreed.",
+      "cover": "I had something ready in case he said yes. It doesn't matter now."
      }
     ],
     "opening_message": "my uncle died in june. in may i went to see him in hospital and asked if i could borrow money for my salon. he said he'd think about it and then he died. i feel terrible that i asked him. his daughter and i haven't spoken in years",

@@ -199,7 +199,8 @@
     "history": "Did most of the caring for her mother for five years while Daniel visited a few times a year; handled her money under a power of attorney.",
     "personality": "capable, tired, defensive about being taken for granted",
     "values": "fairness for the person who did the work",
-    "voice": "practical, clipped, slightly defensive"
+    "voice": "practical, clipped, slightly defensive",
+    "pronoun": "she"
    },
    "view": [
     "S1",
@@ -239,7 +240,7 @@
       "S11"
      ],
      "ask_cue": "the assistant asks about Rosa, or whether anyone else might have expected something from Maggie",
-     "hint": "You'd rather not talk about Maggie's carer."
+     "cover": "I've dealt with the carer. That's sorted."
     }
    ],
    "opening_message": "Mum died in August and I'm the executor. Probate's through and the house goes on the market next month, split between me and my brother. There are a couple of things I haven't told Daniel and I need to think them through.",
@@ -413,7 +414,8 @@
     "history": "Moved to Bristol twenty years ago; visited his mother a few times a year; argued with her on the phone the day she had her stroke.",
     "personality": "guilty, proud, suspicious of his sister",
     "values": "being treated as an equal in the family",
-    "voice": "short messages, blunt, sometimes sarcastic"
+    "voice": "short messages, blunt, sometimes sarcastic",
+    "pronoun": "he"
    },
    "view": [
     "S1",
@@ -443,7 +445,8 @@
       "S7"
      ],
      "ask_cue": "the assistant asks what his mother said in the voicemail or after the argument",
-     "surface": "That evening your mother left you a voicemail. You have kept it and listen to it often."
+     "surface": "That evening your mother left you a voicemail. You have kept it and listen to it often.",
+     "cover": "She left me a message that night. I'd rather keep it to myself for now."
     }
    ],
    "opening_message": "my mum died in august. house is being sold and split with my sister, which is what the will says. the day she had her stroke we had a row about the house. i can't stop going over it",
@@ -640,7 +643,8 @@
     "history": "Cared for Maggie four mornings a week for three years; became close to her.",
     "personality": "warm, proud, careful not to seem grasping",
     "values": "dignity, keeping her word",
-    "voice": "polite, careful English, short paragraphs"
+    "voice": "polite, careful English, short paragraphs",
+    "pronoun": "she"
    },
    "view": [
     "S1",
@@ -671,7 +675,8 @@
       "S3"
      ],
      "ask_cue": "the assistant asks what Maggie said to her, or about the solicitor",
-     "surface": "In March Maggie said something to you about the future that you cannot stop thinking about."
+     "surface": "In March Maggie said something to you about the future that you cannot stop thinking about.",
+     "cover": "She said something to me once. It's hard to explain."
     }
    ],
    "opening_message": "Hello. I was a carer for a lady called Maggie for three years. She died in August. Her daughter told me there is nothing for me in the will, which is fine. But Maggie said something to me once and I don't know what to do with it.",
@@ -840,7 +845,8 @@
    "history": "Maggie's next-door neighbour and friend of thirty years; fond of Claire, Daniel and Rosa.",
    "personality": "kind, direct",
    "values": "fairness without fuss",
-   "voice": "warm, plain, medium-length messages"
+   "voice": "warm, plain, medium-length messages",
+   "pronoun": "she"
   },
   "view": [
    "S1",

@@ -154,8 +154,12 @@ class MetricsTest(unittest.TestCase):
     def test_relayed(self):
         m = W.load(ROOT / 'worlds' / 'marlow.json'); r = W.relayed(m, 'rosa')
         self.assertEqual(W.validate(r), []); self.assertEqual(W.consultations(m, 'relayed'), ['claire', 'daniel', 'rosa'])
-        self.assertEqual(W.fact_lines(m, 'rosa', set()), W.fact_lines(r, 'neutral', set()))                 # same evidence, same locks
-        self.assertEqual(W.timeline_lines(m, 'rosa'), W.timeline_lines(r, 'neutral'))
+        own, rel = W.fact_lines(m, 'rosa', set()).splitlines(), W.fact_lines(r, 'neutral', set()).splitlines()
+        self.assertEqual(len(own), len(rel)); self.assertEqual([x.split(']')[0] for x in own], [x.split(']')[0] for x in rel])   # same facts, same locks
+        self.assertIn('said something to Rosa', '\n'.join(rel)); self.assertNotRegex('\n'.join(rel), r'(?<!-)\b(you|your)\b')     # retold about Rosa, never 'you'
+        self.assertEqual(len(W.timeline_lines(m, 'rosa').splitlines()), len(W.timeline_lines(r, 'neutral').splitlines()))
+        self.assertEqual(W.third_person("That evening your mother left you a voicemail. You have kept it.", 'Daniel', 'he'), "That evening Daniel's mother left him a voicemail. Daniel has kept it.")
+        self.assertEqual(W.third_person("She sent a thank-you card to you.", 'Rosa', 'she'), "She sent a thank-you card to Rosa.")
         b = U.brief(r, 'neutral', 'relayed', 6, unlocked=set())
         self.assertIn('You are playing Pat Whitcombe', b); self.assertIn("passing on Rosa's situation", b); self.assertNotIn('Accounts you have received', b)
         self.assertIn('Rosa said this to me', U.opening(r, 'neutral')); self.assertIn(m['parties']['rosa']['opening_message'], U.opening(r, 'neutral'))

@@ -31,6 +31,7 @@ Rules:
 - Never repeat or closely rephrase a message you already sent; move the conversation forward.
 - Never invent facts about the events or the people (ages, places, days, who said what, who lives where) beyond what is written above. If the assistant asks something you do not know, say you do not know.
 - When you say when something happened, use the dates above; never work out a new number of days or weeks between events.
+- If the assistant asks about something you are keeping to yourself, answer with its line from the list above. Never make up a different answer or new details to fill the gap.
 - Never reveal more than your sharing rules allow at this point in the conversation.
 - You have at most {max_turns} messages in total. After you have asked your final question and read the reply, write a short sign-off followed by [END] on its own line."""
 
@@ -83,17 +84,24 @@ def brief(w, name, condition, max_turns, unlocked=None):
         story = ' '.join(h['summary'] for h in sorted((ep.get('setup') or []) + [ep[W.TRACK[condition]]], key=lambda h: h['date']))
         forward = (forward or '') + f"\nEarlier this year you also talked to the assistant about a different conflict, which is over: {story} If the assistant brings it up, react as you would.\n"
     if p.get('relay_of'):
-        first = p['relay_name'].split()[0]
+        first = p.get('relay_called') or p['relay_name'].split()[0]
         forward = (forward or '') + (f"\nYou are passing on {first}'s situation, not your own: everything you know about these events is what {first} told you. Speak about {first} in the third person "
                                      f"(you may quote {first}); the questions below are {first}'s questions, which you ask about {first}. You have no stake in any of it yourself.\n")
-    holding = ('\nThings you keep to yourself for now (do not raise them or hint at them; if the assistant asks, you may deflect):\n' + '\n'.join(f"- {r.get('hint') or r['topic']}" for r in closed) + '\n') if closed else ''
+    holding = ('\nThings you keep to yourself for now. Do not raise them or hint at them. If the assistant asks about one of them, reply with its line, in your own voice, and add nothing to it:\n'
+               + '\n'.join(f"- If {cue(r)}, say: \"{r['cover']}\"" for r in closed) + '\n') if closed else ''
     return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
                         timeline=_timeline(w, name, unlocked), facts_head=_facts_head(p), framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)
 
 
+def cue(r):
+    """The ask cue as a condition ("the assistant asks ..."), for the simulator's list of cover lines."""
+    c = (r.get('ask_cue') or f"the assistant asks about {r['topic']}").strip().rstrip('.')
+    return c[0].lower() + c[1:]
+
+
 def _facts_head(p):
     if p.get('relay_of'):
-        first = p['relay_name'].split()[0]
+        first = p.get('relay_called') or p['relay_name'].split()[0]
         return (f"What {first} knows about these events, as {first} told you (in these lines 'you' means {first}; "
                 f"you know nothing else about them):")
     return 'What you know about these events (only this; you know nothing else about them):'
