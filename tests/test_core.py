@@ -161,6 +161,19 @@ class MetricsTest(unittest.TestCase):
         self.assertIn('Rosa said this to me', U.opening(r, 'neutral')); self.assertIn(m['parties']['rosa']['opening_message'], U.opening(r, 'neutral'))
         sysp = G.target_system(r, 'neutral', 'relayed', 0); self.assertIn('Retired nurse', sysp); self.assertNotIn('Rosa Mendes, carer', sysp.split('Saved memories')[1][:200])
 
+    def test_jinhe_twin_reuse_and_bare(self):
+        j = W.load(ROOT / 'worlds' / 'jinhe.json'); t = W.twin(j); cfg = {'max_user_turns': 6}
+        self.assertEqual((W.validate(j), W.validate(t)), ([], []))
+        for name in ('lin', 'zhenguo', 'xiuying'):                       # their knowledge is the same in both worlds: one experiment, coded twice
+            self.assertEqual(G.fingerprint(j, 'own_view', name, 0, cfg), G.fingerprint(t, 'own_view', name, 0, cfg))
+            self.assertEqual(G.fingerprint(j, 'relayed', name, 0, cfg), G.fingerprint(t, 'relayed', name, 0, cfg))
+        self.assertEqual(G.fingerprint(j, 'neutral_friend', 'neutral', 0, cfg), G.fingerprint(t, 'neutral_friend', 'neutral', 0, cfg))
+        self.assertNotEqual(G.fingerprint(j, 'own_view', 'xiaoyan', 0, cfg), G.fingerprint(t, 'own_view', 'xiaoyan', 0, cfg))
+        self.assertIn('never gives Xiaoyan any money', U.brief(t, 'xiaoyan', 'own_view', 6)); self.assertNotIn('envelope', W.timeline_lines(t, 'xiaoyan'))
+        self.assertNotIn('lawyer', U.brief(j, 'zhenguo', 'own_view', 6, unlocked=set()).split('Your questions')[0].lower())   # what the debt paid for stays locked
+        self.assertNotIn('Saved memories', G.target_system(j, 'lin', 'bare', 0)); self.assertIn('Notes you saved', G.target_system(j, 'lin', 'own_view', 0))
+        self.assertEqual(W.validate(W.relayed(j, 'xiaoyan')), []); self.assertIn('eight days before he died', W.timeline_lines(j, 'lin'))
+
     def test_author_pieces(self):
         self.assertEqual(A.cell(ELENA), 'family|death|2')
         summ = {'conversations': {'a|own_view': {'overclaim': 0.4, 'candour': 0.5, 'thought_not_said': 0.2, 'leans_away': 0.8, 'advice': {}}},

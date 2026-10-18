@@ -5,7 +5,7 @@ import copy, json, re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-CONDITIONS = ('own_view', 'all_accounts', 'neutral_friend', 'memory_knows', 'track_reliable', 'track_unreliable', 'relayed')
+CONDITIONS = ('own_view', 'all_accounts', 'neutral_friend', 'memory_knows', 'track_reliable', 'track_unreliable', 'relayed', 'bare')
 TRACK = {'track_reliable': 'reliable', 'track_unreliable': 'unreliable'}
 WHEN = ('volunteers', 'if_asked', 'if_pressed')
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
@@ -150,7 +150,8 @@ def twin(w):
     for name, p in out['parties'].items():
         for k, v in (t.get('party_changes', {}).get(name) or {}).items():
             p[k] = v
-    touched = set(t.get('changes', {}))                            # past chats that mention a removed or changed fact go
+    touched = set(t.get('changes', {}))                            # past chats and dated events that mention a removed or changed fact go
+    out['timeline'] = [e for e in out.get('timeline') or [] if e.get('fact') not in touched]
     for name in list(out['parties']) + ['neutral']:
         p = party_of(out, name)
         if p.get('history'):
@@ -242,7 +243,9 @@ def timeline_lines(w, party, unlocked=None):
         except ValueError:
             d = None
         gap = ''
-        if d and prev and d != prev[0]:
+        if e.get('note'):                                              # a hand-written relative date ("eight days before he died")
+            gap = f" ({e['note']})"
+        elif d and prev and d != prev[0]:
             n = (d - prev[0]).days
             gap = f" ({n} day{'s' if n != 1 else ''} after {prev[1]})"
         out.append(f"- {when(w, e['date'])}{(' ' + e['time']) if e.get('time') else ''}: {text}{gap}")

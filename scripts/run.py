@@ -55,11 +55,19 @@ def estimate(cfg, cat, worlds, routes=None):
     sin, sout = price(cfg['simulator']); jin, jout = price(cfg['judge'])
     sim = (T - 1) * ((1500 + T * a['user_in_per_turn']) * sin + a['sim_out'] * sout)
     judge = 2 * ((2000 + T * (a['user_in_per_turn'] + 400)) * jin + a['judge_out'] * jout) + (1500 * jin + 200 * jout)
-    n_jobs = sum(len(G.jobs(w, cfg)) for w in worlds); per_t_jobs = n_jobs / len(cfg['targets'])
-    conv_usd = sum(per_t_jobs * (per_target[t] + sim + judge) for t in cfg['targets'])
+    byid = {w['id']: w for w in worlds}; n_jobs = n_reuse = 0
+    for w in worlds:
+        for (c, n, t, r) in G.jobs(w, cfg):
+            base = byid.get(w.get('twin_of'))
+            if base and G.fingerprint(base, c, n, r, cfg) == G.fingerprint(w, c, n, r, cfg):
+                n_reuse += 1                                            # reused from the base world: coding only
+            else:
+                n_jobs += 1
+    per_t_jobs = n_jobs / len(cfg['targets']); per_t_reuse = n_reuse / len(cfg['targets'])
+    conv_usd = sum(per_t_jobs * (per_target[t] + sim + judge) + per_t_reuse * judge for t in cfg['targets'])
     scenes = len(worlds) * (len(cfg['targets']) * bool(cfg['phase2'].get('diagonal')) + len(cfg['phase2'].get('cross', []))) * cfg['phase2'].get('reps', 1)
     scene_usd = scenes * (cfg['scene_rounds'] * 4 * (2500 * sin + 200 * sout) + 4000 * jin + 1500 * jout)
-    return {'conversations': n_jobs, 'per_conversation_usd': {t: round(per_target[t] + sim + judge, 3) for t in cfg['targets']}, 'conversations_usd': round(conv_usd, 2),
+    return {'conversations': n_jobs, 'reused_twin_conversations': n_reuse, 'per_conversation_usd': {t: round(per_target[t] + sim + judge, 3) for t in cfg['targets']}, 'conversations_usd': round(conv_usd, 2),
             'scenes': scenes, 'scenes_usd': round(scene_usd, 2), 'total_usd': round(conv_usd + scene_usd, 2),
             'assumptions': f"{T} user turns, {a['assistant_out']} assistant tokens per turn incl. reasoning, judge codes the reply and the reasoning, prices x {head}"}
 
@@ -202,10 +210,23 @@ def main():
         except BudgetStop as ex:
             print('budget stop:', ex); return None
     if a.cmd == 'run':
-        per = {w['id']: G.jobs(w, cfg) for w in worlds}                    # interleave worlds rep by rep, so a budget stop cuts both evenly
-        jobs = [(w, *j) for rep in range(cfg['reps']) for w in worlds for j in per[w['id']] if j[3] == rep]
-        with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
-            list(pool.map(lambda j: guard(G.consult, client, cfg, run_dir, *j), jobs))
+        per = {w['id']: G.jobs(w, cfg) for w in worlds}                    # rep by rep, so a budget stop cuts every world evenly
+        byid = {w['id']: w for w in worlds}; reused = 0
+        for rep in range(cfg['reps']):
+            for twins in (False, True):                                     # base worlds first; a twin then reuses identical conversations
+                jobs = [(w, *j) for w in worlds if bool(w.get('twin_of')) == twins for j in per[w['id']] if j[3] == rep]
+                if twins:
+                    keep = []
+                    for (w, c, n, t, r) in jobs:
+                        base = byid.get(w['twin_of'])
+                        if base and G.reuse_base(run_dir, base, w, c, n, t, r, cfg):
+                            reused += 1
+                        else:
+                            keep.append((w, c, n, t, r))
+                    jobs = keep
+                with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
+                    list(pool.map(lambda j: guard(G.consult, client, cfg, run_dir, *j), jobs))
+        print(f'twin conversations reused from their base world (identical inputs): {reused}')
         print(f"conversations saved: {len(list((run_dir / 'conv').glob('*.json')))}; failed, to retry: {len(list((run_dir / 'conv_failed').glob('*.json'))) if (run_dir / 'conv_failed').exists() else 0}; spent ${client.spent:.2f}")
         return
     if a.cmd == 'code':

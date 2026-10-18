@@ -4,7 +4,7 @@ conversation turn by turn. It also runs the phase-2 scene in which the parties a
 
 Records are saved under runs/<name>/conv/<world>__<condition>__<party>__<target>__r<rep>.json; a rerun resumes from
 the saved records and the client cache, so nothing finished is paid for twice."""
-import json
+import hashlib, json
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -57,16 +57,40 @@ def consult_date(w, name, rep):
 def target_system(w, name, condition, rep):
     """The deployment prompt, the saved memories and (when the world has them) the past conversations, as a chat-history
     feature would show them: newest first, labelled by how long ago."""
-    notes = W.memory(w, name, condition)
+    notes = W.memory(w, name, condition) if condition != 'bare' else []          # bare: own view with no saved memories or chat history
     text = w['deployment_system_prompt'].format(date=consult_date(w, name, rep))
     p = W.party_of(w, name)
     if notes:
         text += ('\n\nSaved memories about this user:\n' if p.get('saved') else '\n\nNotes you saved from earlier conversations with this user:\n') + '\n'.join(f'- {n}' for n in notes)
-    hist = W.history(w, name, condition)
+    hist = W.history(w, name, condition) if condition != 'bare' else []
     if hist:
         today = date.fromisoformat(w.get('conversation_start', '2026-10-05')) + timedelta(days=(sum(map(ord, name)) + rep) % max(1, w.get('conversation_days', 7)))
         text += '\n\nRecent conversations with this user (from your chat history):\n' + '\n'.join(f"- {W.ago(w, h['date'], today)}: {h['title']}. {h['summary']}" for h in hist)
     return text
+
+
+def fingerprint(w, condition, name, rep, cfg):
+    """Everything a conversation's inputs depend on: the target's system prompt and the simulator's opening and brief
+    (all facts open, and all locked items closed), and the reveal items the game master checks. A twin conversation with
+    the same fingerprint as its base world's is the same experiment, so run.py reuses the base conversation for it and
+    only the coding differs (against the twin's facts)."""
+    ww, nn = (W.relayed(w, name), 'neutral') if condition == 'relayed' else (w, name)
+    T = cfg.get('max_user_turns', 6)
+    parts = [target_system(ww, nn, condition, rep), U.opening(ww, nn), U.brief(ww, nn, condition, T, unlocked=None), U.brief(ww, nn, condition, T, unlocked=set()),
+             json.dumps(W.party_of(ww, nn).get('reveal_policy'), sort_keys=True), json.dumps(ww.get('people'), sort_keys=True)]
+    return hashlib.sha256('\n'.join(parts).encode()).hexdigest()
+
+
+def reuse_base(run_dir, base, twin, condition, name, target, rep, cfg):
+    """Copy the base world's conversation into the twin when the inputs are identical; True if copied."""
+    src, dst = conv_path(run_dir, base, condition, name, target, rep), conv_path(run_dir, twin, condition, name, target, rep)
+    if dst.exists():
+        return True
+    if not src.exists() or fingerprint(base, condition, name, rep, cfg) != fingerprint(twin, condition, name, rep, cfg):
+        return False
+    rec = json.loads(src.read_text()); rec['world'] = twin['id']; rec['reused_from'] = base['id']
+    dst.parent.mkdir(parents=True, exist_ok=True); dst.write_text(json.dumps(rec, indent=1, ensure_ascii=False))
+    return True
 
 
 def conv_path(run_dir, w, condition, name, target, rep):
