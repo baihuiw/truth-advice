@@ -69,6 +69,7 @@ class Client:
             body['response_format'] = {'type': 'json_object'}
         if ep:
             pin = pout = 0.0
+            body.update(ep.get('extra') or {})                              # server-specific fields, e.g. gpt-oss reasoning_effort
         else:
             if not self.key:
                 raise RuntimeError('OPENROUTER_API_KEY is not set')

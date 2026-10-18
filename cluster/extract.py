@@ -50,7 +50,17 @@ def main():
     a = ap.parse_args(); out = Path(a.out); out.mkdir(parents=True, exist_ok=True); layers = [int(x) for x in a.layers.split(',')]
     items = [json.loads(l) for l in open(a.items)]
     tok = AutoTokenizer.from_pretrained(a.model); model = AutoModelForCausalLM.from_pretrained(a.model, dtype=torch.bfloat16).to('cuda'); model.eval()
-    layers = [l for l in layers if l <= model.config.num_hidden_layers]
+    layers = [l for l in layers if 1 <= l < model.config.num_hidden_layers]
+    # Capture only the probed layers with forward hooks (hidden_states[l] is the output of decoder layer l-1) and run the
+    # base model without the LM head: all 65 hidden states plus 150k-vocab logits for a 12k-token conversation do not fit
+    # next to Qwen3-32B's 64 GB of weights on one 80 GB card.
+    captured = {}
+
+    def hook(l):
+        def f(_mod, _inp, output):
+            captured[l] = (output[0] if isinstance(output, tuple) else output)[0].detach()
+        return f
+    handles = [model.model.layers[l - 1].register_forward_hook(hook(l)) for l in layers]
     acts, rows, skipped, t0 = defaultdict(list), defaultdict(list), defaultdict(int), time.time()
     for n, it in enumerate(items):
         gen = it['kind'] == 'contrast'; msgs = it['messages']
@@ -58,9 +68,10 @@ def main():
         enc = tok(full, return_offsets_mapping=True, add_special_tokens=False); ids, offs = enc['input_ids'], enc['offset_mapping']
         if len(ids) > a.max_tokens:
             skipped['too long'] += 1; continue
+        captured.clear()
         with torch.no_grad():
-            hs = model(input_ids=torch.tensor([ids], device='cuda'), output_hidden_states=True, use_cache=False).hidden_states
-        H = torch.stack([hs[l][0] for l in layers])
+            model.model(input_ids=torch.tensor([ids], device='cuda'), use_cache=False)
+        H = torch.stack([captured[l] for l in layers])
 
         def toks(lo, hi):
             return [i for i, (s, e) in enumerate(offs) if e > s and e > lo and s < hi]
@@ -93,6 +104,8 @@ def main():
             for r in rows[kind]:
                 f.write(json.dumps(r) + '\n')
         print(f'{kind}: {len(xs)} spans', flush=True)
+    for h in handles:
+        h.remove()
     json.dump({'layers': layers, 'model': a.model, 'skipped': dict(skipped)}, open(out / 'meta.json', 'w')); print('skipped', dict(skipped), f'{time.time() - t0:.0f}s')
 
 

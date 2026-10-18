@@ -17,7 +17,8 @@ import run as R
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--alias', required=True); ap.add_argument('--url', required=True); ap.add_argument('--model', required=True)
-    ap.add_argument('--workers', type=int, default=8); a = ap.parse_args(); run_dir = Path(a.run)
+    ap.add_argument('--workers', type=int, default=8); ap.add_argument('--extra', help='JSON of extra request fields, e.g. {"reasoning_effort": "high"}')
+    ap.add_argument('--limit', type=int, help='code only the first N conversations (sorted by name, same subset each time)'); a = ap.parse_args(); run_dir = Path(a.run)
     cfg = R.read(run_dir / 'config.json'); worlds = {w['id']: w for w in R.read(run_dir / 'worlds.json')}
     cfg = {**cfg, 'endpoints': {**(cfg.get('endpoints') or {}), a.alias: {'url': a.url, 'model': a.model}}}
     client = Client(run_dir, cfg, R.read(run_dir / 'catalog.json'), routes=R.read(run_dir / 'routes.json') if (run_dir / 'routes.json').exists() else None)
@@ -36,7 +37,7 @@ def main():
         if c and c.get('say'):
             R.save(out_dir / p.name, c)
     with concurrent.futures.ThreadPoolExecutor(max_workers=a.workers) as pool:
-        list(pool.map(one, sorted((run_dir / 'conv').glob('*.json'))))
+        list(pool.map(one, sorted((run_dir / 'conv').glob('*.json'))[::max(1, len(list((run_dir / 'conv').glob('*.json'))) // a.limit)][:a.limit] if a.limit else sorted((run_dir / 'conv').glob('*.json'))))
     print(f"coded with {a.alias}: {len(list(out_dir.glob('*.json')))}")
 
 

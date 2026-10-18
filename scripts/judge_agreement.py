@@ -46,7 +46,7 @@ def corr(pairs):
 def strongest(say):
     out = {}
     for u in say.get('unknowable') or []:
-        if u.get('strength') in ORDER:
+        if u.get('strength') in ORDER and u.get('id'):
             prev = out.get(u['id'])
             if prev is None or ORDER[u['strength']] > ORDER[prev['strength']]:
                 out[u['id']] = u
