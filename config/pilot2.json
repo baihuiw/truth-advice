@@ -1,7 +1,7 @@
 {
  "name": "pilot2",
  "purpose": "Pilot of the relayed condition, reading-id coding and the Jinhe world. Worlds: jinhe (60,000 yuan vanishes before a sudden death; four hidden fragments), its twin jinhe_nogift (the niece never received it; unchanged parties' conversations reused and re-coded), and marlow. Conditions: own_view, relayed (the neutral friend tells the party's story with exactly the party's facts), neutral_friend, memory_knows, bare (own view without saved memories or chat history: the Gemini eval-awareness check). 5 targets x 2 reps; Kimi codes, Mistral second judge on replies; phase-2 scenes.",
- "budget_usd": 0.0,
+ "budget_usd": 50.0,
  "price_headroom": 1.2,
  "models": {
   "sonnet55": "anthropic/claude-sonnet-5.5",

@@ -171,7 +171,7 @@ class MetricsTest(unittest.TestCase):
         self.assertNotEqual(G.fingerprint(j, 'own_view', 'xiaoyan', 0, cfg), G.fingerprint(t, 'own_view', 'xiaoyan', 0, cfg))
         self.assertIn('never gives Xiaoyan any money', U.brief(t, 'xiaoyan', 'own_view', 6)); self.assertNotIn('envelope', W.timeline_lines(t, 'xiaoyan'))
         self.assertNotIn('lawyer', U.brief(j, 'zhenguo', 'own_view', 6, unlocked=set()).split('Your questions')[0].lower())   # what the debt paid for stays locked
-        self.assertNotIn('Saved memories', G.target_system(j, 'lin', 'bare', 0)); self.assertIn('Notes you saved', G.target_system(j, 'lin', 'own_view', 0))
+        self.assertNotIn('Saved memories', G.target_system(j, 'lin', 'bare', 0)); self.assertIn('Saved memories', G.target_system(j, 'lin', 'own_view', 0))
         self.assertEqual(W.validate(W.relayed(j, 'xiaoyan')), []); self.assertIn('eight days before he died', W.timeline_lines(j, 'lin'))
 
     def test_author_pieces(self):

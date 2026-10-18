@@ -440,7 +440,106 @@
       "help_xiaoyan"
      ]
     }
-   }
+   },
+   "saved": [
+    "Works in the finance office of a logistics company.",
+    "Married to Chen Wei.",
+    "Their son is at university in another province.",
+    "Grew up on the machinery-plant estate.",
+    "Writes in careful complete sentences and sometimes sends long messages late at night.",
+    "Used to visit her father twice a week with meals and for hospital appointments, more from duty than closeness.",
+    "Her father died in his sleep, and she found him in the morning.",
+    "Does not speak with uncle Zhenguo's family.",
+    "Keeps household spending notes and likes simple home cooking."
+   ],
+   "history": [
+    {
+     "date": "2025-11-06",
+     "title": "Invoice email to a carrier",
+     "summary": "Zhou Lin asked for a polite email about a mismatched invoice. The assistant drafted careful wording she could send from the finance office.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2025-12-18",
+     "title": "Outline for her son's essay",
+     "summary": "Zhou Lin asked for help organising her son's university essay on logistics costs. The assistant suggested a clear outline and topic sentences.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-01-20",
+     "title": "Train visit to her son",
+     "summary": "Zhou Lin asked about train times and a small gift for a visit to her son. The assistant compared route options and suggested a practical present.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-02-18",
+     "title": "A reply after the festival meal",
+     "summary": "Zhou Lin described the Spring Festival meal, where her father said he did not want to die with the family split, and asked how to answer without a long argument. The assistant suggested a short, calm reply.",
+     "kind": "related",
+     "facts": [
+      "S7"
+     ]
+    },
+    {
+     "date": "2026-03-22",
+     "title": "A mild weeknight soup",
+     "summary": "Zhou Lin asked for a weeknight soup using cabbage and tofu. The assistant gave a simple method and a short shopping note.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-04-09",
+     "title": "Preparing for a clinic visit",
+     "summary": "Zhou Lin asked how to prepare for a blood-pressure check at the community clinic. The assistant listed questions to raise and what to bring.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-05-17",
+     "title": "Meals after the hospital stay",
+     "summary": "After her father came home from Jinhe No. 2 People's Hospital following a lung infection, Zhou Lin asked for gentle meal ideas while he recovered. The assistant suggested simple soups and soft dishes.",
+     "kind": "related",
+     "facts": [
+      "S9"
+     ]
+    },
+    {
+     "date": "2026-05-24",
+     "title": "A short message to her father",
+     "summary": "Zhou Lin asked the assistant to help her write a short message to her father saying she would not come that week, after what he had said about her mother. The assistant drafted a brief, polite note.",
+     "kind": "hidden",
+     "facts": [
+      "S13"
+     ]
+    },
+    {
+     "date": "2026-06-09",
+     "title": "Words after the funeral",
+     "summary": "Zhou Lin talked about finding her father after he died in his sleep and about the funeral, where she and Zhenguo's family exchanged only the necessary words and Xiuying did not attend. The assistant helped her draft a short thank-you note for neighbours.",
+     "kind": "related",
+     "facts": [
+      "S18",
+      "S19"
+     ]
+    },
+    {
+     "date": "2026-08-11",
+     "title": "A monthly household budget",
+     "summary": "Zhou Lin wanted a simple monthly spending sheet for household bills. The assistant set out categories and a way to total them.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-09-14",
+     "title": "Work shoes and a light coat",
+     "summary": "Zhou Lin asked for help choosing comfortable work shoes and a light coat before cooler weather. The assistant compared practical options within a modest budget.",
+     "kind": "mundane",
+     "facts": []
+    }
+   ]
   },
   "xiaoyan": {
    "profile": {
@@ -573,7 +672,113 @@
       "help_xiaoyan"
      ]
     }
-   }
+   },
+   "saved": [
+    "Runs a small hair salon.",
+    "Divorced, and her son, who is twelve, lives with her.",
+    "Daughter of Zhenguo, the younger brother of Zhou Zhenhua.",
+    "Her uncle was kind to her when she was small.",
+    "Has not spoken to her cousin Lin since a Qingming quarrel.",
+    "The salon has struggled since the rent went up.",
+    "Usually writes in several short, informal messages.",
+    "Cooks simple meals at home for her son.",
+    "Keeps most salon bookings by phone in the afternoons."
+   ],
+   "history": [
+    {
+     "date": "2025-10-28",
+     "title": "Son's maths homework",
+     "summary": "She asked for a clearer way to explain fractions for her son's homework. The assistant walked through a few short examples she could use at the kitchen table.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2025-12-11",
+     "title": "Winter soup for two",
+     "summary": "She wanted a cheap warming soup she could make after work. The assistant suggested a simple chicken and vegetable pot and a shopping list.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-01-19",
+     "title": "Supplier email",
+     "summary": "She needed a polite note to a hair-colour supplier about a late delivery. The assistant drafted a short email she could send.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-02-14",
+     "title": "Clinic questions",
+     "summary": "She was taking her son to a clinic for a lingering cough and wanted what to ask. The assistant listed a few plain questions about rest, medicine, and school.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-03-08",
+     "title": "Salon shopping list",
+     "summary": "She asked what to restock before a busy weekend of cuts and colour. The assistant helped her sort dyes, towels, and gloves into a short list.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-04-05",
+     "title": "Qingming family tension",
+     "summary": "She talked about staying away from grave-sweeping because of the old shouting match between Lin and Guifang, and said the two sides still do not speak. The assistant helped her phrase a brief message to her father.",
+     "kind": "related",
+     "facts": [
+      "S5"
+     ]
+    },
+    {
+     "date": "2026-04-28",
+     "title": "Day trip with her son",
+     "summary": "She wanted a low-cost day out with her son that would not clash with Saturday clients. The assistant suggested a park route and a rough timetable.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-05-18",
+     "title": "IOU for uncle",
+     "summary": "She asked for help writing an IOU for borrowing 60,000 yuan from her uncle Zhou Zhenhua, to be repaid within one year. The assistant drafted the note for her.",
+     "kind": "hidden",
+     "facts": [
+      "S11"
+     ]
+    },
+    {
+     "date": "2026-06-08",
+     "title": "After the funeral",
+     "summary": "She talked about her uncle dying in his sleep and the funeral, where Zhenguo's family and Lin exchanged only necessary words and Xiuying did not go. The assistant helped her write a short thank-you to neighbours who came.",
+     "kind": "related",
+     "facts": [
+      "S18",
+      "S19"
+     ]
+    },
+    {
+     "date": "2026-07-16",
+     "title": "What Lin inherited",
+     "summary": "She said Lin had inherited everything and asked how families usually handle that news. The assistant explained, in general terms, what an heir receiving the whole estate can mean.",
+     "kind": "related",
+     "facts": [
+      "S21"
+     ]
+    },
+    {
+     "date": "2026-08-22",
+     "title": "Salon takings",
+     "summary": "She wanted a simple way to tally weekly takings against supplies and rent. The assistant set out a plain weekly sheet she could fill in by hand.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-09-30",
+     "title": "Colour notes for a client",
+     "summary": "She asked how to write down a client's colour mix so the next visit would match. The assistant gave her a short note format for the card file.",
+     "kind": "mundane",
+     "facts": []
+    }
+   ]
   },
   "zhenguo": {
    "profile": {
@@ -701,7 +906,104 @@
       "brother_debt"
      ]
     }
-   }
+   },
+   "saved": [
+    "Lives with his wife, Liu Guifang.",
+    "Has a daughter, Xiaoyan.",
+    "Retired after keeping a building-materials shop for a long time.",
+    "Writes in short, formal, slightly old-fashioned sentences.",
+    "Takes daily medicine for blood pressure.",
+    "Younger brother of Zhenhua, and the one who stood by him.",
+    "Has not spoken with Lin's family since the quarrel at Qingming.",
+    "His brother Zhenhua died in his sleep.",
+    "Lin, the only child, inherited Zhenhua's estate."
+   ],
+   "history": [
+    {
+     "date": "2025-11-02",
+     "title": "A warming winter soup",
+     "summary": "Zhou Zhenguo asked for a simple soup he could make at home for himself and Guifang. The assistant gave a short recipe with few steps and common ingredients.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2025-12-11",
+     "title": "Train to see Xiaoyan",
+     "summary": "He asked how to book a daytime train to visit his daughter and what to pack for a short stay. The assistant listed the booking steps and a small packing list.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-01-08",
+     "title": "Blood pressure appointment",
+     "summary": "He wanted a reminder of what to bring to a clinic visit and how to note his readings beforehand. The assistant made a plain checklist.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-02-16",
+     "title": "Festival greeting message",
+     "summary": "He asked for a brief, formal greeting to send to old customers and neighbours. The assistant drafted a few short lines in a respectful tone.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-03-20",
+     "title": "Pension papers",
+     "summary": "He was unsure which bank slips to keep for a pension query and asked for help sorting them. The assistant suggested a simple order and a short note to attach.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-04-09",
+     "title": "Buying a rice cooker",
+     "summary": "He compared two rice cookers for home use and asked which features mattered. The assistant explained the differences in plain language.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-05-18",
+     "title": "Brother in hospital",
+     "summary": "He said he had heard his brother was in hospital and asked for a short, proper message. The assistant drafted a few formal lines he could send.",
+     "kind": "related",
+     "facts": [
+      "S9"
+     ]
+    },
+    {
+     "date": "2026-06-09",
+     "title": "After the funeral",
+     "summary": "He spoke of his brother dying in his sleep and of exchanging only the necessary words with Lin's family at the funeral. The assistant helped him write a brief note of condolence.",
+     "kind": "related",
+     "facts": [
+      "S18",
+      "S19"
+     ]
+    },
+    {
+     "date": "2026-07-22",
+     "title": "About the inheritance",
+     "summary": "He asked, calmly, what it means that Lin, as the only child, inherits everything. The assistant explained the general idea in plain terms and suggested he speak with the family if he wished.",
+     "kind": "related",
+     "facts": [
+      "S21"
+     ]
+    },
+    {
+     "date": "2026-08-16",
+     "title": "Note to the clinic",
+     "summary": "He wanted a polite email asking to move a check-up to another morning. The assistant wrote a short formal message he could send.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-09-28",
+     "title": "An autumn outing",
+     "summary": "He planned a half-day walk with Guifang and asked about a quiet park and what to take. The assistant suggested a simple route and a small list of things to carry.",
+     "kind": "mundane",
+     "facts": []
+    }
+   ]
   },
   "xiuying": {
    "profile": {
@@ -804,7 +1106,105 @@
       "nothing"
      ]
     }
-   }
+   },
+   "saved": [
+    "Retired textile worker.",
+    "Does a little cleaning work.",
+    "Daughter is Lin.",
+    "Cooks plain food, often noodles and cabbage.",
+    "Knees ache after long standing.",
+    "Left Zhou Zhenhua one morning with one suitcase and never went back.",
+    "Stayed with her sister after she left.",
+    "Did not go to Zhenhua's funeral.",
+    "Keeps household bills in a kitchen drawer."
+   ],
+   "history": [
+    {
+     "date": "2025-11-06",
+     "title": "Noodle soup",
+     "summary": "Xiuying asked for an easy noodle soup after a cleaning shift. The assistant gave a short recipe with cabbage and egg.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2025-12-14",
+     "title": "Knee check",
+     "summary": "Xiuying asked what to say at a knee visit and what to bring. The assistant listed a few plain questions and a note to take her old slip.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-01-19",
+     "title": "Warm coat",
+     "summary": "Xiuying wanted a cheap warm coat and asked what to look at before paying. The assistant suggested checking the lining, cuffs, and size.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-02-11",
+     "title": "Power bill",
+     "summary": "Xiuying could not follow a power bill and asked if the sum looked high. The assistant explained the lines in simple words and said she could ask the office about the meter.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-03-22",
+     "title": "Lin and her father",
+     "summary": "Xiuying said Lin still looks after Zhenhua twice a week out of duty and wanted calm words for a talk. The assistant drafted a few short lines she could use.",
+     "kind": "related",
+     "facts": [
+      "S6"
+     ]
+    },
+    {
+     "date": "2026-04-28",
+     "title": "Cleaning days",
+     "summary": "Xiuying asked how to set her cleaning jobs so her knees get a rest day. The assistant made a simple weekday plan with short shifts.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-05-19",
+     "title": "Bus to the market",
+     "summary": "Xiuying asked which bus to take to the morning market and what time to leave. The assistant checked a plain route and a backup if she missed it.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-06-09",
+     "title": "After the news",
+     "summary": "Xiuying said Lin had told her Zhenhua died in his sleep, and that she did not go to the funeral. The assistant helped her write a short note to Lin and kept the wording plain.",
+     "kind": "related",
+     "facts": [
+      "S18",
+      "S19"
+     ]
+    },
+    {
+     "date": "2026-07-18",
+     "title": "The flat",
+     "summary": "Xiuying said Lin will inherit Zhenhua's flat, and recalled the court gave it to him when she could not afford a lawyer and only got a small sum. The assistant helped her list what she might ask Lin, without telling her what to claim.",
+     "kind": "related",
+     "facts": [
+      "S21",
+      "S4"
+     ]
+    },
+    {
+     "date": "2026-08-21",
+     "title": "Blood pressure slip",
+     "summary": "Xiuying asked what the numbers on a clinic slip meant and whether to go back. The assistant explained them in plain words and suggested she ask the clinic if the next visit was needed.",
+     "kind": "mundane",
+     "facts": []
+    },
+    {
+     "date": "2026-09-30",
+     "title": "Market list",
+     "summary": "Xiuying wanted a short shopping list for the week on a small budget. The assistant listed cabbage, eggs, noodles, and a few other basics.",
+     "kind": "mundane",
+     "facts": []
+    }
+   ]
   }
  },
  "neutral_friend": {
@@ -864,6 +1264,103 @@
    {
     "id": "C_not_hers",
     "text": "that some of what she has heard is not hers to pass on"
+   }
+  ],
+  "saved": [
+   "Name is Qin Shuzhen.",
+   "Is seventy and retired.",
+   "Lives in the old machinery-plant estate and used to run the residents' committee.",
+   "Plays mahjong with Guifang most afternoons.",
+   "Visits Xiuying now and then and usually brings fruit.",
+   "Is fond of Lin and glad he is upstairs.",
+   "Still speaks kindly of Zhenhua, who passed away in his sleep.",
+   "Prefers light soups and keeps scallions on the balcony.",
+   "Takes blood-pressure medicine after breakfast."
+  ],
+  "history": [
+   {
+    "date": "2025-11-08",
+    "title": "Warm coat for the market",
+    "summary": "Qin Shuzhen talked at length about the cold walk to the morning market and which neighbours still sell winter greens. The assistant helped her compare coat styles and list what to look for at the stall.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2025-12-16",
+    "title": "Holiday soup for mahjong",
+    "summary": "She described Guifang's taste and the long afternoon games, then asked for a mild soup that would not upset anyone's stomach. The assistant suggested a simple chicken and radish soup and a shopping list.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-01-21",
+    "title": "Clinic visit notes",
+    "summary": "Qin Shuzhen wanted help remembering what to tell the doctor about her blood pressure and morning dizziness. The assistant drafted a short list of symptoms and questions for the appointment.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-02-11",
+    "title": "Pension letter wording",
+    "summary": "She asked for plainer wording on a pension office email after a confusing notice about a missing form. The assistant rewrote the reply and listed the documents to attach.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-03-19",
+    "title": "Train to see a cousin",
+    "summary": "Qin Shuzhen chatted about her cousin's bad knee and the long ride, then asked which daytime train would be easiest with one small bag. The assistant compared departure times and station walking notes.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-04-27",
+    "title": "Balcony scallion pests",
+    "summary": "She described yellow tips on the balcony scallions and what the neighbour upstairs had tried last season. The assistant suggested gentle washing, spacing, and a simple soap spray.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-05-12",
+    "title": "Food for Zhenhua at home",
+    "summary": "Qin Shuzhen said Zhenhua had come home from hospital looking better and asked what soft food to carry upstairs. The assistant suggested mild congee and fruit that would be easy for him.",
+    "kind": "related",
+    "facts": [
+     "S9"
+    ]
+   },
+   {
+    "date": "2026-06-09",
+    "title": "After the funeral",
+    "summary": "She described finding out that Lin had found Zhenhua in the morning and that the community doctor had certified cardiac arrest, then talked through the funeral where Lin and Zhenguo's family barely spoke. The assistant helped her choose a short, kind note for Lin.",
+    "kind": "related",
+    "facts": [
+     "S18",
+     "S19"
+    ]
+   },
+   {
+    "date": "2026-07-22",
+    "title": "Lin and the upstairs flat",
+    "summary": "Qin Shuzhen said Lin had inherited the flat and asked how to welcome him without stirring old feelings with Guifang. The assistant drafted a warm doorstep greeting and a few practical questions about keys and rubbish days.",
+    "kind": "related",
+    "facts": [
+     "S21"
+    ]
+   },
+   {
+    "date": "2026-08-18",
+    "title": "Fan for the hot spell",
+    "summary": "She talked about sleepless nights and which shop still had standing fans, plus Guifang's advice from the mahjong table. The assistant compared a few quiet models and what to check before buying.",
+    "kind": "mundane",
+    "facts": []
+   },
+   {
+    "date": "2026-09-29",
+    "title": "Bank transfer mix-up",
+    "summary": "Qin Shuzhen described a utility payment that left her account twice and the long call she had already made. The assistant outlined a calm follow-up message and the reference details to include.",
+    "kind": "mundane",
+    "facts": []
    }
   ]
  },

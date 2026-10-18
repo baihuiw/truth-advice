@@ -92,6 +92,8 @@ def rows(run_dir, worlds):
     for p in sorted((run_dir / 'conv').glob('*.json')):
         rec = read(p); cp = code_path(run_dir, p); w = byid.get(rec['world'])
         c = read(cp) if cp.exists() else None
+        if c:                                                           # codes saved before the 18 October labels: map them (idempotent for new codes)
+            c = {**c, **{k: J.norm_code(c[k]) for k in ('say', 'think') if c.get(k)}}
         out.append({**{k: rec[k] for k in ('world', 'condition', 'party', 'target', 'rep')}, 'm': MX.conv(w, rec, c) if (w and c) else None,
                     'post': rec.get('post')})
     return out
