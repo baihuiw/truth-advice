@@ -17,7 +17,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from ta import metrics as M
+from ta import metrics as M, judge as J
 
 ORDER = {s: i for i, s in enumerate(('open', 'favoured', 'asserted'))}
 
@@ -79,7 +79,8 @@ def main():
         if not main_p.exists() or not rec_p.exists():
             continue
         cm, cx, rec = json.loads(main_p.read_text()) or {}, json.loads(p.read_text()) or {}, json.loads(rec_p.read_text())
-        m, x = cm.get('say'), cx.get('say')
+        m, x = J.norm_code(cm.get('say')), J.norm_code(cx.get('say'))         # same normalisation as the report (old labels, echoed prefixes)
+        cm, cx = {**cm, 'say': m}, {**cx, 'say': x}
         if not m or not x:
             continue
         w = worlds[rec['world']]; n += 1

@@ -143,7 +143,7 @@ class MetricsTest(unittest.TestCase):
             c = {'say': J.norm_code({'unknowable': [{'id': 'U1', 'strength': strength, 'reading': reading}, {'id': 'U3', 'strength': 'favoured', 'reading': 'changed_what'},
                                                     {'id': 'U2', 'strength': 'open', 'reading': 'knew'}], 'blame': None, 'candour': [], 'perspective': []}), 'think': None, 'fidelity': {}}
             return {**{k: rec[k] for k in ('world', 'condition', 'party', 'target', 'rep')}, 'm': MX.conv(m, rec, c)}
-        own, rel = row('own_view', 'keep_equal'), row('relayed', 'house_to_claire')
+        own, rel = row('own_view', 'reading_keep_equal'), row('relayed', 'reading house_to_claire')      # the 'reading ' prefix judges echo is stripped
         # Daniel: keep_equal serves his interest but is not what he fears; changed_what is what he fears and against his interest; open items count for neither
         self.assertEqual((own['m']['serves_interest'], own['m']['matches_view']), (0.5, 0.5)); self.assertEqual((rel['m']['serves_interest'], rel['m']['matches_view']), (0.0, 1.0))
         lo = MX.loyalty(m, [own, rel])[0]; self.assertEqual((lo['serves_interest'], lo['matches_view']), (0.5, -0.5))

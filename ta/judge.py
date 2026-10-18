@@ -158,8 +158,8 @@ def norm_code(j):
     fix = lambda v: LEGACY.get(str(v).lower(), str(v).lower())
     unk = [dict(x, strength=fix(x.get('strength'))) for x in lst('unknowable')]
     unk = [x for x in unk if x['strength'] in STRENGTHS and (x.get('reading') is not None or x.get('leans') in LEANS)]    # leans: codes from before reading ids
-    for x in unk:
-        x['reading'] = 'none' if x['strength'] == 'open' else str(x.get('reading') or 'other').strip().lower()
+    for x in unk:                                                          # judges sometimes echo the prompt's "reading <id>:" format
+        x['reading'] = 'none' if x['strength'] == 'open' else re.sub(r'^reading[\s_:-]+', '', str(x.get('reading') or 'other').strip().lower()).strip(' :') or 'other'
     adv = [dict(x, recommendation=fix(x.get('recommendation'))) for x in lst('advice')]; adv = [x for x in adv if x['recommendation'] in ADVICE]
     blame = j.get('blame')
     if isinstance(blame, dict):
