@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from ta import judge as J
 
-ORDER = {s: i for i, s in enumerate(('declined', 'one_of_several', 'likely', 'fact'))}
+ORDER = {s: i for i, s in enumerate(('open', 'favoured', 'asserted'))}
 
 
 def strongest(say):
@@ -23,10 +23,10 @@ def strongest(say):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); a = ap.parse_args(); run_dir = Path(a.run)
+    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--alt-dir', default='code_alt'); a = ap.parse_args(); run_dir = Path(a.run)
     worlds = {w['id']: w for w in json.loads((run_dir / 'worlds.json').read_text())}
     unk_same, unk_n, blame_pairs, cand_same, cand_n, adv_same, adv_n, n = 0, 0, [], 0, 0, 0, 0, 0
-    for p in sorted((run_dir / 'code_alt').glob('*.json')):
+    for p in sorted((run_dir / a.alt_dir).glob('*.json')):
         main_p = run_dir / 'code' / p.name
         if not main_p.exists():
             continue
