@@ -25,9 +25,11 @@ def load_all(directory=ROOT / 'worlds'):
 
 
 def seen_by_target(w, party):
-    """Everything a target could read for one party: the opening message, the memory file and the account."""
+    """Everything a target could read for one party: the opening message, saved memories, past conversations and the
+    account."""
     p = w['parties'][party] if party in w['parties'] else w['neutral_friend']
-    return '\n'.join([p.get('opening_message', ''), p.get('account', ''), p.get('memory_knows_extra', '')] + list(p.get('memory') or []) + [w['deployment_system_prompt']])
+    hist = [x for h in p.get('history') or [] for x in (h.get('title', ''), h.get('summary', ''))]
+    return '\n'.join([p.get('opening_message', ''), p.get('account', ''), p.get('memory_knows_extra', '')] + list(p.get('memory') or []) + list(p.get('saved') or []) + hist + [w['deployment_system_prompt']])
 
 
 def validate(w):
@@ -73,6 +75,9 @@ def validate(w):
         shown += [p.get('opening_message', ''), p.get('account', ''), p.get('memory_knows_extra', '')] + list(p.get('memory') or [])
         shown += [r.get(k, '') for r in p.get('reveal_policy') or [] for k in ('surface', 'reveal_text', 'hint')]
     shown += [k for s in w['settled'] for k in (s.get('known_by') or {}).values() if k.startswith('partial:')]
+    shown += [x for name in list(w['parties']) + ['neutral'] for h in party_of(w, name).get('history') or [] for x in (h.get('title', ''), h.get('summary', ''))]
+    shown += [x for name in list(w['parties']) + ['neutral'] for x in party_of(w, name).get('saved') or []]
+    errs += history_errors(w)
     for x in shown:
         if recent.search(x or ''):
             errs.append(f'the current year appears in text the simulator or the target reads: {x[:60]!r}')
@@ -122,6 +127,13 @@ def twin(w):
     for name, p in out['parties'].items():
         for k, v in (t.get('party_changes', {}).get(name) or {}).items():
             p[k] = v
+    touched = set(t.get('changes', {}))                            # past chats that mention a removed or changed fact go
+    for name in list(out['parties']) + ['neutral']:
+        p = party_of(out, name)
+        if p.get('history'):
+            p['history'] = [h for h in p['history'] if not set(h.get('facts') or []) & touched]
+        if p.get('saved') and t.get('saved_drop'):
+            p['saved'] = [s for s in p['saved'] if not re.search(t['saved_drop'], s, re.I)] + list((t.get('saved_add') or {}).get(name) or [])
     return out
 
 
@@ -185,11 +197,67 @@ def fact_lines(w, party, unlocked=None):
 
 
 def memory(w, party, condition):
-    p = w['parties'].get(party, {})
+    """Saved memories the target sees: the 'saved' list when the world has histories, else the older 'memory' notes
+    (plus memory_knows_extra in the memory condition)."""
+    p = party_of(w, party)
+    if p.get('saved'):
+        return list(p['saved'])
     notes = list(p.get('memory') or [])
     if condition == 'memory_knows' and p.get('memory_knows_extra'):
         notes.append(p['memory_knows_extra']); notes.sort()
     return notes
+
+
+def history(w, party, condition):
+    """Past conversations the target can see, newest first: every item except the hidden one, which appears only in the
+    memory condition."""
+    items = [h for h in party_of(w, party).get('history') or [] if h.get('kind') != 'hidden' or condition == 'memory_knows']
+    return sorted(items, key=lambda h: h['date'], reverse=True)
+
+
+def ago(w, date, today):
+    """How a chat-history feature would label a past date relative to the consultation day."""
+    from datetime import date as D
+    try:
+        d = D.fromisoformat(str(date)[:10]); days = (today - d).days
+    except ValueError:
+        return when(w, date)
+    if days < 1:
+        return 'today'
+    if days < 7:
+        return f"{days} day{'s' if days > 1 else ''} ago"
+    if days < 35:
+        return f"{days // 7} week{'s' if days >= 14 else ''} ago"
+    return when(w, date).replace('last ', 'last ') if days >= 300 else f"in {MONTHS[d.month - 1]}"
+
+
+def history_errors(w):
+    """Histories: dates in the year before the conversations, no item referring to a fact dated after it, at most one
+    hidden item per party, and the hidden item only for parties whose memory condition runs."""
+    errs = []; start = w.get('conversation_start', '2026-10-05'); fact_date = {s['id']: str(s['date'])[:10].split('/')[0] for s in w['settled']}
+    for name in list(w['parties']) + ['neutral']:
+        hs = party_of(w, name).get('history') or []
+        if not hs:
+            continue
+        if sum(h.get('kind') == 'hidden' for h in hs) > 1:
+            errs.append(f'{name}: more than one hidden history item')
+        for h in hs:
+            if not all(k in h for k in ('date', 'title', 'summary', 'kind')):
+                errs.append(f'{name}: history items need date, title, summary and kind'); continue
+            if h['kind'] not in ('mundane', 'related', 'hidden'):
+                errs.append(f"{name}: history kind {h['kind']!r}")
+            if not (str(int(start[:4]) - 1) + start[4:] <= h['date'] < start):
+                errs.append(f"{name}: history item dated {h['date']} is outside the year before the conversations")
+            for f in h.get('facts') or []:
+                if f not in fact_date:
+                    errs.append(f'{name}: history item refers to unknown fact {f}')
+                elif fact_date[f][:7] > h['date'][:7] or (len(fact_date[f]) == 10 and fact_date[f] > h['date']):       # the fact happens after the chat
+                    errs.append(f"{name}: a history item dated {h['date']} refers to {f}, which happens on {fact_date[f]}")
+                elif name != 'neutral' and f not in party_of(w, name).get('view', []):
+                    errs.append(f"{name}: a history item refers to {f}, which {name} does not know")
+                elif h['kind'] != 'hidden' and f in locked_facts(w, name):
+                    errs.append(f"{name}: an ordinary history item refers to {f}, which {name} holds back until asked (only the memory-condition chat may)")
+    return errs
 
 
 def consultations(w, condition):
@@ -198,5 +266,5 @@ def consultations(w, condition):
     if condition == 'neutral_friend':
         return ['neutral']
     if condition == 'memory_knows':
-        return [n for n, p in w['parties'].items() if p.get('memory_knows_extra')]
+        return [n for n, p in w['parties'].items() if p.get('memory_knows_extra') or any(h.get('kind') == 'hidden' for h in p.get('history') or [])]
     return list(w['parties'])

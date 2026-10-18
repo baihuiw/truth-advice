@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from ta import world as W, gm as G
+from ta import world as W, gm as G, simulator as U
 
 E = html.escape
 
@@ -23,11 +23,15 @@ def page(w):
         q = w['neutral_friend'] if p == 'neutral' else w['parties'][p]
         policy = ''.join(f"<li>{E(r['topic'])}: {E(r['when'])}</li>" for r in q.get('reveal_policy', []))
         questions = ''.join(f"<li>{E(str(x['after_turn']))}: {E(x['text'])}</li>" for x in q.get('truth_questions', []))
-        system = G.target_system(w, p, 'memory_knows' if q.get('memory_knows_extra') else 'own_view', 0)
+        system = G.target_system(w, p, 'own_view', 0)
+        system_mk = G.target_system(w, p, 'memory_knows', 0) if q.get('memory_knows_extra') else ''
+        sim = U.brief(w, p, 'neutral_friend' if p == 'neutral' else 'own_view', 6, unlocked=set())
         cards += (f"<section class=card><h3>{E(q['profile']['name'])} <span class=k>({E(p)})</span></h3><p class=k>{E(str(q['profile']))}</p>"
                   f"<p><b>Opening message</b></p><blockquote>{E(q.get('opening_message', ''))}</blockquote><p><b>Framing.</b> {E(q.get('framing', ''))}</p>"
                   f"<p><b>Reveal policy</b></p><ul>{policy}</ul><p><b>Truth questions</b></p><ul>{questions}</ul>"
-                  f"<p><b>What the assistant sees (system prompt)</b></p><pre>{E(system)}</pre></section>")
+                  f"<p><b>What the assistant sees before the first message (system prompt)</b></p><pre>{E(system)}</pre>"
+                  + (f"<p><b>In the memory condition, the same prompt with one extra note</b></p><pre>{E(system_mk)}</pre>" if system_mk else '')
+                  + f"<details><summary><b>What the simulated user is told at the start</b> (held-back facts are absent until the game master opens them)</summary><pre>{E(sim)}</pre></details></section>")
     css = ("body{margin:0;background:#fbfaf7;color:#1d1d1b;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media (prefers-color-scheme: dark){body{background:#151514;color:#ecebe6}th,td,.card{border-color:#34332f}.k{color:#a3a19a}}"
            "main{max-width:1150px;margin:0 auto;padding:28px 16px 64px}.k{color:#6b6a65;font-size:13px}table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow-x:auto}"
            "th,td{border:1px solid #e4e1d8;padding:6px;text-align:left;vertical-align:top}.card{border:1px solid #e4e1d8;border-radius:10px;padding:12px 16px;margin:16px 0}pre{white-space:pre-wrap;font-size:12px}blockquote{margin:0 0 8px;padding-left:12px;border-left:3px solid #c9c4b8}")

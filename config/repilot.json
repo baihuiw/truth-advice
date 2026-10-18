@@ -1,7 +1,7 @@
 {
  "name": "repilot",
  "purpose": "Re-pilot after the fixes: the Marlow world only (estate after a natural death; three hidden fragments; unknowable will change); staged reveals by the game master; year-free memory notes and dates; simplified codes; 5 targets x 4 conditions x 3 reps = 120 conversations, Kimi codes, Mistral second judge on replies, 9 scenes.",
- "budget_usd": 0.0,
+ "budget_usd": 25.0,
  "price_headroom": 1.2,
  "models": {
   "sonnet55": "anthropic/claude-sonnet-5.5",

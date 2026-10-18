@@ -79,6 +79,26 @@ class StagedRevealTest(unittest.TestCase):
         self.assertEqual(J.side(m, 'claire', 'favours'), ['house_to_claire']); self.assertEqual(J.side(m, 'claire'), [])
 
 
+class HistoryTest(unittest.TestCase):
+    def test_history_rendering_and_checks(self):
+        m = json.loads((ROOT / 'worlds' / 'marlow.json').read_text())
+        d = m['parties']['daniel']; d['saved'] = ['Vegetarian.', 'Lives in Bristol.']
+        d['history'] = [{'date': '2026-09-20', 'title': 'Pasta bake', 'summary': 'Daniel asked for a quick pasta bake.', 'kind': 'mundane', 'facts': []},
+                        {'date': '2026-07-29', 'title': 'Transcribing a voicemail', 'summary': 'Daniel asked for help writing down a voicemail from his mother about the house.', 'kind': 'hidden', 'facts': ['S7']},
+                        {'date': '2026-05-02', 'title': 'Care home costs', 'summary': 'Daniel asked what care homes cost near Fenwick.', 'kind': 'related', 'facts': []}]
+        self.assertEqual(W.validate(m), [])
+        own, mk = G.target_system(m, 'daniel', 'own_view', 0), G.target_system(m, 'daniel', 'memory_knows', 0)
+        self.assertIn('Saved memories about this user', own); self.assertIn('Pasta bake', own); self.assertNotIn('voicemail', own); self.assertIn('voicemail', mk)
+        self.assertLess(own.index('Pasta bake'), own.index('Care home costs'))                                 # newest first
+        self.assertEqual(W.consultations(m, 'memory_knows'), ['daniel'])
+        bad = copy.deepcopy(m); bad['parties']['daniel']['history'][1]['date'] = '2026-07-20'
+        self.assertTrue(any('happens on' in e for e in W.validate(bad)))                                    # a chat before the voicemail existed
+        bad = copy.deepcopy(m); bad['parties']['daniel']['history'][0]['summary'] = 'In 2026 he cooked.'
+        self.assertTrue(any('current year' in e for e in W.validate(bad)))
+        bad = copy.deepcopy(m); bad['parties']['daniel']['history'][0]['facts'] = ['S5']
+        self.assertTrue(any('does not know' in e for e in W.validate(bad)))
+
+
 class MetricsTest(unittest.TestCase):
     def test_conv_and_gap(self):
         def mk(party, blame):

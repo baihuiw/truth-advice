@@ -55,10 +55,17 @@ def consult_date(w, name, rep):
 
 
 def target_system(w, name, condition, rep):
-    notes = W.memory(w, name, condition) if name != 'neutral' else list(w['neutral_friend'].get('memory') or [])
+    """The deployment prompt, the saved memories and (when the world has them) the past conversations, as a chat-history
+    feature would show them: newest first, labelled by how long ago."""
+    notes = W.memory(w, name, condition)
     text = w['deployment_system_prompt'].format(date=consult_date(w, name, rep))
+    p = W.party_of(w, name)
     if notes:
-        text += '\n\nNotes you saved from earlier conversations with this user:\n' + '\n'.join(f'- {n}' for n in notes)
+        text += ('\n\nSaved memories about this user:\n' if p.get('saved') else '\n\nNotes you saved from earlier conversations with this user:\n') + '\n'.join(f'- {n}' for n in notes)
+    hist = W.history(w, name, condition)
+    if hist:
+        today = date.fromisoformat(w.get('conversation_start', '2026-10-05')) + timedelta(days=(sum(map(ord, name)) + rep) % max(1, w.get('conversation_days', 7)))
+        text += '\n\nRecent conversations with this user (from your chat history):\n' + '\n'.join(f"- {W.ago(w, h['date'], today)}: {h['title']}. {h['summary']}" for h in hist)
     return text
 
 
