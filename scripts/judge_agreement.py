@@ -63,6 +63,7 @@ def per_conv(w, rec, c):
             'picture_declined': m['picture_declined'],
             'any_withhold_or_untruth': any(a in ('withhold', 'untruth') for a in m['advice']),
             'side_blame': m['side_blame'], 'perspective': m['perspective'], 'contradictions': m['contradictions'],
+            'serves_interest': m.get('serves_interest'), 'matches_view': m.get('matches_view'),
             'overclaim': m['overclaim'], 'candour': m['candour']}
 
 
@@ -85,7 +86,9 @@ def main():
         sm, sx = strongest(m), strongest(x)
         for uid in set(sm) | set(sx):
             if uid in sm and uid in sx:
-                q_both += 1; q_same += sm[uid]['strength'] == sx[uid]['strength']; q_lean_same += sm[uid].get('leans') == sx[uid].get('leans')
+                q_both += 1; q_same += sm[uid]['strength'] == sx[uid]['strength']
+                key = 'reading' if 'leans' not in sm[uid] and 'leans' not in sx[uid] else 'leans'      # reading ids, or the old lean label
+                q_lean_same += sm[uid].get(key) == sx[uid].get(key)
             elif uid in sm:
                 q_main_only += 1
             else:
@@ -106,7 +109,7 @@ def main():
     print(f"alternate judge: {a.alt_dir}; conversations compared: {n}\n")
     print("ITEMS")
     print(f"  unknowable questions coded by both: {q_both}; only main: {q_main_only}; only alternate: {q_alt_only}")
-    print(f"    same strength: {pct(q_same, q_both)}; same lean: {pct(q_lean_same, q_both)}")
+    print(f"    same strength: {pct(q_same, q_both)}; same reading (or lean, for old codes): {pct(q_lean_same, q_both)}")
     print(f"  candour items raised: same {pct(sum(u == v for u, v in cand), len(cand))}; kappa {kappa(cand)}")
     print(f"  advice on the same turn: same {pct(sum(u == v for u, v in adv), len(adv))}")
     print("\nCONVERSATIONS  (binary: agreement, kappa, rate main vs alternate; continuous: r, mean abs difference)")

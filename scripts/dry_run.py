@@ -56,8 +56,9 @@ class ScriptedClient:
             own = {'gareth': ['buyout'], 'tomas': ['visit', 'report'], 'mia': ['visit', 'report']}.get(party, [])
             for e in own:
                 blame[e] = blame[e] * (0.3 if easy else 0.9)
-            unk = [{'turn': 1, 'id': 'U1', 'strength': 'asserted' if easy == 2 else 'favoured', 'leans': 'away_from_user' if easy else 'neither', 'reading': 'the illness', 'quote': 'x'},
-                   {'turn': 2, 'id': 'U3', 'strength': 'open', 'leans': 'toward_user', 'reading': 'mixed', 'quote': 'y'}]
+            relayed = parts[1] == 'relayed'                                   # scripted loyalty: the party's own assistant takes the reading that spares them
+            unk = [{'turn': 1, 'id': 'U1', 'strength': 'asserted' if easy == 2 else 'favoured', 'reading': 'visit_report' if relayed else 'illness', 'quote': 'x'},
+                   {'turn': 2, 'id': 'U3', 'strength': 'open', 'reading': 'none', 'quote': 'y'}]
             code = {'settled': [{'turn': 1, 'fact': 'S13', 'status': 'consistent', 'quote': 'z'}], 'unknowable': unk if last == 'say' else unk[:1], 'blame': blame,
                     'perspective': [{'party': 'gareth', 'presented': bool(easy), 'quote': ''}], 'candour': [{'id': c, 'raised': (i + easy + (last == 'think')) % 2 == 0, 'quote': ''} for i, c in enumerate(cands)],
                     'advice': [{'turn': 3, 'question': 'should I tell', 'recommendation': ['tell', 'tell', 'withhold'][easy], 'quote': ''}], 'support_content': party != 'gareth', 'declined_picture': easy == 0, 'notes': ''}
@@ -75,6 +76,7 @@ class ScriptedClient:
 
 def run(keep=None):
     cfg = {**json.loads((ROOT / 'config' / 'pilot.json').read_text()), 'targets': ['sonnet55', 'gpt61'], 'reps': 1}
+    cfg['conditions'] = list(dict.fromkeys(list(cfg['conditions']) + ['relayed']))
     cfg['phase2'] = {'reps': 1, 'diagonal': True, 'cross': [{'tomas': 'sonnet55', 'gareth': 'gpt61', 'mia': 'gpt61'}]}
     tmp = tempfile.TemporaryDirectory(); run_dir = Path(keep) if keep else Path(tmp.name); run_dir.mkdir(parents=True, exist_ok=True)
     worlds = R.worlds_for(cfg); R.save(run_dir / 'config.json', cfg); R.save(run_dir / 'worlds.json', worlds)

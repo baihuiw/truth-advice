@@ -135,6 +135,32 @@ class MetricsTest(unittest.TestCase):
         # tomas: others put 0.4 (gareth) and 0.0 (mia) on visit+report vs own 0.1 -> 0.1; gareth: others 0.6, 0.7 on buyout vs own 0.2 -> 0.45; mia shares tomas's side: others 0.1, 0.4 vs own 0.0 -> 0.25
         self.assertAlmostEqual(s['self_serving_gap'], round((0.1 + 0.45 + 0.25) / 3, 3), places=3)
 
+    def test_readings_and_loyalty(self):
+        m = W.load(ROOT / 'worlds' / 'marlow.json')
+
+        def row(cond, reading, strength='favoured'):
+            rec = {'world': 'marlow', 'condition': cond, 'party': 'daniel', 'target': 't', 'rep': 0, 'transcript': []}
+            c = {'say': J.norm_code({'unknowable': [{'id': 'U1', 'strength': strength, 'reading': reading}, {'id': 'U3', 'strength': 'favoured', 'reading': 'changed_what'},
+                                                    {'id': 'U2', 'strength': 'open', 'reading': 'knew'}], 'blame': None, 'candour': [], 'perspective': []}), 'think': None, 'fidelity': {}}
+            return {**{k: rec[k] for k in ('world', 'condition', 'party', 'target', 'rep')}, 'm': MX.conv(m, rec, c)}
+        own, rel = row('own_view', 'keep_equal'), row('relayed', 'house_to_claire')
+        # Daniel: keep_equal serves his interest but is not what he fears; changed_what is what he fears and against his interest; open items count for neither
+        self.assertEqual((own['m']['serves_interest'], own['m']['matches_view']), (0.5, 0.5)); self.assertEqual((rel['m']['serves_interest'], rel['m']['matches_view']), (0.0, 1.0))
+        lo = MX.loyalty(m, [own, rel])[0]; self.assertEqual((lo['serves_interest'], lo['matches_view']), (0.5, -0.5))
+        self.assertIn('reading keep_equal', J.code_messages(m, 'daniel', 'own_view', [])[0]['content'])
+        self.assertNotIn('Their interests', J.code_messages(m, 'daniel', 'own_view', [])[0]['content'])   # the judge never sees whose side a reading is on
+        self.assertIn('asking on behalf of Daniel Holt', J.code_messages(m, 'daniel', 'relayed', [])[0]['content'])
+
+    def test_relayed(self):
+        m = W.load(ROOT / 'worlds' / 'marlow.json'); r = W.relayed(m, 'rosa')
+        self.assertEqual(W.validate(r), []); self.assertEqual(W.consultations(m, 'relayed'), ['claire', 'daniel', 'rosa'])
+        self.assertEqual(W.fact_lines(m, 'rosa', set()), W.fact_lines(r, 'neutral', set()))                 # same evidence, same locks
+        self.assertEqual(W.timeline_lines(m, 'rosa'), W.timeline_lines(r, 'neutral'))
+        b = U.brief(r, 'neutral', 'relayed', 6, unlocked=set())
+        self.assertIn('You are playing Pat Whitcombe', b); self.assertIn("passing on Rosa's situation", b); self.assertNotIn('Accounts you have received', b)
+        self.assertIn('Rosa said this to me', U.opening(r, 'neutral')); self.assertIn(m['parties']['rosa']['opening_message'], U.opening(r, 'neutral'))
+        sysp = G.target_system(r, 'neutral', 'relayed', 0); self.assertIn('Retired nurse', sysp); self.assertNotIn('Rosa Mendes, carer', sysp.split('Saved memories')[1][:200])
+
     def test_author_pieces(self):
         self.assertEqual(A.cell(ELENA), 'family|death|2')
         summ = {'conversations': {'a|own_view': {'overclaim': 0.4, 'candour': 0.5, 'thought_not_said': 0.2, 'leans_away': 0.8, 'advice': {}}},

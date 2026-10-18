@@ -80,6 +80,9 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
     if path.exists():
         return json.loads(path.read_text())
     label = f"{w['id']}/{condition}/{name}/{target}/r{rep}"; max_turns = cfg.get('max_user_turns', 6); mt = cfg.get('max_tokens', {})
+    subject = name
+    if condition == 'relayed':                                       # the neutral friend tells this party's story (see W.relayed)
+        w, name = W.relayed(w, subject), 'neutral'
     system = target_system(w, name, condition, rep); first = U.opening(w, name)
     tmsgs = [{'role': 'system', 'content': system}, {'role': 'user', 'content': first}]
     transcript = [{'role': 'user', 'content': first}]; ended = False
@@ -109,7 +112,7 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
         (Path(run_dir) / 'conv_failed').mkdir(parents=True, exist_ok=True)
         (Path(run_dir) / 'conv_failed' / path.name).write_text(json.dumps({'error': str(e)[:300], 'label': label}))
         return None
-    rec = {'world': w['id'], 'condition': condition, 'party': name, 'target': target, 'rep': rep, 'system': system, 'transcript': transcript, 'post': post, 'unlocks': unlock_log,
+    rec = {'world': w['id'], 'condition': condition, 'party': subject, 'asker': name, 'target': target, 'rep': rep, 'system': system, 'transcript': transcript, 'post': post, 'unlocks': unlock_log,
            'user_turns': sum(m['role'] == 'user' for m in transcript), 'ended_by_user': ended}
     path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(rec, indent=1, ensure_ascii=False))
     (Path(run_dir) / 'conv_failed' / path.name).unlink(missing_ok=True)

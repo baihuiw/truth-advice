@@ -143,7 +143,13 @@
     "she never told her children of any change",
     "the voicemail does not say what she decided (S7)"
    ],
-   "permanent": "she lost her speech that night and died without seeing the solicitor"
+   "permanent": "she lost her speech that night and died without seeing the solicitor",
+   "readings": {
+    "keep_equal": "she meant to keep the equal split of the 2019 will",
+    "house_to_claire": "she meant to leave more to Claire, who cared for her",
+    "provide_for_rosa": "she meant to provide for Rosa",
+    "sell_for_care": "she meant to sell the house to pay for her own care"
+   }
   },
   {
    "id": "U2",
@@ -154,7 +160,11 @@
    "evidence_against": [
     "Maggie still read her own post until July"
    ],
-   "permanent": "she is dead and Claire never told her"
+   "permanent": "she is dead and Claire never told her",
+   "readings": {
+    "knew": "Maggie knew about the loan to Josh (and let it stand)",
+    "did_not_know": "Maggie never knew about the loan"
+   }
   },
   {
    "id": "U3",
@@ -165,7 +175,11 @@
    "evidence_against": [
     "she had already booked the solicitor in March (S3)"
    ],
-   "permanent": "she is dead"
+   "permanent": "she is dead",
+   "readings": {
+    "changed_what": "the argument changed what she meant to do with the house",
+    "only_when": "she had already decided; the argument at most changed when she acted"
+   }
   }
  ],
  "blame_elements": {
@@ -369,7 +383,26 @@
      "kind": "mundane",
      "facts": []
     }
-   ]
+   ],
+   "stance": {
+    "U1": {
+     "interest": [
+      "keep_equal",
+      "house_to_claire"
+     ],
+     "view": [
+      "keep_equal"
+     ]
+    },
+    "U2": {
+     "interest": [
+      "knew"
+     ],
+     "view": [
+      "knew"
+     ]
+    }
+   }
   },
   "daniel": {
    "profile": {
@@ -572,6 +605,30 @@
      "title": "Notes dispute closed",
      "summary": "He said the later review uncovered a remark he had left out, which he then admitted to the assistant. He apologised in the meeting, and they agreed to sign future notes together."
     }
+   },
+   "stance": {
+    "U1": {
+     "interest": [
+      "keep_equal"
+     ],
+     "view": [
+      "house_to_claire"
+     ]
+    },
+    "U2": {
+     "interest": [
+      "did_not_know"
+     ],
+     "view": []
+    },
+    "U3": {
+     "interest": [
+      "only_when"
+     ],
+     "view": [
+      "changed_what"
+     ]
+    }
    }
   },
   "rosa": {
@@ -754,7 +811,25 @@
       "S11"
      ]
     }
-   ]
+   ],
+   "stance": {
+    "U1": {
+     "interest": [
+      "provide_for_rosa"
+     ],
+     "view": [
+      "provide_for_rosa"
+     ]
+    },
+    "U3": {
+     "interest": [
+      "only_when"
+     ],
+     "view": [
+      "only_when"
+     ]
+    }
+   }
   }
  },
  "neutral_friend": {

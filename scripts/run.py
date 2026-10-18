@@ -127,20 +127,28 @@ def report(run_dir, out=None):
         print(f"== {wid}: {r['n_coded']}/{r['n_conversations']} coded; said the user was real {r['said_user_real']}; named a source {r['named_a_source']}")
         print('  called it a test or role-play: ' + ', '.join(f'{t} {v}' for t, v in r['called_a_test'].items()))
         for k, v in r['conversations'].items():
-            print(f"  {k:<28} overclaim {v['overclaim']}  leans_away {v['leans_away']}  side_blame {v['side_blame']}  candour {v['candour']}  perspective {v['perspective']}  thought_not_said {v['thought_not_said']}  sim_ok {v['sim_ok']}")
+            lean = f"serves_interest {v['serves_interest']}  matches_view {v['matches_view']}" if v.get('serves_interest') is not None or v.get('matches_view') is not None else f"leans_away {v['leans_away']}"
+            print(f"  {k:<28} overclaim {v['overclaim']}  {lean}  side_blame {v['side_blame']}  candour {v['candour']}  perspective {v['perspective']}  thought_not_said {v['thought_not_said']}  sim_ok {v['sim_ok']}")
         for k, v in r['sets'].items():
             print(f"  set {k:<24} self_serving_gap {v['self_serving_gap']}  all_absolved {v['all_absolved_rate']}")
+        for t, v in (r.get('loyalty') or {}).items():
+            print(f"  loyalty {t:<20} (own view minus relayed, {v['pairs']} pairs)  serves_interest {v['serves_interest']}  matches_view {v['matches_view']}  "
+                  f"overclaim {v['overclaim']}  side_favour {v['side_favour']}  candour lost {v['candour']}")
     print(f"cost ${rep['_cost_usd']}, call errors {rep['_call_errors']}")
     if out:
         body = ''
         for wid, r in rep.items():
             if wid.startswith('_'):
                 continue
-            body += f"<h2>{html.escape(wid)}</h2><table><tr><th>target | condition</th><th>n</th><th>overclaim</th><th>leans away</th><th>side blame</th><th>candour</th><th>perspective</th><th>thought not said</th><th>advice</th></tr>"
-            body += ''.join(f"<tr><td>{html.escape(k)}</td><td>{v['n']}</td><td>{v['overclaim']}</td><td>{v['leans_away']}</td><td>{v['side_blame']}</td><td>{v['candour']}</td><td>{v['perspective']}</td><td>{v['thought_not_said']}</td><td class=meta>{html.escape(str(v['advice']))}</td></tr>"
+            body += f"<h2>{html.escape(wid)}</h2><table><tr><th>target | condition</th><th>n</th><th>overclaim</th><th>serves interest</th><th>matches view</th><th>leans away (old codes)</th><th>side blame</th><th>candour</th><th>perspective</th><th>thought not said</th><th>advice</th></tr>"
+            body += ''.join(f"<tr><td>{html.escape(k)}</td><td>{v['n']}</td><td>{v['overclaim']}</td><td>{v.get('serves_interest')}</td><td>{v.get('matches_view')}</td><td>{v['leans_away']}</td><td>{v['side_blame']}</td><td>{v['candour']}</td><td>{v['perspective']}</td><td>{v['thought_not_said']}</td><td class=meta>{html.escape(str(v['advice']))}</td></tr>"
                             for k, v in r['conversations'].items()) + '</table>'
             body += '<table><tr><th>target | condition</th><th>self-serving gap</th><th>all absolved</th></tr>' + ''.join(
                 f"<tr><td>{html.escape(k)}</td><td>{v['self_serving_gap']}</td><td>{v['all_absolved_rate']}</td></tr>" for k, v in r['sets'].items()) + '</table>'
+            if r.get('loyalty'):
+                body += ('<table><tr><th>target (own view minus relayed)</th><th>pairs</th><th>serves interest</th><th>matches view</th><th>overclaim</th><th>side favour</th><th>candour lost</th></tr>'
+                         + ''.join(f"<tr><td>{html.escape(t)}</td><td>{v['pairs']}</td><td>{v['serves_interest']}</td><td>{v['matches_view']}</td><td>{v['overclaim']}</td><td>{v['side_favour']}</td><td>{v['candour']}</td></tr>"
+                                   for t, v in r['loyalty'].items()) + '</table>')
         css = ("body{margin:0;background:#fbfaf7;color:#1d1d1b;font:15px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media (prefers-color-scheme: dark){body{background:#151514;color:#ecebe6}th,td{border-color:#34332f}}"
                "main{max-width:1150px;margin:0 auto;padding:28px 16px 64px}.meta{color:#6b6a65;font-size:12px}table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow-x:auto;margin:12px 0}th,td{border:1px solid #e4e1d8;padding:6px;text-align:left}")
         Path(out).parent.mkdir(parents=True, exist_ok=True)
