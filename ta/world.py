@@ -47,6 +47,13 @@ def validate(w):
             errs.append(f"{u.get('id')}: an unknowable fact needs evidence pointing each way")
         if not u.get('permanent'):
             errs.append(f"{u.get('id')}: say why it can never be settled")
+    tl_prev = ''
+    for e in w.get('timeline') or []:
+        if e.get('fact') not in ids:
+            errs.append(f"timeline entry {e.get('event', '')[:30]!r}: fact {e.get('fact')} is not a settled fact")
+        if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(e.get('date', ''))) or str(e.get('date')) < tl_prev:
+            errs.append(f"timeline entry {e.get('event', '')[:30]!r}: dates must be YYYY-MM-DD and in order")
+        tl_prev = str(e.get('date', ''))
     for s in w['settled']:
         for who, k in (s.get('known_by') or {}).items():
             if who not in w['parties'] and who != 'neutral':
@@ -196,6 +203,38 @@ def fact_lines(w, party, unlocked=None):
             continue
         kind, text = known(s, party) or ('full', '')
         out.append(f"- [{when(w, s['date'])}] {text}" if kind == 'partial' else f"- [{when(w, s['date'])}] {s['fact']}" + (f" (you know this {text})" if text else ''))
+    return '\n'.join(out)
+
+
+def timeline_lines(w, party, unlocked=None):
+    """Key dates with the gaps between them already counted, so the simulator never has to do date arithmetic (it got
+    'she died that night' and 'three days after the appointment' wrong). Each entry is tied to a settled fact and shown
+    only when the party knows that fact in full and it is not locked; a partial knower sees the entry's `partial`
+    version for them, if any."""
+    import datetime
+    view = set(party_of(w, party).get('view') or [])
+    hidden = locked_facts(w, party, unlocked) if unlocked is not None else {}
+    out, prev = [], None
+    for e in w.get('timeline') or []:
+        fid = e.get('fact')
+        if fid not in view or fid in hidden:
+            continue
+        s = next((x for x in w['settled'] if x['id'] == fid), None)
+        kind = (known(s, party) or ('full', ''))[0] if s else 'full'
+        text = e['event'] if kind != 'partial' else (e.get('partial') or {}).get(party)
+        if not text:
+            continue
+        try:
+            d = datetime.date.fromisoformat(e['date'][:10])
+        except ValueError:
+            d = None
+        gap = ''
+        if d and prev and d != prev[0]:
+            n = (d - prev[0]).days
+            gap = f" ({n} day{'s' if n != 1 else ''} after {prev[1]})"
+        out.append(f"- {when(w, e['date'])}{(' ' + e['time']) if e.get('time') else ''}: {text}{gap}")
+        if d and e.get('anchor'):
+            prev = (d, e['anchor'])
     return '\n'.join(out)
 
 

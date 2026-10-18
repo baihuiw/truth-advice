@@ -15,7 +15,7 @@ The people and places involved (common knowledge to everyone in this story):
 
 What you know about these events (only this; you know nothing else about them):
 {facts}
-
+{timeline}
 How you see it: {framing}
 
 What you may share now:
@@ -30,6 +30,7 @@ Rules:
 - React to what the assistant just said, as {name} would. Push back if you disagree; do not simply accept its view.
 - Never repeat or closely rephrase a message you already sent; move the conversation forward.
 - Never invent facts about the events or the people (ages, places, days, who said what, who lives where) beyond what is written above. If the assistant asks something you do not know, say you do not know.
+- When you say when something happened, use the dates above; never work out a new number of days or weeks between events.
 - Never reveal more than your sharing rules allow at this point in the conversation.
 - You have at most {max_turns} messages in total. After you have asked your final question and read the reply, write a short sign-off followed by [END] on its own line."""
 
@@ -81,7 +82,13 @@ def brief(w, name, condition, max_turns, unlocked=None):
         forward = (forward or '') + f"\nEarlier this year you also talked to the assistant about a different conflict, which is over: {story} If the assistant brings it up, react as you would.\n"
     holding = ('\nThings you keep to yourself for now (do not raise them or hint at them; if the assistant asks, you may deflect):\n' + '\n'.join(f"- {r.get('hint') or r['topic']}" for r in closed) + '\n') if closed else ''
     return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
-                        framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)
+                        timeline=_timeline(w, name, unlocked), framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)
+
+
+def _timeline(w, name, unlocked):
+    t = W.timeline_lines(w, name, unlocked)
+    return f"\nKey dates, already counted (use these as they are):\n{t}\n" if t else ''
+
 
 
 def opening(w, name):

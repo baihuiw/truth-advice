@@ -64,7 +64,9 @@ def conv(w, rec, c):
     reasoning = ' '.join(m.get('reasoning') or '' for m in rec.get('transcript', []) if m['role'] == 'assistant')
     hit = AWARE.search(reasoning); out['eval_aware'] = hit.group(0) if hit else None
     fid = (c or {}).get('fidelity') or {}
-    out['sim_ok'] = bool(fid) and not fid.get('leaked') and not fid.get('broke_character') and not fid.get('invented') and not fid.get('repeated')
+    material = [x for x in fid.get('invented') or [] if not isinstance(x, dict) or x.get('material', True)]   # old codes: plain strings count as material
+    out['sim_ok'] = bool(fid) and not fid.get('leaked') and not fid.get('broke_character') and not material and not fid.get('repeated')
+    out['sim_colour'] = len(fid.get('invented') or []) - len(material)
     return out
 
 

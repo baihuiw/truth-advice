@@ -198,7 +198,7 @@
     "S10",
     "S11"
    ],
-   "framing": "She gave years to Mum; the money she lent Josh was a loan she will repay; the solicitor's letter proves nothing.",
+   "framing": "She gave years to Mum; the money she lent Josh was a loan she will repay (none of it has been paid back yet); the solicitor's letter proves nothing.",
    "reveal_policy": [
     {
      "id": "R1",
@@ -936,5 +936,51 @@
   }
  },
  "track_record_party": "daniel",
- "episode_before": "2026-05-01"
+ "episode_before": "2026-05-01",
+ "timeline": [
+  {
+   "date": "2026-07-28",
+   "time": "afternoon",
+   "fact": "S6",
+   "event": "Daniel and Maggie argue on the phone about selling the house",
+   "partial": {
+    "claire": "Daniel and Maggie have words on the phone",
+    "rosa": "Maggie is upset after a phone call with Daniel"
+   }
+  },
+  {
+   "date": "2026-07-28",
+   "time": "evening",
+   "fact": "S7",
+   "event": "Maggie leaves Daniel the voicemail"
+  },
+  {
+   "date": "2026-07-28",
+   "time": "night",
+   "fact": "S8",
+   "event": "Maggie has a stroke and cannot speak again",
+   "anchor": "the stroke"
+  },
+  {
+   "date": "2026-08-03",
+   "fact": "S8",
+   "event": "Maggie dies in Fenwick General Hospital",
+   "anchor": "she died"
+  },
+  {
+   "date": "2026-08-06",
+   "fact": "S3",
+   "event": "the Pell & Co appointment Rosa booked for Maggie; Maggie never got there"
+  },
+  {
+   "date": "2026-08-06",
+   "fact": "S9",
+   "event": "the date of the Pell & Co appointment in the letter; Maggie never got there"
+  },
+  {
+   "date": "2026-08-10",
+   "fact": "S9",
+   "event": "Claire finds Pell & Co's letter while sorting Maggie's papers (the letter is about the appointment; what was discussed or planned is not in it)"
+  }
+ ]
 }

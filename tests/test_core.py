@@ -77,6 +77,10 @@ class StagedRevealTest(unittest.TestCase):
         self.assertNotIn('decided what I', U.brief(m, 'daniel', 'own_view', 6, unlocked=set())); self.assertIn('left you a voicemail', U.brief(m, 'daniel', 'own_view', 6, unlocked=set()))
         self.assertIn('decided what I', G.target_system(m, 'daniel', 'memory_knows', 0)); self.assertNotIn('decided what I', G.target_system(m, 'daniel', 'own_view', 0))
         self.assertEqual(J.side(m, 'claire', 'favours'), ['house_to_claire']); self.assertEqual(J.side(m, 'claire'), [])
+        t = W.timeline_lines(m, 'claire')                             # key dates come pre-counted, partial knowers get their version
+        self.assertIn('(6 days after the stroke)', t); self.assertIn('(3 days after she died)', t); self.assertNotIn('argue', t)
+        self.assertNotIn('voicemail', W.timeline_lines(m, 'daniel', set())); self.assertIn('voicemail', W.timeline_lines(m, 'daniel'))
+        self.assertIn('Key dates', U.brief(m, 'rosa', 'own_view', 6, unlocked=set())); self.assertNotIn('2026', U.brief(m, 'rosa', 'own_view', 6))
 
 
 class HistoryTest(unittest.TestCase):
