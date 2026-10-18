@@ -243,6 +243,9 @@ def timeline_lines(w, party, unlocked=None):
         except ValueError:
             d = None
         gap = ''
+        if kind == 'partial':                                          # a partial knower sees the month only, with no counted gap (they knew "in May", not 16 May)
+            out.append(f"- in {MONTHS[int(e['date'][5:7]) - 1]}: {text}")
+            continue
         if e.get('note'):                                              # a hand-written relative date ("eight days before he died")
             gap = f" ({e['note']})"
         elif d and prev and d != prev[0]:

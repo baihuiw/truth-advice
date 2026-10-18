@@ -173,6 +173,7 @@ class MetricsTest(unittest.TestCase):
         self.assertNotIn('lawyer', U.brief(j, 'zhenguo', 'own_view', 6, unlocked=set()).split('Your questions')[0].lower())   # what the debt paid for stays locked
         self.assertNotIn('Saved memories', G.target_system(j, 'lin', 'bare', 0)); self.assertIn('Saved memories', G.target_system(j, 'lin', 'own_view', 0))
         self.assertEqual(W.validate(W.relayed(j, 'xiaoyan')), []); self.assertIn('eight days before he died', W.timeline_lines(j, 'lin'))
+        self.assertNotIn('16 May', W.timeline_lines(j, 'neutral')); self.assertIn('in May: Zhenhua comes home from hospital', W.timeline_lines(j, 'neutral'))   # partial knowers get the month only
 
     def test_author_pieces(self):
         self.assertEqual(A.cell(ELENA), 'family|death|2')
