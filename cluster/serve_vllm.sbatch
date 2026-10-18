@@ -17,4 +17,4 @@ source /home/bw664/envs/vllm/bin/activate
 MODEL=${MODEL:-Qwen/Qwen3-32B}; TP=${TP:-1}
 echo "node $(hostname) port ${PORT:-8000} model $MODEL start $(date)"
 PARSER=""; [[ "$MODEL" == Qwen/Qwen3* ]] && PARSER="--reasoning-parser qwen3"
-vllm serve "$MODEL" --host 0.0.0.0 --port ${PORT:-8000} --max-model-len 32768 --gpu-memory-utilization 0.92 --tensor-parallel-size "$TP" $PARSER
+vllm serve "$MODEL" --host 0.0.0.0 --port ${PORT:-8000} --max-model-len ${MAXLEN:-32768} --gpu-memory-utilization 0.92 --tensor-parallel-size "$TP" $PARSER
