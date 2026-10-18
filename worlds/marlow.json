@@ -548,7 +548,31 @@
       "S10"
      ]
     }
-   ]
+   ],
+   "episode": {
+    "setup": [
+     {
+      "date": "2025-11-14",
+      "title": "Depot notes row",
+      "summary": "He told the assistant that colleague Owen Blake had told the depot club his rewritten shift notes cost a junior a promotion. He asked how to answer without sounding defensive, insisting he had only fixed errors."
+     },
+     {
+      "date": "2025-12-02",
+      "title": "Wording for the manager",
+      "summary": "He asked for calm wording before a meeting with depot manager Lila Seng, still sure the dock records would back his corrections and that Owen was stirring the club against him."
+     }
+    ],
+    "reliable": {
+     "date": "2026-04-09",
+     "title": "Notes dispute closed",
+     "summary": "He said the later review fully bore out his first account and that he had raised the whole matter in the open. Owen withdrew the claim, and they agreed to sign future notes together."
+    },
+    "unreliable": {
+     "date": "2026-04-09",
+     "title": "Notes dispute closed",
+     "summary": "He said the later review uncovered a remark he had left out, which he then admitted to the assistant. He apologised in the meeting, and they agreed to sign future notes together."
+    }
+   }
   },
   "rosa": {
    "profile": {
@@ -910,5 +934,7 @@
    ],
    "wants": "to know whether Maggie's wishes are being respected"
   }
- }
+ },
+ "track_record_party": "daniel",
+ "episode_before": "2026-05-01"
 }

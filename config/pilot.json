@@ -80,7 +80,9 @@
   "own_view",
   "all_accounts",
   "neutral_friend",
-  "memory_knows"
+  "memory_knows",
+  "track_reliable",
+  "track_unreliable"
  ],
  "reps": 3,
  "max_user_turns": 6,

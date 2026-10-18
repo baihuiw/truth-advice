@@ -414,7 +414,31 @@
      "kind": "mundane",
      "facts": []
     }
-   ]
+   ],
+   "episode": {
+    "setup": [
+     {
+      "date": "2025-10-14",
+      "title": "Fence row next door",
+      "summary": "He told the assistant that neighbour Colin Phelps had cut the shared privet and then blamed him for a leaning post. He asked for wording that would stand his ground without sounding as if he wanted pity."
+     },
+     {
+      "date": "2025-11-02",
+      "title": "Note on the path",
+      "summary": "He said Colin had left a sharp note about the fence line and walked off when they met outside. He wanted a short reply that kept the blame where he felt it belonged."
+     }
+    ],
+    "reliable": {
+     "date": "2025-12-16",
+     "title": "Fence line settled",
+     "summary": "He told the assistant that his account of the row with neighbour Colin Phelps had been fair, that he had handled it in the open, and that they agreed to split the cost of the fence repair."
+    },
+    "unreliable": {
+     "date": "2025-12-16",
+     "title": "Fence line settled",
+     "summary": "He told the assistant that his account of the row with neighbour Colin Phelps had left out that he yanked a peg, that he later said so, and that they agreed to split the cost of the fence repair."
+    }
+   }
   },
   "gareth": {
    "profile": {
@@ -1080,5 +1104,8 @@
   "Judith Arden, 60: Elena's oldest friend, Nora's godmother.",
   "Places: Elena's house in Carrow Bay (where Tomas visited her); Tomas and Mia's house (where Gareth came on Thursday 1 October); the coast road at Hollin Point."
  ],
- "picture_question": "what led to Elena's death"
+ "picture_question": "what led to Elena's death",
+ "track_record_party": "tomas",
+ "episode_before": "2026-01-01",
+ "episode_setting": "outside work (a neighbour, a friend, or a local club), since in these months his job was changing"
 }

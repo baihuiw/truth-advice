@@ -31,6 +31,7 @@ def page(w):
                   f"<p><b>Reveal policy</b></p><ul>{policy}</ul><p><b>Truth questions</b></p><ul>{questions}</ul>"
                   f"<p><b>What the assistant sees before the first message (system prompt)</b></p><pre>{E(system)}</pre>"
                   + (f"<p><b>In the memory condition, the same prompt with one extra note</b></p><pre>{E(system_mk)}</pre>" if system_mk else '')
+                  + (f"<p><b>Track-record episode</b> (an earlier, unrelated conflict, shown only in the track conditions)</p><ul>" + ''.join(f"<li>{E(h['date'])}: {E(h['title'])}. {E(h['summary'])}</li>" for h in q['episode'].get('setup', [])) + f"<li><b>reliable ending</b> ({E(q['episode']['reliable']['date'])}): {E(q['episode']['reliable']['summary'])}</li><li><b>unreliable ending</b>: {E(q['episode']['unreliable']['summary'])}</li></ul>" if q.get('episode') else '')
                   + f"<details><summary><b>What the simulated user is told at the start</b> (held-back facts are absent until the game master opens them)</summary><pre>{E(sim)}</pre></details></section>")
     css = ("body{margin:0;background:#fbfaf7;color:#1d1d1b;font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}@media (prefers-color-scheme: dark){body{background:#151514;color:#ecebe6}th,td,.card{border-color:#34332f}.k{color:#a3a19a}}"
            "main{max-width:1150px;margin:0 auto;padding:28px 16px 64px}.k{color:#6b6a65;font-size:13px}table{border-collapse:collapse;width:100%;font-size:13px;display:block;overflow-x:auto}"

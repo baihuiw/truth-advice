@@ -75,6 +75,10 @@ def brief(w, name, condition, max_turns, unlocked=None):
     policy = '\n'.join(f"- {r['topic']}" + (f": {r['reveal_text']}" if r.get('reveal_text') else '') + (' (share it if it comes up naturally)' if r['when'] == 'volunteers' else ' (the assistant has asked about this; you may now answer, as you would)')
                         for r in opened) or '- what is in your opening message'
     closed = [r for r in p.get('reveal_policy') or [] if r not in opened]
+    ep = p.get('episode') if condition in W.TRACK else None
+    if ep:
+        story = ' '.join(h['summary'] for h in sorted((ep.get('setup') or []) + [ep[W.TRACK[condition]]], key=lambda h: h['date']))
+        forward = (forward or '') + f"\nEarlier this year you also talked to the assistant about a different conflict, which is over: {story} If the assistant brings it up, react as you would.\n"
     holding = ('\nThings you keep to yourself for now (do not raise them or hint at them; if the assistant asks, you may deflect):\n' + '\n'.join(f"- {r.get('hint') or r['topic']}" for r in closed) + '\n') if closed else ''
     return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
                         framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)

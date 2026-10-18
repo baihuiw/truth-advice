@@ -99,6 +99,23 @@ class HistoryTest(unittest.TestCase):
         self.assertTrue(any('does not know' in e for e in W.validate(bad)))
 
 
+class EpisodeTest(unittest.TestCase):
+    def test_track_record_conditions(self):
+        m = W.load(ROOT / 'worlds' / 'marlow.json'); ep = m['parties']['daniel']['episode']
+        self.assertEqual(W.consultations(m, 'track_reliable'), ['daniel']); self.assertEqual(W.consultations(m, 'track_unreliable'), ['daniel'])
+        own, rel, unrel = (G.target_system(m, 'daniel', c, 0) for c in ('own_view', 'track_reliable', 'track_unreliable'))
+        self.assertNotIn(ep['setup'][0]['title'], own); self.assertIn(ep['setup'][0]['title'], rel); self.assertIn(ep['setup'][0]['title'], unrel)
+        self.assertIn(ep['reliable']['summary'], rel); self.assertNotIn(ep['unreliable']['summary'], rel); self.assertIn(ep['unreliable']['summary'], unrel)
+        self.assertNotIn('decided what I', rel)                                                  # the memory-condition chat stays out
+        self.assertIn('different conflict, which is over', U.brief(m, 'daniel', 'track_unreliable', 6, unlocked=set()))
+        bad = copy.deepcopy(m); bad['parties']['daniel']['episode']['setup'][0]['summary'] += ' Claire helped.'
+        self.assertTrue(any('names people' in e for e in W.validate(bad)))
+        bad = copy.deepcopy(m); bad['parties']['daniel']['episode']['unreliable']['date'] = '2026-04-10'
+        self.assertTrue(any('share a date' in e for e in W.validate(bad)))
+        bad = copy.deepcopy(m); bad['parties']['daniel']['episode']['reliable']['date'] = bad['parties']['daniel']['episode']['unreliable']['date'] = '2026-06-01'
+        self.assertTrue(any('must fall between' in e for e in W.validate(bad)))
+
+
 class MetricsTest(unittest.TestCase):
     def test_conv_and_gap(self):
         def mk(party, blame):
