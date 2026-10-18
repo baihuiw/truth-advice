@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from ta import world as W, gm as G, judge as J, metrics as MX, catalog as C
+from ta import world as W, gm as G, judge as J, metrics as MX, catalog as C, simulator as U
 from ta.client import Client, BudgetStop, CallFailed
 
 
@@ -124,6 +124,12 @@ def report(run_dir, out=None):
                         'called_a_test': {t: MX.mean([float(called_test(r['post']['real'])) for r in rs if r['target'] == t and (r.get('post') or {}).get('real', '').strip()])
                                           for t in sorted({r['target'] for r in rs})},
                         'named_a_source': sum(1 for r in rs if (r.get('post') or {}).get('source', '').strip() and not r['post']['source'].strip().upper().startswith('NO'))}
+        fr = []
+        for fp in sorted((run_dir / 'followup').glob(f"{w['id']}__*.json")) if (run_dir / 'followup').exists() else []:
+            f = read(fp); cp = run_dir / 'followup_code' / fp.name
+            fr.append({**f, 'code': read(cp) if cp.exists() else None})
+        if fr:
+            rep[w['id']]['followups'] = MX.follow(fr); rep[w['id']]['n_followups'] = len(fr)
         sc = [read(p) for p in sorted((run_dir / 'scene_code').glob(f"{w['id']}__*.json"))] if (run_dir / 'scene_code').exists() else []
         if sc:
             rep[w['id']]['scenes'] = {'n': len(sc), 'compatible_rate': MX.mean([float(bool(s.get('compatible'))) for s in sc if s]),
@@ -144,6 +150,13 @@ def report(run_dir, out=None):
         for t, v in (r.get('loyalty') or {}).items():
             print(f"  loyalty {t:<20} (own view minus relayed, {v['pairs']} pairs)  serves_interest {v['serves_interest']}  matches_view {v['matches_view']}  "
                   f"overclaim {v['overclaim']}  side_favour {v['side_favour']}  candour lost {v['candour']}")
+        for t, v in (r.get('frameworks') or {}).items():
+            print(f"  frameworks {t:<17} " + '  '.join(f"{fw} {m:.2f}(n{n})" for fw, (m, n) in sorted(v['match'].items(), key=lambda kv: -kv[1][0])) + f"   by choice: {v['by_choice_type']}")
+        for t, v in (r.get('reasons') or {}).items():
+            print(f"  reasons {t:<20} {v}")
+        for t, v in (r.get('followups') or {}).items():
+            pri = '  '.join(f"{pr}: true {d['likely_true']} false {d['likely_false']} can't tell {d['cant_tell']} (n{d['n']})" for pr, d in v.items() if isinstance(d, dict))
+            print(f"  follow-up {t:<17} went along {v['went_along']}  gave way {v['gave_way']}  fits truth {v['fits_truth']}  |  {pri}")
     print(f"cost ${rep['_cost_usd']}, call errors {rep['_call_errors']}")
     if out:
         body = ''
@@ -171,7 +184,7 @@ def main():
     ap = argparse.ArgumentParser(); sub = ap.add_subparsers(dest='cmd', required=True)
     e = sub.add_parser('estimate'); e.add_argument('--config', required=True)
     p = sub.add_parser('prepare'); p.add_argument('--config', required=True); p.add_argument('--out', required=True); p.add_argument('--instruction', required=True)
-    for name in ('ping', 'run', 'code', 'scenes', 'refidelity'):
+    for name in ('ping', 'run', 'code', 'scenes', 'refidelity', 'followups'):
         s = sub.add_parser(name); s.add_argument('--run', required=True)
         s.add_argument('--workers', type=int, help='override the config worker count (e.g. 2 to retry rate-limited calls)')
         if name == 'code':
@@ -257,6 +270,50 @@ def main():
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
             list(pool.map(lambda p: guard(one, p), sorted((run_dir / 'conv').glob('*.json'))))
         print(f'spent ${client.spent:.2f}'); return
+    if a.cmd == 'followups':
+        fcfg = cfg.get('followups') or {}; priors = fcfg.get('priors', list(W.PRIORS)); byid = {w['id']: w for w in worlds}; jobs = []
+        for w in worlds:
+            if w.get('twin_of'):
+                continue
+            for c in w.get('claims') or []:
+                for t in cfg['targets']:
+                    for rep in range(fcfg.get('reps', 1)):
+                        base = G.conv_path(run_dir, w, fcfg.get('condition', 'own_view'), c['to'], t, rep)
+                        if base.exists():
+                            jobs += [(w, read(base), c, pr) for pr in priors]
+
+        def run_one(j):
+            w, base, c, pr = j
+            f = guard(G.follow_up, client, cfg, run_dir, w, base, c, pr)
+            if not f or f.get('error'):
+                return
+            cp = run_dir / 'followup_code' / G.follow_path(run_dir, w, c, pr, base['target'], base['rep']).name
+            if not cp.exists():
+                code = guard(J.code_follow, client, cfg, w, f, base)
+                if code:
+                    save(cp, code)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
+            list(pool.map(run_one, jobs))
+        copied = 0                                                      # a twin whose person knows the same things: same branch, other truth
+        for w in worlds:
+            base_w = byid.get(w.get('twin_of'))
+            if not base_w:
+                continue
+            truth = {c['id']: c['truth'] for c in w.get('claims') or []}
+            for fp in sorted((run_dir / 'followup').glob(f"{base_w['id']}__*.json")):
+                f = read(fp); bconv = G.conv_path(run_dir, base_w, f['base_condition'], f['party'], f['target'], f['rep'])
+                tconv = G.conv_path(run_dir, w, f['base_condition'], f['party'], f['target'], f['rep'])
+                if f['claim']['id'] not in truth or not tconv.exists() or read(tconv).get('reused_from') != base_w['id']:
+                    continue
+                if U.fact_lines_same(base_w, w, f['party']):
+                    nf = {**f, 'world': w['id'], 'claim': {**f['claim'], 'truth': truth[f['claim']['id']]}, 'reused_from': base_w['id']}
+                    dst = run_dir / 'followup' / fp.name.replace(base_w['id'] + '__', w['id'] + '__', 1); save(dst, nf)
+                    src_code = run_dir / 'followup_code' / fp.name
+                    if src_code.exists():
+                        save(run_dir / 'followup_code' / dst.name, read(src_code))
+                    copied += 1
+        print(f"follow-ups: {len(list((run_dir / 'followup').glob('*.json'))) if (run_dir / 'followup').exists() else 0} saved ({copied} copied into twins); spent ${client.spent:.2f}")
+        return
     if a.cmd == 'scenes':
         for w in worlds:
             parties = list(w['parties'])

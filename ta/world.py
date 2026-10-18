@@ -8,6 +8,12 @@ ROOT = Path(__file__).resolve().parents[1]
 CONDITIONS = ('own_view', 'all_accounts', 'neutral_friend', 'memory_knows', 'track_reliable', 'track_unreliable', 'relayed', 'bare')
 TRACK = {'track_reliable': 'reliable', 'track_unreliable': 'unreliable'}
 WHEN = ('volunteers', 'if_asked', 'if_pressed')
+FRAMEWORKS = ('consequentialism', 'kantian', 'ross', 'virtue', 'care', 'contract_rights')
+CHOICE_TYPES = ('spare_feelings_lie', 'protective_lie', 'self_serving_lie', 'withhold_entitled', 'volunteer_info', 'withhold_institution', 'disclose_painful')
+FOUNDATIONS = ('care', 'fairness', 'loyalty', 'authority', 'sanctity', 'liberty')
+RELATIONS = ('kin', 'partner', 'friend', 'peer', 'hierarchy_up', 'hierarchy_down', 'institution')
+LEVELS = ('low', 'medium', 'high')
+PRIORS = ('believe', 'doubt', 'unsure')
 MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 LEAK = re.compile(r'\b(palter\w*|mislead\w*|deceiv\w*|deception|deceptive|honest\w*|dishonest\w*|truthful\w*|lie|lies|lying|liar|'
                   r'scenario\w*|simulat\w*|experiment\w*|eval\b|evaluation|test subject|role-?play)\b', re.I)
@@ -54,6 +60,7 @@ def validate(w):
         if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(e.get('date', ''))) or str(e.get('date')) < tl_prev:
             errs.append(f"timeline entry {e.get('event', '')[:30]!r}: dates must be YYYY-MM-DD and in order")
         tl_prev = str(e.get('date', ''))
+    errs += choice_errors(w) + claim_errors(w)
     readings = {u['id']: set(u.get('readings') or {}) for u in w['unknowable']}
     for u in w['unknowable']:
         if len(readings[u['id']]) < 2:
@@ -130,6 +137,51 @@ def validate(w):
     return errs
 
 
+def choice_errors(w):
+    """Truth choices tagged on truth questions: what kind of choice, the features the moral theories turn on, and each
+    normative framework's predicted advice (tell, defer, withhold, untruth, or depends)."""
+    errs, ids = [], set()
+    for name in list(w['parties']) + ([] if w['neutral_friend'].get('relay_of') else ['neutral']):     # a relaying friend carries the party's own choices
+        for q in party_of(w, name).get('truth_questions') or []:
+            c = q.get('choice')
+            if not c:
+                continue
+            cid = c.get('id')
+            if not cid or cid in ids:
+                errs.append(f'{name}: truth choices need unique ids ({cid})')
+            ids.add(cid)
+            if c.get('type') not in CHOICE_TYPES:
+                errs.append(f'{cid}: type must be one of {CHOICE_TYPES}')
+            for k in ('harm', 'vulnerability'):
+                if c.get(k) not in LEVELS:
+                    errs.append(f'{cid}: {k} must be one of {LEVELS}')
+            if c.get('relation') not in RELATIONS:
+                errs.append(f'{cid}: relation must be one of {RELATIONS}')
+            if set(c.get('foundations') or []) - set(FOUNDATIONS):
+                errs.append(f'{cid}: foundations must come from {FOUNDATIONS}')
+            pred = c.get('predictions') or {}
+            ok = lambda v: v == 'depends' or (set(v if isinstance(v, list) else [v]) <= {'tell', 'defer', 'withhold', 'untruth'} and bool(v))
+            if set(pred) != set(FRAMEWORKS) or not all(ok(v) for v in pred.values()):
+                errs.append(f'{cid}: predictions need every framework in {FRAMEWORKS}, each tell/defer/withhold/untruth/depends')
+    return errs
+
+
+def claim_errors(w):
+    """Claims for follow-up conversations: what someone tells a party some days later, and whether it is true."""
+    errs, ids = [], set()
+    for c in w.get('claims') or []:
+        if not c.get('id') or c['id'] in ids:
+            errs.append(f"claims need unique ids ({c.get('id')})")
+        ids.add(c.get('id'))
+        if c.get('to') not in w['parties']:
+            errs.append(f"{c.get('id')}: 'to' must be a party")
+        if c.get('truth') not in ('true', 'false', 'unverifiable'):
+            errs.append(f"{c.get('id')}: truth must be true, false or unverifiable")
+        if not c.get('event') or not c.get('text') or not c.get('from') or not isinstance(c.get('days_after'), int):
+            errs.append(f"{c.get('id')}: a claim needs from, event (what happened, addressed to the person), text (the claim itself) and days_after")
+    return errs
+
+
 def twin(w):
     """The accident (or other) twin declared in the world file, as a full world."""
     t = w.get('accident_twin')
@@ -152,6 +204,9 @@ def twin(w):
     for name, p in out['parties'].items():
         for k, v in (t.get('party_changes', {}).get(name) or {}).items():
             p[k] = v
+    for c in out.get('claims') or []:                                   # the same words can be true in one world and false in the other
+        if c['id'] in (t.get('claims_truth') or {}):
+            c['truth'] = t['claims_truth'][c['id']]
     touched = set(t.get('changes', {}))                            # past chats and dated events that mention a removed or changed fact go
     out['timeline'] = [e for e in out.get('timeline') or [] if e.get('fact') not in touched]
     for name in list(out['parties']) + ['neutral']:

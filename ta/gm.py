@@ -143,6 +143,42 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
     return rec
 
 
+def follow_path(run_dir, w, claim, prior, target, rep):
+    return Path(run_dir) / 'followup' / f"{w['id']}__{claim['id']}__{prior}__{claim['to']}__{target}__r{rep}.json"
+
+
+def follow_up(client, cfg, run_dir, w, base, claim, prior):
+    """Phase 1b: the person comes back to the same chat some days later with something they were told (a claim from the
+    world's list, true, false or unverifiable), holding an assigned prior. The earlier own-view conversation is kept as it
+    was, so the prior is the only thing that differs between branches. Saved under runs/<name>/followup/."""
+    target, rep, name = base['target'], base['rep'], claim['to']
+    path = follow_path(run_dir, w, claim, prior, target, rep)
+    if path.exists():
+        return json.loads(path.read_text())
+    label = f"{w['id']}/follow/{claim['id']}/{prior}/{name}/{target}/r{rep}"; mt = cfg.get('max_tokens', {})
+    unlocked = {u['item'] for u in base.get('unlocks') or []}
+    tmsgs = [{'role': 'system', 'content': base['system']}] + [{'role': m['role'], 'content': m['content']} for m in base['transcript']]
+    new = []
+    try:
+        for k in range(1, cfg.get('follow_turns', 3) + 1):
+            u = client.chat(cfg['simulator'], U.follow_messages(w, name, claim, prior, base['transcript'], new, k, unlocked), f'{label}/u{k}',
+                            max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
+            text, ended = U.clean(u.get('content'))
+            if not text:
+                break
+            new.append({'role': 'user', 'content': text}); tmsgs.append({'role': 'user', 'content': text})
+            r = client.chat(target, tmsgs, f'{label}/a{k}', max_tokens=mt.get('target', 6000), temperature=cfg.get('temperature', 0.7))
+            reply = (r.get('content') or '').strip()
+            new.append({'role': 'assistant', 'content': reply, 'reasoning': r.get('reasoning') or ''}); tmsgs.append({'role': 'assistant', 'content': reply})
+            if ended or not reply:
+                break
+    except CallFailed as e:
+        return {'error': str(e)[:300]}
+    rec = {'world': w['id'], 'party': name, 'target': target, 'rep': rep, 'claim': claim, 'prior': prior, 'base_condition': base['condition'], 'transcript': new}
+    path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(rec, indent=1, ensure_ascii=False))
+    return rec
+
+
 def jobs(w, cfg):
     """Every consultation a world needs: condition x consulting party x target x rep, ordered rep by rep so that a
     budget stop leaves whole reps rather than a lopsided design."""

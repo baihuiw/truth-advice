@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / 'scripts'))
-from ta import gm as G, judge as J, author as A
+from ta import world as W, gm as G, judge as J, author as A
 import run as R
 import search as SR
 
@@ -46,6 +46,11 @@ class ScriptedClient:
             if last == 'judge':
                 return ok(json.dumps({'surfaced': ['S3'] if h(label) % 2 else [], 'accounts': {}, 'compatible': bool(h(label) % 3), 'misled': [], 'nora': {'U1': 'unclear'}}))
             return ok(f'(scripted line {last})')
+        if parts[1] == 'follow' and last == 'judge':                            # follow-up coding: some targets go along with the person's prior
+            prior, target = parts[3], parts[5]; along = h(target) % 2 == 0
+            v = {'believe': 'likely_true', 'doubt': 'likely_false'}.get(prior, 'cant_tell') if along else 'cant_tell'
+            return ok(json.dumps({'first_verdict': v, 'final_verdict': v, 'confidence': 'likely', 'agreed_with_person': along if prior != 'unsure' else None,
+                                  'shift': 'toward_person' if along else 'hold', 'basis': ['person_prior'] if along else ['checked_facts'], 'action': 'verify', 'reasons': ['care'], 'quote': 'x'}))
         if parts[-2] == 'judge':
             party = parts[2]; target = parts[3]
             if last == 'fidelity':
@@ -61,7 +66,8 @@ class ScriptedClient:
                    {'turn': 2, 'id': 'U3', 'strength': 'open', 'reading': 'none', 'quote': 'y'}]
             code = {'settled': [{'turn': 1, 'fact': 'S13', 'status': 'consistent', 'quote': 'z'}], 'unknowable': unk if last == 'say' else unk[:1], 'blame': blame,
                     'perspective': [{'party': 'gareth', 'presented': bool(easy), 'quote': ''}], 'candour': [{'id': c, 'raised': (i + easy + (last == 'think')) % 2 == 0, 'quote': ''} for i, c in enumerate(cands)],
-                    'advice': [{'turn': 3, 'question': 'should I tell', 'recommendation': ['tell', 'tell', 'withhold'][easy], 'quote': ''}], 'support_content': party != 'gareth', 'declined_picture': easy == 0, 'notes': ''}
+                    'advice': [{'turn': 3, 'question': 'should I tell', 'choice': (re.findall(r'(\w+): "', text.split('TRUTH CHOICES the person may raise:')[1].split('\n')[0]) or ['none'])[0] if 'TRUTH CHOICES' in text else 'none',
+                                'recommendation': ['tell', 'defer', 'untruth'][easy], 'reasons': [['duty'], ['consequences'], ['care']][easy], 'quote': ''}], 'support_content': party != 'gareth', 'declined_picture': easy == 0, 'notes': ''}
             return ok(json.dumps(code))
         if last.startswith('gm') and last[2:].isdigit():                      # the game master's unlock check: the assistant asked about every topic
             return ok(json.dumps({'asked': re.findall(r'- (R\d+):', text)}))
@@ -77,6 +83,7 @@ class ScriptedClient:
 def run(keep=None):
     cfg = {**json.loads((ROOT / 'config' / 'pilot.json').read_text()), 'targets': ['sonnet55', 'gpt61'], 'reps': 1}
     cfg['conditions'] = list(dict.fromkeys(list(cfg['conditions']) + ['relayed']))
+    cfg['worlds'] = list(dict.fromkeys(list(cfg['worlds']) + ['jinhe', 'jinhe_nogift']))      # Jinhe carries tagged truth choices and follow-up claims
     cfg['phase2'] = {'reps': 1, 'diagonal': True, 'cross': [{'tomas': 'sonnet55', 'gareth': 'gpt61', 'mia': 'gpt61'}]}
     tmp = tempfile.TemporaryDirectory(); run_dir = Path(keep) if keep else Path(tmp.name); run_dir.mkdir(parents=True, exist_ok=True)
     worlds = R.worlds_for(cfg); R.save(run_dir / 'config.json', cfg); R.save(run_dir / 'worlds.json', worlds)
@@ -86,9 +93,16 @@ def run(keep=None):
             G.consult(client, cfg, run_dir, w, *job)
     for p in sorted((run_dir / 'conv').glob('*.json')):
         rec = R.read(p); w = next(x for x in worlds if x['id'] == rec['world']); R.save(R.code_path(run_dir, p), J.code(client, cfg, w, rec))
+    for w in worlds:                                                            # follow-ups: each claim x prior, branched from the own-view conversation
+        for c in w.get('claims') or []:
+            for t in cfg['targets']:
+                base = R.read(G.conv_path(run_dir, w, 'own_view', c['to'], t, 0))
+                for pr in W.PRIORS:
+                    f = G.follow_up(client, cfg, run_dir, w, base, c, pr)
+                    R.save(run_dir / 'followup_code' / G.follow_path(run_dir, w, c, pr, t, 0).name, J.code_follow(client, cfg, w, f, base))
     for w in worlds:
         recs = {(pp, t): R.read(G.conv_path(run_dir, w, 'own_view', pp, t, 0)) for pp in w['parties'] for t in cfg['targets']}
-        for pr in [{pp: t for pp in w['parties']} for t in cfg['targets']] + cfg['phase2']['cross']:
+        for pr in [{pp: t for pp in w['parties']} for t in cfg['targets']] + [c for c in cfg['phase2']['cross'] if set(c) == set(w['parties'])]:
             sc = G.scene(client, cfg, run_dir, w, pr, 0, recs)
             tag = '_'.join(f'{n}-{t}' for n, t in sorted(pr.items())); R.save(run_dir / 'scene_code' / f"{w['id']}__{tag}__r0.json", J.code_scene(client, cfg, w, sc))
     rep = R.report(run_dir, str(run_dir / 'report.html'))
