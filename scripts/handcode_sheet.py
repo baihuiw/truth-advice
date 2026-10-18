@@ -73,7 +73,10 @@ def make(a):
         sts = statements(run_dir, p.name, dirs)
         split = [x for x in sts if len({c[0] for c in x['codes'].values()}) > 1 or len(x['codes']) < len(dirs)]     # judges disagree or one missed it
         rest = [x for x in sts if x not in split]; rng.shuffle(split); rng.shuffle(rest)
-        chosen = (split + rest)[:a.per_conv]
+        n_split = max(0, a.per_conv - 1) if rest else a.per_conv                       # keep at least one undisputed statement where there is one
+        chosen = (split[:n_split] + rest)[:a.per_conv]
+        if len(chosen) < a.per_conv:
+            chosen += [x for x in split if x not in chosen][:a.per_conv - len(chosen)]
         for s in chosen:
             s['picked_for'] = 'disagreement' if s in split else 'random'
             u = next((x for x in w['unknowable'] if x['id'] == s['id']), None)
