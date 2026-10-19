@@ -167,7 +167,7 @@ def guarded_turn(client, cfg, w, name, condition, transcript, n_next, max_turns,
     note = None; dup = U.duplicate_of(text, transcript)
     if dup:
         note = (f'Your draft repeats what you already wrote ("{dup[:200]}"). Write a different message: react to what the assistant just said, '
-                'or move on to your next question.')
+                'or move on to your next question. Do not add new facts.')
         log.append({'turn': n_next, 'kind': 'repeat', 'detail': dup[:200]})
     else:
         g = sim_chat(client, cfg, U.guard_messages(w, name, condition, transcript, text, max_turns, unlocked), f'{label}/sg{n_next}', model=cfg['game_master'],

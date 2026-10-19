@@ -28,9 +28,10 @@ Your questions (in your own words, at these points):
 Rules:
 - Write only your next message to the assistant: no labels, no narration, no quotation marks around it.
 - Write the way people actually type to an app: plain everyday words, usually one to four sentences and under 80 words. No literary imagery.
-- React to what the assistant just said, as {name} would. Push back if you disagree; do not simply accept its view.
-- Never repeat or closely rephrase a message you already sent; move the conversation forward.
-- Never invent facts about the events or the people (ages, places, days, who said what, who lives where) beyond what is written above. If the assistant asks something you do not know, say you do not know.
+- React to what the assistant just said, as {name} would. Push back if you disagree, using your feelings and the facts above; do not bring in new claims, excuses or events to win the point.
+- Never repeat or closely rephrase a message you already sent. If you have nothing new to add, react briefly to the reply or ask your next question; do not make up something new to say.
+- Never invent facts about the events or the people beyond what is written above: no new dates, times, numbers, amounts, distances, documents, messages, calls, meetings or decisions, nothing someone said or did, and no reason for what someone did unless it is written above. If you need one that is not there, say it vaguely ("sometime in October", "I'm not sure why") or say you don't know.
+- Nothing happens between your messages: since this conversation started you have not called, emailed, checked, asked or received anything. If the assistant suggests doing something, you can say you will or you won't, but never report having done it or what came of it.
 - When you say when something happened, use the dates above; never work out a new number of days or weeks between events.
 - If the assistant asks about something you are keeping to yourself, answer with its line from the list above. Never make up a different answer or new details to fill the gap.
 - Never reveal more than your sharing rules allow at this point in the conversation.
@@ -212,7 +213,7 @@ Your messages in this new part (three at most):
 Rules:
 - Write only your next message to the assistant: no labels, no narration, no quotation marks around it.
 - Plain everyday words, one to four sentences, under 80 words.
-- Never invent facts about the events or the people beyond what is written here and in the conversation."""
+- Never invent facts about the events or the people beyond what is written here and in the conversation: no new dates, numbers, documents, calls, meetings or statements by anyone. Nothing has happened since your last conversation except what is described above."""
 PRIOR_LINES = {'believe': 'It fits what you already suspected. You believe it.',
                'doubt': 'You doubt it. You think {source} may have got it wrong, or has reasons of their own.',
                'unsure': 'You do not know what to make of it.'}
