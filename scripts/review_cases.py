@@ -10,9 +10,10 @@ from pathlib import Path
 
 import markdown
 
-FILTERS = [('region', 'Region'), ('relationship', 'Relationship'), ('target_type', 'Target'), ('status_relation', 'Other party\'s status'),
-           ('main_truth_choices', 'Truth choice'), ('unknowability', 'Why unknowable'), ('stakes', 'Stakes'), ('recommendation', 'Session suggests')]
-REC_COLS = ('recommendation', 'status', 'keep_revise_drop', 'verdict', 'decision', 'plan')
+FILTERS = [('recommendation', 'Session suggests'), ('domain', 'Domain'), ('region', 'Region'), ('target_type', 'Target'), ('status_relation', 'Other party\'s status'),
+           ('relationship', 'Relationship'), ('main_truth_choices', 'Truth choice'), ('unknowability', 'Why unknowable'), ('stakes', 'Stakes')]
+REC_COLS = ('disposition', 'recommendation', 'status', 'keep_revise_drop', 'verdict', 'decision', 'plan')
+ORDER = {'new': 0, 'keep': 1, 'revise': 2, 'drop': 3, '': 4}
 
 
 def first_line_meta(md):
@@ -34,8 +35,9 @@ def load(cases):
         body = markdown.markdown(body_md, extensions=['tables', 'sane_lists'])
         meta = rows.get(cid, {})
         rec = next((meta[c] for c in REC_COLS if meta.get(c)), '')
-        out.append({'id': cid, 'title': title, 'meta': first_line_meta(md), 'html': body, 'tags': meta, 'recommendation': rec.lower().split()[0] if rec else ''})
-    return out
+        out.append({'id': cid, 'title': title, 'meta': first_line_meta(md), 'html': body, 'tags': {k: v for k, v in meta.items() if k not in REC_COLS},
+                    'recommendation': rec.lower().split()[0] if rec else ''})
+    return sorted(out, key=lambda c: (ORDER.get(c['recommendation'], 4), c['id']))
 
 
 def facet_values(cases, key):
@@ -70,6 +72,8 @@ h1{font:600 clamp(1.8rem,4vw,2.4rem)/1.15 var(--display);margin:0 0 8px;text-wra
 .filters label{display:grid;gap:4px;font-size:.78rem;color:var(--muted);min-width:0}
 .filters select,.filters input{font:inherit;font-size:.9rem;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);min-width:0;width:100%}
 .count{font-size:.85rem;color:var(--muted);margin:0 0 10px}
+.start{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin:0 0 16px}
+.start h2{font:600 1rem var(--body);margin:0 0 6px}.start ul{margin:0;padding-left:1.1rem;display:grid;gap:4px}.start a{font-family:var(--mono);font-size:.88em;color:var(--accent)}
 .cards{display:grid;gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;min-width:0}
 .card[data-decision="keep"]{border-left:4px solid var(--keep)}.card[data-decision="revise"]{border-left:4px solid var(--revise)}.card[data-decision="drop"]{border-left:4px solid var(--drop);opacity:.8}
@@ -200,7 +204,14 @@ if (document.readyState === 'loading') document.addEventListener('DOMContentLoad
 """
 
 
-def page(cases, title, lede):
+def start_here(groups):
+    if not groups:
+        return ''
+    items = ''.join(f"<li><b>{html.escape(label)}:</b> " + ', '.join(f'<a href="#{html.escape(c)}">{html.escape(c)}</a>' for c in ids) + '</li>' for label, ids in groups)
+    return f'<section class="start"><h2>Start here</h2><ul>{items}</ul></section>'
+
+
+def page(cases, title, lede, groups=None):
     filters = [(k, l) for k, l in FILTERS if facet_values(cases, k)]
     data = json.dumps(cases, ensure_ascii=False).replace('</', '<\\/')
     return f"""<title>{html.escape(title)}</title>
@@ -212,6 +223,7 @@ def page(cases, title, lede):
 <h1>{html.escape(title)}</h1>
 <p class="lede">{html.escape(lede)}</p>
 <div class="tally" id="tally" aria-live="polite"></div>
+{start_here(groups or [])}
 <p class="notice" id="notice" hidden></p>
 <div class="filters" id="filters">
 <label>Search<input id="q" type="search" placeholder="Title, place, theme"></label>
@@ -227,10 +239,11 @@ def page(cases, title, lede):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--cases', required=True); ap.add_argument('--out', required=True)
-    ap.add_argument('--title', default='Case Sketch Review')
+    ap.add_argument('--title', default='Case Sketch Review'); ap.add_argument('--start', help='JSON list of [label, [case ids]] for the "Start here" box')
     ap.add_argument('--lede', default="Every sketch proposed for the study's worlds. Filter by the design grid, read a sketch, and mark it keep, revise or drop with a note. Decisions save as you make them.")
     a = ap.parse_args(); cases = load(Path(a.cases))
-    Path(a.out).write_text(page(cases, a.title, a.lede), encoding='utf-8'); print(f'{a.out}: {len(cases)} cases')
+    groups = json.loads(a.start) if a.start else None
+    Path(a.out).write_text(page(cases, a.title, a.lede, groups), encoding='utf-8'); print(f'{a.out}: {len(cases)} cases')
 
 
 if __name__ == '__main__':
