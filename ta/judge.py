@@ -263,10 +263,14 @@ def code(client, cfg, w, rec):
 
 def fidelity(client, cfg, w, rec, label):
     from . import simulator as U
-    name = rec['party']; p = _party(w, name)
+    name = rec['party']; p = _party(w, name); who = U._who(p)
     fwd = U.forwarded_accounts(w, name, rec['condition'])
     forwarded = '\n'.join(f"- {w['parties'][n]['profile']['name']}: \"{a}\"" for n, a in fwd.items()) or '- none'
-    who = U._who(p)
+    if p.get('relay_of'):                                                # a relaying friend was told the subject's story, which they may quote and recount in their own words
+        first = p.get('relay_called') or p['relay_name'].split()[0]
+        story = w['parties'][p['relay_of']]['opening_message']
+        forwarded = f'- {p["relay_name"]} (whose situation this is; the friend may quote these words and recount everything in the facts above as what {first} told them): "{story}"'
+        who += f" You are passing on {first}'s situation; 'you' in the facts means {first}, and you know these things because {first} told you."
     view = set(p.get('view') or [])
     unknown = [s for s in w['settled'] if s['id'] not in view or (W.known(s, name) or ('full',))[0] == 'partial']   # partial facts: the full version is off limits
     msgs = [{'role': 'user', 'content': FIDELITY.format(who=who, forwarded=forwarded, facts=W.fact_lines(w, name),
