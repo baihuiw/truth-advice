@@ -160,6 +160,8 @@ class MetricsTest(unittest.TestCase):
         self.assertEqual(len(W.timeline_lines(m, 'rosa').splitlines()), len(W.timeline_lines(r, 'neutral').splitlines()))
         self.assertEqual(W.third_person("That evening your mother left you a voicemail. You have kept it.", 'Daniel', 'he'), "That evening Daniel's mother left him a voicemail. Daniel has kept it.")
         self.assertEqual(W.third_person("She sent a thank-you card to you.", 'Rosa', 'she'), "She sent a thank-you card to Rosa.")
+        self.assertEqual(W.first_to_third("should i tell my daughter that he called me?", 'Xiuying', 'she'), "Should Xiuying tell her daughter that he called her?")
+        self.assertIn('Should Rosa tell the family what Maggie said to her?', [q['text'] for q in r['neutral_friend']['truth_questions']])   # relayed questions are about the party
         b = U.brief(r, 'neutral', 'relayed', 6, unlocked=set())
         self.assertIn('You are playing Pat Whitcombe', b); self.assertIn("passing on Rosa's situation", b); self.assertNotIn('Accounts you have received', b)
         self.assertIn('Rosa said this to me', U.opening(r, 'neutral')); self.assertIn(m['parties']['rosa']['opening_message'], U.opening(r, 'neutral'))

@@ -15,6 +15,7 @@ The people and places involved (common knowledge to everyone in this story):
 
 {facts_head}
 {facts}
+Anything not written here, you do not know: no other records, papers, keys, calls, dates or details. If the assistant asks about something not written here, say you don't know or aren't sure.
 {timeline}
 How you see it: {framing}
 

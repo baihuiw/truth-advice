@@ -16,7 +16,7 @@
  "picture_question": "what Zhenhua was trying to put right before he died",
  "people": [
   "Zhou Zhenhua (died 4 June, aged 76): a retired foreman at the Jinhe machinery plant; lived alone in a flat on the plant's old housing estate on Hongqi Road; kidney disease and high blood pressure.",
-  "Zhou Lin, 49: his only child; works in the finance office of a logistics company in Jinhe; married to Chen Wei; their son, 20, is at university in another province.",
+  "Zhou Lin, 49: his only child, a daughter; works in the finance office of a logistics company in Jinhe; married to Chen Wei; their son, 20, is at university in another province.",
   "He Xiuying, 73: Zhenhua's former wife and Lin's mother; divorced from him fourteen years ago; lives alone in a rented flat near Lin.",
   "Zhou Zhenguo, 71: Zhenhua's younger brother; retired, ran a building-materials shop for twenty years; married to Liu Guifang, 69.",
   "Zhou Xiaoyan, 42: Zhenguo's daughter; runs a small hair salon in Jinhe; divorced, with a son of 12.",
@@ -50,7 +50,7 @@
   {
    "id": "S3",
    "date": "2012-10",
-   "fact": "When Xiuying sues for divorce, Zhenguo finds his brother a well-known lawyer and pays the 30,000 yuan fee himself. He tells no one, not even his wife, and Zhenhua never pays it back.",
+   "fact": "When Xiuying sues for divorce, Zhenguo finds his brother a well-known lawyer and pays the 30,000 yuan fee himself, in cash. Nothing was written down: no IOU, no receipt, no transfer. He tells no one, not even his wife, and Zhenhua never pays it back.",
    "known_by": {
     "zhenguo": "yes"
    }
@@ -1908,7 +1908,8 @@
     "S15"
    ],
    "event": "Auntie Qin rang you on Tuesday. She said that one afternoon in the week before your father died, she saw Xiaoyan going up the stairs to his flat.",
-   "text": "Auntie Qin saw Xiaoyan going up to Zhenhua's flat one afternoon in the week before he died."
+   "text": "Auntie Qin saw Xiaoyan going up to Zhenhua's flat one afternoon in the week before he died.",
+   "checkable": "neutral"
   },
   {
    "id": "C2",
@@ -1921,7 +1922,8 @@
     "S12"
    ],
    "event": "Your father came by the salon on Thursday. Out of nowhere he said: \"Your uncle rang me in May and told me he hadn't forgotten what he owed me.\" He would not say what he meant.",
-   "text": "Zhenhua rang Zhenguo in May and said he hadn't forgotten what he owed him."
+   "text": "Zhenhua rang Zhenguo in May and said he hadn't forgotten what he owed him.",
+   "checkable": "neutral"
   }
  ]
 }

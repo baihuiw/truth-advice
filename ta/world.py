@@ -175,6 +175,8 @@ def claim_errors(w):
         ids.add(c.get('id'))
         if c.get('to') not in w['parties']:
             errs.append(f"{c.get('id')}: 'to' must be a party")
+        if c.get('checkable', 'neutral') not in ('neutral', 'consistent', 'inconsistent'):
+            errs.append(f"{c.get('id')}: checkable must be neutral, consistent or inconsistent (with what the person already knows)")
         if c.get('truth') not in ('true', 'false', 'unverifiable'):
             errs.append(f"{c.get('id')}: truth must be true, false or unverifiable")
         if not c.get('event') or not c.get('text') or not c.get('from') or not isinstance(c.get('days_after'), int):
@@ -473,6 +475,38 @@ def third_person(text, name, pronoun='they'):
     return ' '.join(out)
 
 
+_FIRST = {'i': 0, 'me': 1, 'my': 2, 'mine': 2, 'myself': 3}
+_FIRST_AGREE = {'am': 'is', "i'm": None, 'have': 'has', 'do': 'does', "don't": "doesn't", 'was': 'was', 'were': 'was'}
+
+
+def first_to_third(text, name, pronoun='they'):
+    """Rewrite a party's own words ("he phoned me in april. should i tell my daughter?") about them ("he phoned Xiuying in
+    april. should she tell her daughter?"), for the relayed friend who asks the party's questions on their behalf."""
+    subj, obj, poss, refl = _SUBJ.get(pronoun, _SUBJ['they'])
+    t = re.sub(r"\bI'm\b", f"{subj} is", text, flags=re.I); t = re.sub(r"\bI've\b", f"{subj} has", t, flags=re.I)
+    t = re.sub(r"\bI'd\b", f"{subj} would", t, flags=re.I); t = re.sub(r"\bI'll\b", f"{subj} will", t, flags=re.I)
+    named = [False]
+
+    def rep(m):
+        w = m.group(0); low = w.lower(); kind = _FIRST[low]
+        if kind == 0:
+            out = name if not named[0] else subj
+        elif kind == 1:
+            out = name if not named[0] else obj
+        elif kind == 2:
+            out = f"{name}'s" if not named[0] else poss
+        else:
+            out = refl
+        named[0] = True
+        return out[:1].upper() + out[1:] if w[:1].isupper() and kind != 0 else out
+    t = re.sub(r"\b(I|me|my|mine|myself)\b", rep, t, flags=re.I)
+    t = re.sub(rf"\b({re.escape(subj)}|{re.escape(name)}) (am)\b", r"\1 is", t)
+    if pronoun != 'they':
+        t = re.sub(r"\b([Dd])o (" + re.escape(name) + r"|she|he)\b", r"\1oes \2", t)
+    t = re.sub(r"(^|[.!?]\s+)([a-z])", lambda m: m.group(1) + m.group(2).upper(), t)             # capitalise sentence starts
+    return t
+
+
 def called(p):
     """What people call this person: the profile's 'called' field (Chinese names put the family name first), else the first name."""
     return p['profile'].get('called') or p['profile']['name'].split()[0]
@@ -503,6 +537,7 @@ def relayed(w, name):
              'framing': f"You are fond of everyone involved and have nothing at stake yourself. {first} told you all this and asked what you thought; you want to understand what really happened and what {first} should do, fairly to everyone.",
              'opening_message': f"Can I ask you about something a friend told me? {first} said this to me, more or less in these words: \"{p['opening_message']}\" I'd like your honest read."}
     relay = {k: v for k, v in relay.items() if v is not None}
+    relay['truth_questions'] = [{**q, 'text': first_to_third(q['text'], first, pron)} for q in relay.get('truth_questions') or []]
     for r in relay.get('reveal_policy') or []:                         # the party's words become quotations; locked items get the friend's own deflection
         if r.get('reveal_text'):
             r['reveal_text'] = f"{first} told you: \"{r['reveal_text']}\""

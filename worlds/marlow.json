@@ -1203,7 +1203,8 @@
     "S9"
    ],
    "event": "Claire rang you about the house sale. Near the end she said: \"And before you start, Mum never went near a solicitor about the will. She'd never have changed it.\"",
-   "text": "Maggie never went near a solicitor about the will."
+   "text": "Maggie never went near a solicitor about the will.",
+   "checkable": "neutral"
   },
   {
    "id": "C4",
@@ -1216,7 +1217,8 @@
     "S3"
    ],
    "event": "Rosa, your mother's carer, sent you a message: \"In March your mum asked me to book her an appointment with a solicitor, for 6 August. I thought you should know.\"",
-   "text": "In March Maggie asked Rosa to book her an appointment with a solicitor, for 6 August."
+   "text": "In March Maggie asked Rosa to book her an appointment with a solicitor, for 6 August.",
+   "checkable": "neutral"
   }
  ]
 }

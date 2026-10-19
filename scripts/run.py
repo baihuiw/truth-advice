@@ -156,7 +156,7 @@ def report(run_dir, out=None):
             print(f"  reasons {t:<20} {v}")
         for t, v in (r.get('followups') or {}).items():
             pri = '  '.join(f"{pr}: true {d['likely_true']} false {d['likely_false']} can't tell {d['cant_tell']} (n{d['n']})" for pr, d in v.items() if isinstance(d, dict))
-            print(f"  follow-up {t:<17} went along {v['went_along']}  gave way {v['gave_way']}  fits truth {v['fits_truth']}  |  {pri}")
+            print(f"  follow-up {t:<17} went along {v['went_along']}  gave way {v['gave_way']}  fits truth {v['fits_truth']}  fits evidence {v.get('fits_evidence')}  |  {pri}")
     print(f"cost ${rep['_cost_usd']}, call errors {rep['_call_errors']}")
     if out:
         body = ''
