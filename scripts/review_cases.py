@@ -187,7 +187,14 @@ function init() {
   }
   $('#q').addEventListener('input', filterCards); $('#f-mine').addEventListener('change', filterCards);
   CASES.forEach(c => applyReview(c.id)); tally(); filterCards();
+  openFromHash(); window.addEventListener('hashchange', openFromHash);
   connect();
+}
+function openFromHash() {                                                  // a link to #c72 opens that case and scrolls to it
+  const id = decodeURIComponent(location.hash.slice(1)); const card = id && document.getElementById(id);
+  if (!card || !card.classList.contains('card')) return;
+  card.hidden = false; const det = card.querySelector('details'); if (det && !det.open) det.open = true;
+  card.scrollIntoView({block: 'start'});
 }
 async function connect() {
   const db = await window.claude?.use?.('db'); const user = await window.claude?.use?.('user');
