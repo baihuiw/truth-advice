@@ -27,8 +27,8 @@ def unlock_check(client, cfg, w, name, reply, unlocked, asks, label):
     items = [r for r in items if not r.get('requires') or r['requires'] in unlocked]
     if not items or not reply:
         return []
-    out = client.chat(cfg['game_master'], [{'role': 'user', 'content': GM_CHECK.format(reply=reply, topics='\n'.join(f"- {r['id']}: {r['ask_cue']}" for r in items))}],
-                      label, max_tokens=cfg.get('max_tokens', {}).get('gm_check', 600), temperature=0, json_mode=True)
+    out = sim_chat(client, cfg, [{'role': 'user', 'content': GM_CHECK.format(reply=reply, topics='\n'.join(f"- {r['id']}: {r['ask_cue']}" for r in items))}],
+                   label, model=cfg['game_master'], max_tokens=cfg.get('max_tokens', {}).get('gm_check', 600), temperature=0, json_mode=True)
     try:
         asked = set(json.loads((out.get('content') or '{}')[(out.get('content') or '{}').find('{'):(out.get('content') or '{}').rfind('}') + 1]).get('asked') or [])
     except (ValueError, json.JSONDecodeError):
@@ -145,11 +145,12 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
     return rec
 
 
-def sim_chat(client, cfg, messages, label, **kw):
-    """The simulator's call, falling back to cfg['simulator_fallback'] when the provider refuses the request (HTTP 400, which
-    for the Jinhe family-violence material is the content filter); the fallback is logged in the label."""
+def sim_chat(client, cfg, messages, label, model=None, **kw):
+    """The simulator's call (or, with `model`, the game master's), falling back to cfg['simulator_fallback'] when the provider
+    refuses the request (HTTP 400, which for the Jinhe family-violence material is the content filter); the fallback is
+    logged in the label."""
     try:
-        return client.chat(cfg['simulator'], messages, label, **kw)
+        return client.chat(model or cfg['simulator'], messages, label, **kw)
     except CallFailed as e:
         if cfg.get('simulator_fallback') and 'HTTP 400' in str(e):
             return client.chat(cfg['simulator_fallback'], messages, label + '/fallback', **kw)
