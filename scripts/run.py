@@ -236,6 +236,8 @@ def main():
             return fn(*args)
         except BudgetStop as ex:
             print('budget stop:', ex); return None
+        except CallFailed as ex:                                            # one failed call skips that item; running the step again picks it up
+            print('call failed, skipped:', ex); return None
     if a.cmd == 'run':
         per = {w['id']: G.jobs(w, cfg) for w in worlds}                    # rep by rep, so a budget stop cuts every world evenly
         byid = {w['id']: w for w in worlds}; reused = 0
