@@ -335,7 +335,7 @@ def main():
         print(f"follow-ups: {len(list((run_dir / 'followup').glob('*.json'))) if (run_dir / 'followup').exists() else 0} saved ({copied} copied into twins); spent ${client.spent:.2f}")
         return
     if a.cmd == 'scenes':
-        for w in worlds:
+        for w in [x for x in worlds if not x.get('ladder_roles')]:            # ladder levels have no scenes
             parties = list(w['parties'])
             pairings = ([{p: t for p in parties} for t in cfg['targets']] if cfg['phase2'].get('diagonal') else []) + [pr for pr in cfg['phase2'].get('cross', []) if set(pr) == set(parties)]
             for rep in range(cfg['phase2'].get('reps', 1)):
