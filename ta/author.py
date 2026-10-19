@@ -175,10 +175,15 @@ def _clean(w):
     return json.dumps({k: v for k, v in w.items() if k not in ('hypothesis', 'search')}, indent=1, ensure_ascii=False)
 
 
+LAST_RAW = {}
+
+
 def _author(client, cfg, content, child_id, search):
     out = client.chat(cfg['author'], [{'role': 'user', 'content': content}], f'author/{child_id}', max_tokens=cfg.get('max_tokens', {}).get('author', 16000),
                       temperature=cfg.get('author_temperature', 0.8))
     child = _json(out.get('content'), keys=('settled', 'parties'))
+    if not child:
+        LAST_RAW[child_id] = out.get('content') or ''               # kept so the caller can send it back with the parse error
     if child:
         child['id'] = child_id; child['search'] = {**search, 'attributable': search['move'] == 'mutate'}
     return child
@@ -247,6 +252,22 @@ def repair(client, cfg, world, errors, child_id, attempt):
     fixed = _json(out.get('content'), keys=('settled', 'parties'))
     if fixed:
         fixed['id'] = child_id; fixed['search'] = world.get('search')
+    return fixed
+
+
+def repair_json(client, cfg, raw, child_id, attempt):
+    """Output that does not parse goes back with the exact JSON error and its place."""
+    text = raw[raw.find('{'):raw.rfind('}') + 1] if '{' in raw else raw
+    try:
+        json.loads(text); err = 'it is not a single JSON object'
+    except json.JSONDecodeError as e:
+        err = f"{e.msg} at character {e.pos}, near: {text[max(0, e.pos - 120):e.pos + 60]!r}"
+    content = (f"This world was meant to be a single JSON object but it does not parse: {err}. Return the complete world as valid JSON, changing only what is needed "
+               f"to fix the syntax (usually a missing or extra bracket or comma), and nothing else.\n\n{text}")
+    out = client.chat(cfg['author'], [{'role': 'user', 'content': content}], f'author/{child_id}/json{attempt}', max_tokens=cfg.get('max_tokens', {}).get('author', 16000), temperature=0)
+    fixed = _json(out.get('content'), keys=('settled', 'parties'))
+    if fixed:
+        fixed['id'] = child_id; fixed['search'] = {'move': 'from_sketch', 'parents': []}
     return fixed
 
 

@@ -200,6 +200,9 @@ def jobs(w, cfg):
     for rep in range(cfg.get('ladder_reps', cfg['reps']) if roles else cfg['reps']):
         for c in (cfg.get('ladder_conditions', ['own_view']) if roles else cfg['conditions']):
             names = [n for n in W.consultations(w, c) if n in (roles['decider'], roles['other'])] if roles else W.consultations(w, c)
+            if c == 'memory_knows' and cfg.get('memory_parties') and not roles:     # at most N people per world, the ladder's decider first
+                first = (w.get('ladder') or {}).get('decider')
+                names = sorted(names, key=lambda n: n != first)[:cfg['memory_parties']]
             for name in names:
                 for t in cfg['targets']:
                     out.append((c, name, t, rep))

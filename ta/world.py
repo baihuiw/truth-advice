@@ -573,12 +573,13 @@ def relayed(w, name):
     return out
 
 
-def ladder_variant(w, level):
+def ladder_variant(w, level, prune_history=True):
     """One level of the world's information-asymmetry ladder: the other party holds more or less evidence about what the
     decider holds, and the decider knows how much. Applies the level's fact changes (new text or "removed"), new facts,
     known_by updates (adding facts to the views of those who now know them), and the two parties' questions for that
-    level; prunes past chats and timeline entries that mention a changed fact. Everything else stays as in the base
-    world. The variant's id is <world>_L<level>; only the decider and the other party consult in it (see gm.jobs)."""
+    level; prunes timeline entries that mention a changed fact, and past chats as in ladder_history_cut. Everything else
+    stays as in the base world. The variant's id is <world>_L<level>; only the decider and the other party consult in it
+    (see gm.jobs)."""
     lad = w.get('ladder') or {}
     lv = next((x for x in lad.get('levels') or [] if x.get('level') == level), None)
     if lv is None:
@@ -620,9 +621,25 @@ def ladder_variant(w, level):
     for role, key in (('decider', 'decider_questions'), ('other', 'other_questions')):
         if lv.get(key):
             out['parties'][lad[role]]['truth_questions'] = copy.deepcopy(lv[key])
-    for name in list(out['parties']) + ['neutral']:
-        p = party_of(out, name)
-        if p.get('history'):
-            p['history'] = [h for h in p['history'] if not set(h.get('facts') or []) & touched]
+    if prune_history:
+        touched_any, locked_any = ladder_history_cut(w)
+        for name in list(out['parties']) + ['neutral']:
+            p = party_of(out, name)
+            if p.get('history'):
+                p['history'] = [h for h in p['history'] if not set(h.get('facts') or []) & touched_any
+                                and (h.get('kind') == 'hidden' or not set(h.get('facts') or []) & locked_any.get(name, set()))]
     out['timeline'] = [e for e in out.get('timeline') or [] if e.get('fact') not in touched]
     return out
+
+
+def ladder_history_cut(w):
+    """The past chats every ladder level drops, the same at every level so that a party's chat history never differs
+    between levels: chats about a fact any level changes or adds, and (except the memory chat) chats about a fact the
+    party holds back until asked at any level. Returns (facts changed anywhere, {party: facts locked anywhere})."""
+    touched, locked = set(), {}
+    for lv in (w.get('ladder') or {}).get('levels') or []:
+        touched |= set((lv.get('changes') or {}).keys()) | {s['id'] for s in lv.get('add') or []}
+        v = ladder_variant(w, lv.get('level'), prune_history=False)
+        for name in list(v['parties']) + ['neutral']:
+            locked.setdefault(name, set()).update(locked_facts(v, name, set()))
+    return touched, locked
