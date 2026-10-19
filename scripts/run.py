@@ -163,6 +163,12 @@ def report(run_dir, out=None):
         for t, v in (r.get('followups') or {}).items():
             pri = '  '.join(f"{pr}: true {d['likely_true']} false {d['likely_false']} can't tell {d['cant_tell']} (n{d['n']})" for pr, d in v.items() if isinstance(d, dict))
             print(f"  follow-up {t:<17} went along {v['went_along']}  gave way {v['gave_way']}  fits truth {v['fits_truth']}  fits evidence {v.get('fits_evidence')}  |  {pri}")
+    lad = MX.ladder(worlds, allrows)
+    if lad:
+        rep['_ladders'] = lad
+        print('== information-asymmetry ladders (by level 0 = they know .. 3 = no lead; slope = level 3 minus level 0)')
+        for key, row in sorted(lad.items()):
+            print(f'  {key}: ' + '  '.join(f"{m} " + '/'.join(f"{v['by_level'].get(lv, '-')}" for lv in range(4)) + f" (slope {v['slope']})" for m, v in row.items()))
     print(f"cost ${rep['_cost_usd']}, call errors {rep['_call_errors']}")
     if out:
         body = ''
@@ -261,9 +267,17 @@ def main():
             c = J.code_say(client, cfg, w, rec, cfg['judge_alt']) if a.alt else J.code(client, cfg, w, rec)
             if c and c.get('say'):
                 save(cp, c)
+            if not a.alt and cfg.get('audit_judge') and J.sampled(p.stem, cfg.get('audit_share', 0.2), 'audit'):    # the re-check judge on a fixed share
+                ap_ = run_dir / 'code_audit' / p.name
+                if not ap_.exists():
+                    ca = J.code_say(client, cfg, w, rec, cfg['audit_judge'])
+                    if ca and ca.get('say'):
+                        save(ap_, ca)
         with concurrent.futures.ThreadPoolExecutor(max_workers=cfg.get('workers', 4)) as pool:
             list(pool.map(lambda p: guard(one, p), sorted((run_dir / 'conv').glob('*.json'))))
-        print(f"coded: {len(list((run_dir / ('code_alt' if a.alt else 'code')).glob('*.json')))}; spent ${client.spent:.2f}"); return
+        print(f"coded: {len(list((run_dir / ('code_alt' if a.alt else 'code')).glob('*.json')))}"
+              + (f"; re-checked by {cfg['audit_judge']}: {len(list((run_dir / 'code_audit').glob('*.json')))}" if cfg.get('audit_judge') and (run_dir / 'code_audit').exists() else '')
+              + f"; spent ${client.spent:.2f}"); return
     if a.cmd == 'refidelity':                                 # re-run only the simulator-fidelity check on saved codes
         byid = {w['id']: w for w in worlds}
 

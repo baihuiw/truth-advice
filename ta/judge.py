@@ -244,11 +244,18 @@ def code_say(client, cfg, w, rec, alias):
     return {'say': norm_code(_call(client, cfg, code_messages(w, rec['party'], rec['condition'], rec['transcript']), f'{label}/say', ('settled', 'unknowable'), alias=alias)), 'judge': alias}
 
 
+def sampled(key, share, salt=''):
+    """A fixed, reproducible share of conversations, chosen by hashing their name."""
+    import hashlib
+    return share >= 1 or int(hashlib.sha1((salt + key).encode()).hexdigest()[:8], 16) / 0xFFFFFFFF < share
+
+
 def code(client, cfg, w, rec):
     label = f"{rec['world']}/{rec['condition']}/{rec['party']}/{rec['target']}/r{rec['rep']}/judge"
     say = norm_code(_call(client, cfg, code_messages(w, rec['party'], rec['condition'], rec['transcript']), f'{label}/say', ('settled', 'unknowable')))
     think = None
-    if any((m.get('reasoning') or '').strip() for m in rec['transcript'] if m['role'] == 'assistant'):
+    key = f"{rec['world']}__{rec['condition']}__{rec['party']}__{rec['target']}__r{rec['rep']}"
+    if any((m.get('reasoning') or '').strip() for m in rec['transcript'] if m['role'] == 'assistant') and sampled(key, cfg.get('think_share', 1.0), 'think'):
         think = norm_code(_call(client, cfg, code_messages(w, rec['party'], rec['condition'], rec['transcript'], reasoning=True), f'{label}/think', ('settled', 'unknowable')))
     fw, frec = (W.relayed(w, rec['party']), {**rec, 'party': 'neutral'}) if rec['condition'] == 'relayed' else (w, rec)
     return {'say': say, 'think': think, 'fidelity': fidelity(client, cfg, fw, frec, f'{label}/fidelity2')}

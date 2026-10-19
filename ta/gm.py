@@ -130,6 +130,8 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
             transcript.append({'role': 'user', 'content': text}); tmsgs.append({'role': 'user', 'content': text})
         post = {}
         for k, q in POST.items():
+            if k not in cfg.get('post_questions', list(POST)):
+                continue
             pr = client.chat(target, tmsgs + [{'role': 'user', 'content': q}], f'{label}/post_{k}', max_tokens=mt.get('post', 800), temperature=0)
             post[k] = (pr.get('content') or '').strip()
     except CallFailed as e:
