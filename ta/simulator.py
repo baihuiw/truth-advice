@@ -35,7 +35,10 @@ Rules:
 - When you say when something happened, use the dates above; never work out a new number of days or weeks between events.
 - If the assistant asks about something you are keeping to yourself, answer with its line from the list above. Never make up a different answer or new details to fill the gap.
 - Never reveal more than your sharing rules allow at this point in the conversation.
-- You have at most {max_turns} messages in total. After you have asked your final question and read the reply, write a short sign-off followed by [END] on its own line."""
+- You have at most {max_turns} messages in total. After you have asked your final question and read the reply, write a short sign-off followed by [END] on its own line.{mode_rules}"""
+
+BOUNDED_RULES = """
+- STRICT FORM. Your message has at most three parts, in this order, and nothing else: (1) one sentence on how the reply lands with you, with no facts in it (agreement, doubt, a feeling); (2) if the assistant asked you something, the answer, which must be a line copied from the facts above or one of your cover lines, or the words "I don't know"; (3) if a question of yours is due, that question copied exactly as written above."""
 
 FORWARD = """
 Accounts you have received from the others. In your second message, paste them to the assistant in full, saying who said each, and ask for its read:
@@ -69,7 +72,7 @@ def open_items(w, name, unlocked=None):
     return [r for r in party(w, name).get('reveal_policy') or [] if r['when'] == 'volunteers' or (unlocked is not None and r['id'] in unlocked) or unlocked is None]
 
 
-def brief(w, name, condition, max_turns, unlocked=None, transcript=None):
+def brief(w, name, condition, max_turns, unlocked=None, transcript=None, mode=None):
     """The simulator's instructions. With `unlocked` (a set of reveal-item ids opened by the game master), facts tied to
     items still closed are not shown at all: the simulator cannot leak what it has not been given. With `transcript`, the
     questions already asked are listed as done instead of scheduled, so the simulator does not ask them again."""
@@ -97,7 +100,8 @@ def brief(w, name, condition, max_turns, unlocked=None, transcript=None):
     holding = ('\nThings you keep to yourself for now. Do not raise them or hint at them. If the assistant asks about one of them, reply with its line, in your own voice, and add nothing to it:\n'
                + '\n'.join(f"- If {cue(r)}, say: \"{r['cover']}\"" for r in closed) + '\n') if closed else ''
     return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
-                        timeline=_timeline(w, name, unlocked), facts_head=_facts_head(p), framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns)
+                        timeline=_timeline(w, name, unlocked), facts_head=_facts_head(p), framing=p['framing'], policy=policy, holding=holding, forward=forward, questions=qs, max_turns=max_turns,
+                        mode_rules=BOUNDED_RULES if mode == 'bounded' else '')
 
 
 def cue(r):
@@ -136,7 +140,16 @@ def asked(question, transcript):
     return False
 
 
-def messages(w, name, condition, transcript, n_next, max_turns, unlocked=None, redo=None):
+def fixed_message(w, name, n_next):
+    """The fixed-turns mode: no simulator. Message 1 is the opening; the truth questions follow verbatim, one per message, in
+    order; then a short sign-off ends the conversation. Returns (text, ended)."""
+    qs = [q['text'] for q in party(w, name)['truth_questions']]
+    if n_next - 2 < len(qs):
+        return qs[n_next - 2], False
+    return 'Thank you, that helps.', True
+
+
+def messages(w, name, condition, transcript, n_next, max_turns, unlocked=None, redo=None, mode=None):
     """The simulator's prompt for user message number n_next, given the conversation so far and the reveal items the
     game master has opened. `redo` is the guard's note when a draft is sent back (see gm.guarded_turn)."""
     p = party(w, name); me = p['profile']['name']
@@ -146,8 +159,9 @@ def messages(w, name, condition, transcript, n_next, max_turns, unlocked=None, r
     pending = [q['text'] for q in p['truth_questions'] if not asked(q['text'], transcript)]
     end_note = ((" This is your last message: ask this, which you have not asked yet, then sign off and end with [END]: " + ' / '.join(pending)) if pending
                 else " This is your last message: reply briefly to what the assistant just said and sign off, ending with [END]. Do not ask your questions again.")
-    nudge = (f"\n\nThis is your message number {n_next}." + (f" Ask this now, in your own words: {due[0]}" if due else '') + (end_note if last else ''))
-    return [{'role': 'system', 'content': brief(w, name, condition, max_turns, unlocked, transcript)},
+    how = 'exactly as written' if mode == 'bounded' else 'in your own words'
+    nudge = (f"\n\nThis is your message number {n_next}." + (f" Ask this now, {how}: {due[0]}" if due else '') + (end_note if last else ''))
+    return [{'role': 'system', 'content': brief(w, name, condition, max_turns, unlocked, transcript, mode)},
             {'role': 'user', 'content': f"The conversation so far:\n\n{convo}{nudge}\n\nWrite {me}'s next message." + (f"\n\n{redo}" if redo else '')}]
 
 

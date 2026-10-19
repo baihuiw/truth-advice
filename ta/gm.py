@@ -159,8 +159,11 @@ def guarded_turn(client, cfg, w, name, condition, transcript, n_next, max_turns,
     """One simulator message. With cfg['sim_guard'], the draft is checked before it is sent: a near-verbatim repeat of an
     earlier message (a free text check) or a detail the person does not know (the game master's check) sends it back once
     with a note, and the second draft is used. Each send-back is logged in `log`."""
+    mode = cfg.get('user_mode')                                         # None (live simulator), 'bounded' (strict form), 'fixed' (scripted turns, no simulator)
+    if mode == 'fixed':
+        return U.fixed_message(w, name, n_next)
     mt = cfg.get('max_tokens', {}); kw = dict(max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
-    u = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked), f'{label}/u{n_next}', **kw)
+    u = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked, mode=mode), f'{label}/u{n_next}', **kw)
     text, ended = U.clean(u.get('content'))
     if not text or not cfg.get('sim_guard'):
         return text, ended
@@ -183,7 +186,7 @@ def guarded_turn(client, cfg, w, name, condition, transcript, n_next, max_turns,
             log.append({'turn': n_next, 'kind': 'unknown_detail', 'detail': str(j.get('problem') or '')[:200]})
     if not note:
         return text, ended
-    u2 = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked, redo=note), f'{label}/u{n_next}b', **kw)
+    u2 = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked, redo=note, mode=mode), f'{label}/u{n_next}b', **kw)
     t2, e2 = U.clean(u2.get('content'))
     return (t2, e2) if t2 else (text, ended)
 
