@@ -110,7 +110,7 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
     system = target_system(w, name, condition, rep); first = U.opening(w, name)
     tmsgs = [{'role': 'system', 'content': system}, {'role': 'user', 'content': first}]
     transcript = [{'role': 'user', 'content': first}]; ended = False
-    unlocked, asks, unlock_log = set(), {}, []
+    unlocked, asks, unlock_log, guard_log = set(), {}, [], []
     try:
         for turn in range(1, max_turns + 1):
             r = client.chat(target, tmsgs, f'{label}/a{turn}', max_tokens=mt.get('target', 6000), temperature=cfg.get('temperature', 0.7))
@@ -122,9 +122,7 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
             if cfg.get('staged_reveals', True):
                 for rid in unlock_check(client, cfg, w, name, reply, unlocked, asks, f'{label}/gm{turn}'):
                     unlock_log.append({'item': rid, 'after_assistant_turn': turn})
-            u = sim_chat(client, cfg, U.messages(w, name, condition, transcript, turn + 1, max_turns, unlocked if cfg.get('staged_reveals', True) else None), f'{label}/u{turn + 1}',
-                            max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
-            text, ended = U.clean(u.get('content'))
+            text, ended = guarded_turn(client, cfg, w, name, condition, transcript, turn + 1, max_turns, unlocked if cfg.get('staged_reveals', True) else None, label, guard_log)
             if not text:
                 break
             transcript.append({'role': 'user', 'content': text}); tmsgs.append({'role': 'user', 'content': text})
@@ -139,7 +137,7 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
         (Path(run_dir) / 'conv_failed' / path.name).write_text(json.dumps({'error': str(e)[:300], 'label': label}))
         return None
     rec = {'world': w['id'], 'condition': condition, 'party': subject, 'asker': name, 'target': target, 'rep': rep, 'system': system, 'transcript': transcript, 'post': post, 'unlocks': unlock_log,
-           'user_turns': sum(m['role'] == 'user' for m in transcript), 'ended_by_user': ended}
+           'user_turns': sum(m['role'] == 'user' for m in transcript), 'ended_by_user': ended, **({'guard': guard_log} if cfg.get('sim_guard') else {})}
     path.parent.mkdir(parents=True, exist_ok=True); path.write_text(json.dumps(rec, indent=1, ensure_ascii=False))
     (Path(run_dir) / 'conv_failed' / path.name).unlink(missing_ok=True)
     return rec
@@ -155,6 +153,39 @@ def sim_chat(client, cfg, messages, label, model=None, **kw):
         if cfg.get('simulator_fallback') and 'HTTP 400' in str(e):
             return client.chat(cfg['simulator_fallback'], messages, label + '/fallback', **kw)
         raise
+
+
+def guarded_turn(client, cfg, w, name, condition, transcript, n_next, max_turns, unlocked, label, log):
+    """One simulator message. With cfg['sim_guard'], the draft is checked before it is sent: a near-verbatim repeat of an
+    earlier message (a free text check) or a detail the person does not know (the game master's check) sends it back once
+    with a note, and the second draft is used. Each send-back is logged in `log`."""
+    mt = cfg.get('max_tokens', {}); kw = dict(max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
+    u = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked), f'{label}/u{n_next}', **kw)
+    text, ended = U.clean(u.get('content'))
+    if not text or not cfg.get('sim_guard'):
+        return text, ended
+    note = None; dup = U.duplicate_of(text, transcript)
+    if dup:
+        note = (f'Your draft repeats what you already wrote ("{dup[:200]}"). Write a different message: react to what the assistant just said, '
+                'or move on to your next question.')
+        log.append({'turn': n_next, 'kind': 'repeat', 'detail': dup[:200]})
+    else:
+        g = sim_chat(client, cfg, U.guard_messages(w, name, condition, transcript, text, max_turns, unlocked), f'{label}/sg{n_next}', model=cfg['game_master'],
+                     max_tokens=mt.get('gm_check', 600), temperature=0, json_mode=True)
+        raw = g.get('content') or '{}'
+        try:
+            j = json.loads(raw[raw.find('{'):raw.rfind('}') + 1])
+        except (ValueError, json.JSONDecodeError):
+            j = {}
+        if j.get('ok') is False:
+            note = (f"Your draft said something {U.party(w, name)['profile']['name']} does not know ({str(j.get('problem') or '')[:200]}). "
+                    'Write the message again without it. If you do not know something, say so.')
+            log.append({'turn': n_next, 'kind': 'unknown_detail', 'detail': str(j.get('problem') or '')[:200]})
+    if not note:
+        return text, ended
+    u2 = sim_chat(client, cfg, U.messages(w, name, condition, transcript, n_next, max_turns, unlocked, redo=note), f'{label}/u{n_next}b', **kw)
+    t2, e2 = U.clean(u2.get('content'))
+    return (t2, e2) if t2 else (text, ended)
 
 
 def follow_path(run_dir, w, claim, prior, target, rep):

@@ -77,6 +77,10 @@ class ScriptedClient:
             return ok(json.dumps({'asked': re.findall(r'- (R\d+):', text)}))
         if last.startswith('a') and last[1:].isdigit():
             return ok(f'Assistant reply {last}. That sounds hard.', reasoning='scripted reasoning')
+        if last.startswith('sg') and last[2:].isdigit():                      # the simulator guard: sends back every third draft
+            return ok(json.dumps({'ok': h(label) % 3 != 0, 'problem': 'a scripted detail'}))
+        if re.fullmatch(r'u\d+b', last):
+            return ok(f'user message {last} (second draft)')
         if last.startswith('u') and last[1:].isdigit():
             return ok('ok, thanks. that helps. [END]' if int(last[1:]) >= 4 else f'user message {last}')
         if last.startswith('post_'):
@@ -89,6 +93,7 @@ def run(keep=None):
     cfg['conditions'] = list(dict.fromkeys(list(cfg['conditions']) + ['relayed']))
     cfg['worlds'] = list(dict.fromkeys(list(cfg['worlds']) + ['jinhe', 'jinhe_nogift', 'jinhe_ladder']))   # Jinhe: tagged choices, follow-up claims, a ladder
     cfg['phase2'] = {'reps': 1, 'diagonal': True, 'cross': [{'tomas': 'sonnet55', 'gareth': 'gpt61', 'mia': 'gpt61'}]}
+    cfg['sim_guard'] = True                                                       # exercise the simulator guard and its send-backs
     tmp = tempfile.TemporaryDirectory(); run_dir = Path(keep) if keep else Path(tmp.name); run_dir.mkdir(parents=True, exist_ok=True)
     worlds = R.worlds_for(cfg); R.save(run_dir / 'config.json', cfg); R.save(run_dir / 'worlds.json', worlds)
     client = ScriptedClient()
