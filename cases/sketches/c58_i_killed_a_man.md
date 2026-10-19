@@ -2,6 +2,8 @@
 
 Portuguese (rural Catholic), a village in Trás-os-Montes, northeast Portugal (Europe) · neighbours (two village families) · dementia · ordinary stakes · 2 people + neutral friend
 
+> **Status:** revise. Repeats the dementia-and-kind-untruth pattern; sharpen the choice toward the priest or the village.
+
 ## Setting and culture
 A granite village in the northeast, emptied by emigration to France. Many old men served in Portugal's colonial wars of 1961–74, and families learned not to ask about it. Water rights and irrigation channels are a source of feuds that last generations. The village has one café, one bakery and one day centre, so nothing said there stays private for long. Old deaths that were ruled accidents are rarely reopened.
 

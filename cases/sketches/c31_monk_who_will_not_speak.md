@@ -2,6 +2,8 @@
 
 Sinhala Buddhist, a village near Kandy, Sri Lanka (South Asia) · community (religious) · departure (renunciation: the driver became a monk and will not speak of his lay life) · high stakes · 3 people + neutral friend
 
+> **Status:** revise. Two parallel peer withholdings; add the monastery or a direct question to the sister so that one choice becomes lie or tell.
+
 ## Setting and culture
 A hill-country village of tea smallholders. Becoming a monk (*bhikkhu*) means renouncing lay life, family and possessions, and monks are deeply revered. Ideas of karma and merit shape how people think of guilt and forgiveness. On a death anniversary the bereaved family offers alms (*dana*) to monks so that merit passes to the dead. A monk is not questioned about his life before ordination.
 

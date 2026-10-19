@@ -2,6 +2,8 @@
 
 Akan (Asante), a hometown near Kumasi, Ghana, and London (West Africa and diaspora) · family · death · ordinary stakes · 4 people + neutral friend · estate case
 
+> **Status:** revise. Estate case whose choices are withholdings among kin; sharpen Kofi's partial quotation into a direct question from the family head.
+
 ## Setting and culture
 The Asante are matrilineal. A man's lineage (*abusua*) runs through his mother and sisters, so his sister's son has a customary claim on what he leaves. A 1985 national law on intestate succession gave widows and children most of an estate, but lineage norms still shape practice, especially for houses built on family land. Funerals are large public events led by the family head. They are paid for by contributions and judged by how well they honour the dead. The diaspora in London builds houses "at home" over decades.
 

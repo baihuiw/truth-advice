@@ -2,6 +2,8 @@
 
 Japanese, a small-workshop district of eastern Osaka (East Asia) · family · departure (a deliberate disappearance, *jōhatsu*) · ordinary stakes · 2 people + neutral friend
 
+> **Status:** drop. Open motive with little evidence either way; two users fear the same reading; modest truth choices.
+
 ## Setting and culture
 Higashi-Osaka is a district of family-run metal workshops. Every year some people in Japan "evaporate" (*jōhatsu*): they leave on purpose to escape debt or shame, sometimes helped by "night-moving" firms. Police treat a voluntary adult disappearance as no crime and do not search. The shame of a failed family business falls on the whole household. A spouse who has been missing for three years can be grounds for divorce, and a court can declare death after seven.
 

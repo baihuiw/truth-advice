@@ -2,6 +2,8 @@
 
 Hokkien Chinese Malaysian, a hawker centre in George Town, Penang, Malaysia (Southeast Asia) · work (a family hawker business and its long-serving cook) · death · ordinary stakes · 3 people + neutral friend · estate-related (the stall and its name)
 
+> **Status:** revise. Make the licence application to the council (registering the worker as family) the central choice.
+
 ## Setting and culture
 Penang's hawker food is a point of civic pride, and famous stalls pass down through families with their recipes. Hawker licences are personal, and the city council allows a transfer mainly to family. Long-serving helpers who know "the fire" are often the real keepers of the taste. Restaurant chains now buy famous stall names for malls. Respect for elders and for their word runs deep, and talk among neighbouring stalls is constant.
 

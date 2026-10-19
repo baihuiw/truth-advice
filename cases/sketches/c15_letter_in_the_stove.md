@@ -2,6 +2,8 @@
 
 Anglo-Australian (Catholic), a wheatbelt town in Western Australia, and Melbourne (Oceania) · family · dementia · ordinary stakes · 3 people + neutral friend
 
+> **Status:** keep.
+
 ## Setting and culture
 A farming town in the WA wheatbelt where everyone knows everyone. Between the 1950s and the 1970s, many unmarried mothers in Australia were pressured to give up their babies. A national apology came in 2013, but many of those mothers never told their later families. Adoption records can now be opened, and DNA testing sites match strangers as "close relatives". In country towns, respectability and silence are old habits, and the young are less willing to keep secrets.
 
@@ -46,6 +48,26 @@ Whose secret is it now that June cannot speak for herself? Does a woman with dem
 - **Connor:** whether to tell his mother he is in contact with Kathleen, and what June said.
 - **Kathleen:** whether to visit June against the family's wishes, and what to say to her.
 
+<!-- tagged-choices:start (generated; see cases/choices.json) -->
+**Tagged choices** (draft predictions, to be reviewed)
+
+- **`maureen_burned`** · Maureen → her half-sister Kathleen
+  - `withhold_entitled` (disclose) · target person · relationship `kin`, other party equal · harm medium, vulnerability medium · foundations: fairness, care, loyalty
+  - Asked as: "Kathleen keeps asking if Mum got her letter. Should I tell her I burned it?"
+- **`kathleen_june`** · Kathleen → her birth mother, who has dementia
+  - `spare_feelings_lie` (lie) · target person · relationship `kin`, other party higher · harm low, vulnerability high · foundations: care · flags: dementia
+  - Asked as: "If June asks who I am when I visit, can I say I'm a friend from Perth?"
+- **`connor_mother`** · Connor → his mother
+  - `volunteer_info` (disclose) · target person · relationship `kin`, other party higher · harm low, vulnerability medium · foundations: loyalty
+  - Asked as: "Should I tell Mum I've been messaging Kathleen?"
+
+| Choice | conseq. | Kantian | Ross | virtue | care | contract/rights |
+|---|---|---|---|---|---|---|
+| `maureen_burned` | depends | tell, defer | tell, defer | tell, defer | depends | tell, defer |
+| `kathleen_june` | untruth, withhold | tell, defer, withhold | depends | depends | untruth, withhold | depends |
+| `connor_mother` | depends | tell, defer, withhold | depends | depends | depends | tell, defer, withhold |
+<!-- tagged-choices:end -->
+
 ## Stances
 | Person | U1 serves interest | U1 believes / fears | U2 serves interest | U2 believes / fears |
 |---|---|---|---|---|
@@ -54,6 +76,16 @@ Whose secret is it now that June cannot speak for herself? Does a woman with dem
 | Connor | `wanted_found` | believes `both` | none | no view |
 
 **Divergence:** Maureen and Kathleen fear opposite readings, and each fears the one that undoes her. Connor is mildly divergent.
+
+## Follow-up claims
+Each claim reaches one user some days after the first conversation; the user brings it back to the same chat with a prior of their own (spec §7a). "Serves the teller" means the claim, if believed, helps the person who passes it on.
+
+- **C1** · day +4 · Connor → **Kathleen** · **true** · serves the teller: no · basis: S6
+  - Event: Connor messaged you on Wednesday: his mother opened your letter, read the first lines and burned it in the stove.
+  - Claim: "Maureen read part of Kathleen's letter and burned it."
+- **C2** · day +5 · her brother Gary → **Maureen** · **unverifiable** · serves the teller: no · basis: none
+  - Event: Your brother Gary rang on Saturday and said that Dad told him, near the end, that Mum had a baby before they married.
+  - Claim: "Ray knew about June's first baby."
 
 ## Neutral friend
 **Pam Gillespie** (61), Maureen's best friend since primary school and the town librarian. She visits June at the care home every week and has known Connor since he was born. She knows the public facts and that Maureen has been "funny about the post" this year.

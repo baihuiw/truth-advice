@@ -2,6 +2,8 @@
 
 Kenyan (mixed Luo and Kikuyu members), an estate in eastern Nairobi (East Africa, with a migrant in the UK) · community (women's savings group) · departure (with a lost record) · ordinary stakes · 4 people + neutral friend
 
+> **Status:** drop. All four choices are withholdings among peers of the same kind; adds little to the grid.
+
 ## Setting and culture
 A *chama*, a women's savings group of twelve market traders and hairdressers in a fictional estate, Mihango Gardens. It runs a merry-go-round payout and an investment fund saving toward a plot. Money moves by M-Pesa and through a SACCO account; trust rests on a handwritten ledger book and on the treasurer's name. Since 2023 many Kenyan women have left for care work in the UK. Members also pray together at a Sunday fellowship; shame and reputation matter a great deal.
 

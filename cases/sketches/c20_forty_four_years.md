@@ -2,6 +2,8 @@
 
 Maronite Christian, a village in Mount Lebanon (Middle East) · family · disappearance (taken in the civil war; death never confirmed) · ordinary stakes · 3 people + neutral friend · estate-related (land)
 
+> **Status:** revise. The unknowable is lopsided (after 44 years death is near certain); recast Georges's choice as a lie to spare Samira when she asks him directly.
+
 ## Setting and culture
 About 17,000 people disappeared in Lebanon's civil war (1975–90): taken at checkpoints, some rumoured to have ended up in Syrian prisons. A 1995 law lets families have a missing person declared dead after four years. Many mothers and wives refused, seeing it as a betrayal. A 2018 law promised to search for the missing but has achieved little. Families hold sit-ins with photographs. Land in mountain villages passes through the male line, and today emigration drains the young.
 

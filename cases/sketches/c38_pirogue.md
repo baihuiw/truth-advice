@@ -2,6 +2,8 @@
 
 Wolof and Serer (Sunni Muslim), the fishing town of Mbour, Senegal (West Africa) · friends (with the missing man's mother) · disappearance (lost at sea, never confirmed) · ordinary stakes · 2 people + neutral friend
 
+> **Status:** revise. The main choice is returning money; make the question explicit: does Moussa tell Aminata her son surely reached Spain?
+
 ## Setting and culture
 Mbour, on the Petite Côte, has emptying fish stocks, idle young men, and wooden pirogues that leave at night for the Canary Islands. Families pay smugglers, and some mothers secretly help. Boats vanish; survivors' accounts come back in pieces. Without a body, a family can pray the funeral prayer for the absent, but some fathers refuse, because it means giving up. Friends who stayed behind carry a heavy guilt.
 

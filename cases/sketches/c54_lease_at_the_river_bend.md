@@ -2,6 +2,8 @@
 
 Indo-Fijian (Hindu) cane farmers and an iTaukei landowning clan, the western cane belt of Viti Levu, Fiji, with the uncle in Canada (Oceania and diaspora) · family (with the landowning clan) · departure (the uncle refuses all contact) · high stakes · 3 people + neutral friend · estate case (a lease)
 
+> **Status:** revise. Both main choices are withholdings between kin; bring in the land trust's consent form and the clan's status.
+
 ## Setting and culture
 Most cane land in Fiji is native land owned by iTaukei clans (*mataqali*). Indo-Fijian farmers lease it for 30 years through a national land trust. Since the late 1990s many leases have expired without renewal, and the coups of 1987 and 2000 drove many Indo-Fijian families abroad. Renewal depends on the clan's goodwill and on the lessees' paperwork. Ties between farmers and clans can be close, built on years of reciprocity, or tense.
 

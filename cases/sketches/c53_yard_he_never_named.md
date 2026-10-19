@@ -2,6 +2,8 @@
 
 Glaswegian working class (Clydeside), a former shipbuilding town on the Clyde, Scotland, UK (Europe) · work (former shipyard workmates and their families) · dementia (the only living witness), with destroyed records and the worker's death · high stakes · 3 people + neutral friend
 
+> **Status:** revise. Duplicates c32's compensation-claim pattern; differentiate or merge.
+
 ## Setting and culture
 A town that built ships until the yards closed in the 1980s. Asbestos lagging was everywhere, and mesothelioma now kills men who worked there decades ago. Compensation claims must show that the man was exposed at a yard whose insurer can still be traced. Employment records of the closed yards were largely destroyed, so claims depend on workmates' memories. Solidarity among the old yard men is fierce, and many of them now have dementia.
 

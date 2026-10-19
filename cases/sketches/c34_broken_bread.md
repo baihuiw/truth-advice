@@ -2,6 +2,8 @@
 
 Uzbek (Sunni Muslim), a neighbourhood (*mahalla*) of Fergana, Uzbekistan (Central Asia) · community (two families and the *mahalla*) · death · ordinary stakes · 3 people + neutral friend
 
+> **Status:** revise. Thin; recast Bakhtiyor's account to the mahalla elders as a self-serving lie to an authority.
+
 ## Setting and culture
 In the Fergana valley, marriages are agreed between families. The engagement (*fatiha-tui*) is sealed by breaking flatbread together (*non sindirish*), and the groom's side gives gold, fabric and money towards the wedding. Custom expects gifts to go back if the bride's side breaks the engagement. The *mahalla* elders mediate disputes, and a family's honour, and a daughter's marriage prospects, depend on how such quarrels end.
 

@@ -2,6 +2,8 @@
 
 Samoan (Congregational Christian), a village on Savai'i and South Auckland, New Zealand (Oceania and diaspora) · community (the extended family, *aiga*) · death · ordinary stakes · 3 people + neutral friend · estate-related (a chiefly title and authority over customary land)
 
+> **Status:** revise. Needs Samoan review; only one divergent person; the truth choice is weak.
+
 ## Setting and culture
 In *fa'a Samoa* (the Samoan way), chiefly titles (*matai*) belong to the extended family (*aiga*), which bestows a title by consensus at a family gathering. The holder has authority over the family's customary land and its voice in the village council. The path to a title is service (*tautua*) to the family. Diaspora members contribute money for family obligations from Auckland. Disputes can go to the Land and Titles Court. A title can also be split between two holders. A brother's sister holds a sacred, respected voice (*feagaiga*).
 

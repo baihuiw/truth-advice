@@ -2,6 +2,8 @@
 
 Afro-Brazilian, a working-class hill neighbourhood of Salvador, Bahia (Latin America) · community (religious) · death · ordinary stakes · 4 people + neutral friend
 
+> **Status:** revise. Overlaps c39 (a pastor withholding from a family); religious sensitivity; recast the pastor's public announcement as a correction choice.
+
 ## Setting and culture
 In Salvador, Afro-Brazilian religions (Candomblé, Umbanda) live alongside Catholicism and fast-growing Pentecostal churches. A medium in Umbanda keeps bead necklaces (*guias*) and images of her spirit guides at home, and her house of worship (*centro*) holds a farewell rite when she dies. Many evangelicals regard these religions as dangerous, and some converted children try to "save" a dying parent. Clashes between the two faiths are a live public issue.
 

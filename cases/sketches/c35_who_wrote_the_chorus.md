@@ -2,6 +2,8 @@
 
 Jamaican, Kingston's music scene (Caribbean) · friends (bandmates since youth) · death (with a lost record) · ordinary stakes · 2 people + neutral friend
 
+> **Status:** revise. Both choices are withholdings in an adversarial negotiation; move them into a tribunal where the diary must be produced.
+
 ## Setting and culture
 In 1990s Kingston, songs were made in small studios on handshakes. Credits often went to the singer or the label, and payments were cash "for now". A song from that era that is licensed decades later can suddenly earn real money, and old friends and heirs then fight over splits that were never written down. Trust, *respect*, and the dead's legacy carry great weight in the scene.
 

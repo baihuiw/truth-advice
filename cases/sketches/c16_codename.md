@@ -2,6 +2,8 @@
 
 Romanian, Cluj (Eastern Europe) · friends · lost record (the informer's identity file was destroyed; all suspects are dead) · ordinary stakes · 3 people + neutral friend
 
+> **Status:** revise. Main choices are volunteering and painful disclosure; recognition risk medium; bring in the archive or publisher, or a direct question to the widow.
+
 ## Setting and culture
 Under Ceaușescu, the secret police recruited informers among friends, colleagues and family, often through blackmail. Since 1999 citizens can read their own files. Informers usually appear only under codenames, and many identity files were destroyed in December 1989. Homosexuality was a crime until 2001, a ready lever for coercion. In Cluj's intelligentsia, private circles of poetry and chess were where people spoke freely, or thought they did.
 

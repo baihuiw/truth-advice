@@ -2,6 +2,8 @@
 
 Yoruba (Anglican), Ibadan, Nigeria, with children in Manchester and Toronto (West Africa and diaspora) · care (paid live-in carer) · death · ordinary stakes · 3 people + neutral friend
 
+> **Status:** revise. Choices are generic; make the reference letter for the carer the institutional choice.
+
 ## Setting and culture
 A quiet Ibadan estate of retired civil servants. Since about 2021 a wave of emigration (*japa*) has taken many adult children to the UK, Canada and the US. Ageing parents are left with paid live-in carers, often young women from other states, managed through a family WhatsApp group and monthly transfers. Elders are honoured and expect to decide for themselves. Burials follow church rites within weeks, and autopsies are rare.
 

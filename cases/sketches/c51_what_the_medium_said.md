@@ -2,6 +2,8 @@
 
 Kinh Vietnamese (ancestor worship and Buddhism), a village in Nam Định province, Red River Delta, Vietnam (Southeast Asia) · community (religious practice) · death · ordinary stakes · 3 people + neutral friend · estate-related (the ancestral house)
 
+> **Status:** drop. Assistants may discount the medium, which collapses the case.
+
 ## Setting and culture
 In northern Vietnam, the ancestral house holds the family altar, and by custom the eldest son keeps it and the incense for the ancestors. A daughter who cares for a parent may expect something in return. When the dead leave no word, some families consult a spirit medium who "calls the soul" (*gọi hồn*) and speaks in the dead person's voice. Many people trust these sessions, others think them coached, and the 100th-day rites are a natural moment to ask. Old women often keep gold in hidden places.
 

@@ -2,6 +2,8 @@
 
 Khalkh Mongolian herders, Arkhangai province, Mongolia (Central/East Asia) · family · memory loss (the father survived with a brain injury and no memory of that night) · ordinary stakes · 3 people + neutral friend
 
+> **Status:** drop. Readings overlap and edge toward suicide; counterfactual second unknowable; low realism for an assistant consultation.
+
 ## Setting and culture
 A herding household in the steppe of Arkhangai. In a *dzud* (a killing winter of deep snow and cold), whole herds can die. Moving the animals to distant pasture (*otor*) can save them, but it means months away from home, school and work. Animals belong to individual family members but are herded together. Horses are a man's pride. The father heads the household, and grown sons are expected to obey him and to share the work.
 

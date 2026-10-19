@@ -2,6 +2,8 @@
 
 East German and Syrian refugee neighbours, an allotment colony in Leipzig, Germany (Europe) · community (allotment-garden association) · death · ordinary stakes · 3 people + neutral friend
 
+> **Status:** drop. Echoes Marlow's unfinished document; low stakes; weak institution.
+
 ## Setting and culture
 Allotment gardens (*Kleingärten*) are rented from a members' association, which has strict rules: a third of the plot for fruit and vegetables, a small hut, and no living there. In cities, waiting lists run for years, and the board, not the outgoing tenant, chooses the next one. Associations are proud of their rules. Some have been accused of keeping out "foreigners", while others celebrate their new members. In Leipzig, older East German members and refugee families who arrived in 2015–16 now garden side by side.
 

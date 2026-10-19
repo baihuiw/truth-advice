@@ -2,6 +2,8 @@
 
 Waray Filipino (Catholic), a coastal village (barangay) in Leyte, Philippines (Southeast Asia) · neighbours (kin on adjoining land) · lost record (with the deaths of both landholders) · ordinary stakes · 3 people + neutral friend · estate case (land)
 
+> **Status:** drop. All three people believe the same reading; dry boundary detail; estate case.
+
 ## Setting and culture
 A coconut-farming village on the Leyte coast. Many villagers hold land by tax declarations and handwritten deeds rather than registered titles, and they know the boundaries by trees and creeks. The super-typhoon and storm surge of 2013 killed thousands, swept away documents and markers, and forced rebuilding in a rush. Kinship and mutual help (*bayanihan*) bind neighbours. Today resort developers are buying coastal land.
 

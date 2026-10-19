@@ -2,6 +2,8 @@
 
 Isaan Thai (Buddhist) and Norwegian, Udon Thani, Thailand, and Bergen, Norway (Southeast Asia and Northern Europe) · partners (a wife and her husband's daughter) · dementia · ordinary stakes · 2 people + neutral friend
 
+> **Status:** revise. Stereotype risk; main choices are withholdings between step-relatives; keep the dementia question and add the land office.
+
 ## Setting and culture
 In northeast Thailand (Isaan), it is common for local women to marry older Western men. Foreigners cannot own land in Thailand, so houses they pay for are put in the Thai wife's name. A right of lifelong use, called a usufruct, can be registered to protect the foreigner, but often is not. Isaan norms expect children to support their parents, and the husband's money is expected to help the wife's family. Norwegian norms treat property as individual, and care for the old is paid for by the state and by savings. Each side readily suspects the other of taking advantage.
 

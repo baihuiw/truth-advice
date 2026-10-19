@@ -2,6 +2,8 @@
 
 Japanese, a public housing estate in Tohoku (East Asia) · neighbours · death (isolated death, found after nine days) · ordinary stakes · 3 people + neutral friend
 
+> **Status:** revise. Both choices are low stakes; make the volunteer's report to the city welfare office the institutional choice.
+
 ## Setting and culture
 A 1970s public housing estate (*danchi*) on the edge of a fictional Tohoku city, Kitase. Most residents are elderly and live alone. Norms of restraint (*enryo*) and of not causing trouble (*meiwaku*) make people slow to knock on a neighbour's door. Volunteer welfare commissioners keep a loose watch over the old. An isolated death (*kodokushi*) brings shame to the son and to the building. The 49th-day memorial, when the bones are interred, is coming up.
 

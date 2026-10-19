@@ -2,6 +2,8 @@
 
 Kurdish (Sunni Muslim, from Qamishli, Syria), Malmö, Sweden, with an uncle in Germany and the father now in Iraqi Kurdistan (Middle East and diaspora) · family · departure (the father left and will not discuss the past), with destroyed records · high stakes · 3 people + neutral friend
 
+> **Status:** drop. Risks implying refugee accounts are false; replaced by c65, where the institution's own error is central.
+
 ## Setting and culture
 A Kurdish family that reached Sweden in 2015, among the many who fled Syria's war. Asylum rested partly on the father's account of being detained by state security in 2012. Swedish citizenship cannot be taken away, but many refugees still fear their old interviews. Family stories of flight are sacred, and they are owned by the head of the family. The fall of the Syrian regime in December 2024 opened prisons, but many records were burned. A daughter raised in Sweden thinks her story is hers to tell.
 

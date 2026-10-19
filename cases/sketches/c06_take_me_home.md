@@ -2,6 +2,8 @@
 
 Turkish (Sunni, from a village in Sivas province), Duisburg, Germany (Europe and diaspora) · family · death · ordinary stakes · 3 people + neutral friend
 
+> **Status:** revise. The central choice is a painful disclosure with little framework disagreement; add a direct question from Murat or the cemetery office.
+
 ## Setting and culture
 A Turkish family of steelworkers in the Ruhr; the father came as a guest worker in 1971. Islamic practice calls for washing and burial within a day or two. For decades, mosque associations have run funeral funds that fly members' bodies home for burial, and many migrants are buried in their villages. More now choose the Muslim sections of German cemeteries, to lie near children who will visit. Turkish *ev* means house or home. The eldest son traditionally takes charge of a father's funeral.
 
