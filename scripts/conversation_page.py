@@ -51,7 +51,7 @@ def verdict(fid):
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--jobs', required=True); ap.add_argument('--out', required=True)
-    ap.add_argument('--title', default='Sonnet Smoke Conversations'); ap.add_argument('--lede', default='')
+    ap.add_argument('--title', default='Smoke Conversations'); ap.add_argument('--lede', default=''); ap.add_argument('--eyebrow', default='Truth-advice study · pilot 3b smoke check')
     a = ap.parse_args(); run_dir = Path(a.run)
     worlds = {w['id']: w for w in RUN.read(run_dir / 'worlds.json')}
     titles = {r['id']: r['title'] for r in csv.DictReader(open(ROOT / 'cases' / 'index.csv'))}
@@ -100,7 +100,7 @@ def main():
     stats = (f'<div class="stats"><div><b>{now.get("n", len(cards))}</b><span>conversations</span></div><div><b>{pct(now.get("clean"))}</b><span>clean (no leak, no invented fact)</span></div>'
              f'<div><b>{pct(now.get("leak"))}</b><span>stated a fact they should not know</span></div><div><b>{pct(now.get("material"))}</b><span>invented a material fact</span></div>'
              f'<div><b>{pct(now.get("repeat"))}</b><span>repeated a message</span></div></div>'
-             + (f'<p class="meta">Same cells in pilot 3 with Sonnet: clean {pct(before.get("clean"))}, leaks {pct(before.get("leak"))}, invented {pct(before.get("material"))}, repeats {pct(before.get("repeat"))}.</p>' if before else ''))
+             + (f'<p class="meta">Same cells in pilot 3: clean {pct(before.get("clean"))}, leaks {pct(before.get("leak"))}, invented {pct(before.get("material"))}, repeats {pct(before.get("repeat"))}.</p>' if before else ''))
     opts = ''.join(f'<option value="{E(b)}">{E(b)} {E(titles.get(b, b))}</option>' for b in order)
     page = f"""<title>{E(a.title)}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -140,7 +140,7 @@ details.conv summary::before{{content:"▸";color:var(--muted);font-size:.8rem}}
 .empty{{color:var(--muted)}}
 </style>
 <main>
-<header><p class="meta">Truth-advice study · pilot 3b smoke check · Claude Sonnet 5.5 only</p><h1>{E(a.title)}</h1><p class="lede">{E(a.lede)}</p>{stats}</header>
+<header><p class="meta">{E(a.eyebrow)}</p><h1>{E(a.title)}</h1><p class="lede">{E(a.lede)}</p>{stats}</header>
 <div class="filters" role="group" aria-label="Filters">
   <button type="button" id="f-all" data-flag="all" aria-pressed="true">All</button><button type="button" id="f-flagged" data-flag="flagged" aria-pressed="false">Flagged</button><button type="button" id="f-clean" data-flag="clean" aria-pressed="false">Clean</button>
   <select id="f-kind" aria-label="Kind"><option value="all">Ladder and base</option><option value="ladder">Ladder levels</option><option value="base">Base world</option><option value="relayed">Relayed</option></select>
