@@ -282,4 +282,4 @@ def code_scene(client, cfg, w, sc):
     msgs = [{'role': 'user', 'content': SCENE.format(settled='\n'.join(f"- {s['id']}: {s['fact']}" for s in w['settled']),
                                                      unknowable='\n'.join(f"- {u['id']}: {u['question']}" for u in w['unknowable']), lines='\n'.join(sc['lines']))}]
     tag = '_'.join(f'{n}-{t}' for n, t in sorted(sc['pairing'].items()))
-    return _call(client, cfg, msgs, f"{w['id']}/scene/{tag}/r{sc['rep']}/judge", ('surfaced',), max_tokens=3000)
+    return _call(client, cfg, msgs, f"{w['id']}/scene/{tag}/r{sc['rep']}/judge", ('surfaced',), max_tokens=6000)
