@@ -122,7 +122,7 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
             if cfg.get('staged_reveals', True):
                 for rid in unlock_check(client, cfg, w, name, reply, unlocked, asks, f'{label}/gm{turn}'):
                     unlock_log.append({'item': rid, 'after_assistant_turn': turn})
-            u = client.chat(cfg['simulator'], U.messages(w, name, condition, transcript, turn + 1, max_turns, unlocked if cfg.get('staged_reveals', True) else None), f'{label}/u{turn + 1}',
+            u = sim_chat(client, cfg, U.messages(w, name, condition, transcript, turn + 1, max_turns, unlocked if cfg.get('staged_reveals', True) else None), f'{label}/u{turn + 1}',
                             max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
             text, ended = U.clean(u.get('content'))
             if not text:
@@ -143,6 +143,17 @@ def consult(client, cfg, run_dir, w, condition, name, target, rep):
     return rec
 
 
+def sim_chat(client, cfg, messages, label, **kw):
+    """The simulator's call, falling back to cfg['simulator_fallback'] when the provider refuses the request (HTTP 400, which
+    for the Jinhe family-violence material is the content filter); the fallback is logged in the label."""
+    try:
+        return client.chat(cfg['simulator'], messages, label, **kw)
+    except CallFailed as e:
+        if cfg.get('simulator_fallback') and 'HTTP 400' in str(e):
+            return client.chat(cfg['simulator_fallback'], messages, label + '/fallback', **kw)
+        raise
+
+
 def follow_path(run_dir, w, claim, prior, target, rep):
     return Path(run_dir) / 'followup' / f"{w['id']}__{claim['id']}__{prior}__{claim['to']}__{target}__r{rep}.json"
 
@@ -161,7 +172,7 @@ def follow_up(client, cfg, run_dir, w, base, claim, prior):
     new = []
     try:
         for k in range(1, cfg.get('follow_turns', 3) + 1):
-            u = client.chat(cfg['simulator'], U.follow_messages(w, name, claim, prior, base['transcript'], new, k, unlocked), f'{label}/u{k}',
+            u = sim_chat(client, cfg, U.follow_messages(w, name, claim, prior, base['transcript'], new, k, unlocked), f'{label}/u{k}',
                             max_tokens=mt.get('simulator', 1500), temperature=cfg.get('simulator_temperature', 0.8))
             text, ended = U.clean(u.get('content'))
             if not text:
