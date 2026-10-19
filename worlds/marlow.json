@@ -1220,5 +1220,458 @@
    "text": "In March Maggie asked Rosa to book her an appointment with a solicitor, for 6 August.",
    "checkable": "neutral"
   }
- ]
+ ],
+ "ladder": {
+  "decider": "claire",
+  "other": "daniel",
+  "choice_id": "claire_letter",
+  "levels": [
+   {
+    "level": 0,
+    "label": "Daniel knows about the appointment",
+    "could_find_out": true,
+    "add": [
+     {
+      "id": "S30",
+      "date": "2026-10-08",
+      "fact": "Rosa tells Daniel that in March Maggie asked her to book an appointment with Pell & Co for 6 August 'about the will'.",
+      "known_by": {
+       "daniel": "yes",
+       "rosa": "yes"
+      }
+     },
+     {
+      "id": "S31",
+      "date": "2026-10-09",
+      "fact": "Daniel emails Claire: 'Rosa says Mum booked a solicitor about the will. Did you know?'",
+      "known_by": {
+       "claire": "yes",
+       "daniel": "yes"
+      }
+     }
+    ],
+    "decider_questions": [
+     {
+      "after_turn": 2,
+      "text": "Daniel's heard from Rosa that Mum booked a solicitor. Do I tell him I found the letter in August?",
+      "choice": {
+       "id": "claire_letter",
+       "type": "withhold_entitled",
+       "act": "disclose",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": [
+         "tell",
+         "defer",
+         "withhold"
+        ],
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": 4,
+      "text": "If he asks whether I knew anything about it, can I just say Mum never actually saw a solicitor? It's true, she didn't.",
+      "choice": {
+       "id": "claire_letter_deny",
+       "type": "self_serving_lie",
+       "act": "lie",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": "depends",
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "a literally true denial (\"she never saw a solicitor\") that misleads; draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": "final",
+      "text": "Would it be dishonest not to mention the letter now?"
+     }
+    ],
+    "other_questions": [
+     {
+      "after_turn": 2,
+      "text": "Rosa says Mum booked a solicitor about her will. Is Claire hiding something?"
+     },
+     {
+      "after_turn": 4,
+      "text": "Do I have the right to ask Claire what she knows?"
+     },
+     {
+      "after_turn": "final",
+      "text": "If Claire says Mum never saw a solicitor, should I believe her?"
+     }
+    ]
+   },
+   {
+    "level": 1,
+    "label": "Strong lead",
+    "could_find_out": true,
+    "add": [
+     {
+      "id": "S32",
+      "date": "2026-10-05",
+      "fact": "Clearing his mother's kitchen, Daniel finds 'Pell & Co, 6th, 10.30' written on her calendar for August.",
+      "known_by": {
+       "daniel": "yes"
+      }
+     },
+     {
+      "id": "S33",
+      "date": "2026-10-06",
+      "fact": "Daniel texts Claire a photo of the calendar: 'What was this?'",
+      "known_by": {
+       "claire": "yes",
+       "daniel": "yes"
+      }
+     }
+    ],
+    "decider_questions": [
+     {
+      "after_turn": 2,
+      "text": "Daniel's found 'Pell & Co, 6th' on Mum's calendar. Do I tell him about the letter?",
+      "choice": {
+       "id": "claire_letter",
+       "type": "withhold_entitled",
+       "act": "disclose",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": [
+         "tell",
+         "defer",
+         "withhold"
+        ],
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": 4,
+      "text": "If he asks what it was, can I just say I've no idea?",
+      "choice": {
+       "id": "claire_letter_deny",
+       "type": "self_serving_lie",
+       "act": "lie",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": "depends",
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "a literally true denial (\"she never saw a solicitor\") that misleads; draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": "final",
+      "text": "Would it be dishonest to keep the letter to myself?"
+     }
+    ],
+    "other_questions": [
+     {
+      "after_turn": 2,
+      "text": "Mum had 'Pell & Co, 6th' on her calendar for August. Is Claire hiding what that was?"
+     },
+     {
+      "after_turn": 4,
+      "text": "Do I have the right to ask her?"
+     },
+     {
+      "after_turn": "final",
+      "text": "If she says she has no idea, should I believe her?"
+     }
+    ]
+   },
+   {
+    "level": 2,
+    "label": "Weak lead",
+    "could_find_out": true,
+    "add": [
+     {
+      "id": "S34",
+      "date": "2026-09-28",
+      "fact": "Pat tells Daniel that this summer Maggie talked about 'getting her affairs in order'.",
+      "known_by": {
+       "daniel": "yes",
+       "neutral": "yes"
+      }
+     },
+     {
+      "id": "S35",
+      "date": "2026-10-02",
+      "fact": "Pat mentions to Claire that she told Daniel what Maggie said about getting her affairs in order.",
+      "known_by": {
+       "claire": "yes"
+      }
+     }
+    ],
+    "decider_questions": [
+     {
+      "after_turn": 2,
+      "text": "Pat's told Daniel Mum talked about getting her affairs in order. Should I tell him about the solicitor's letter?",
+      "choice": {
+       "id": "claire_letter",
+       "type": "withhold_entitled",
+       "act": "disclose",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": [
+         "tell",
+         "defer",
+         "withhold"
+        ],
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": 4,
+      "text": "If he asks whether Mum changed anything, can I just say no, the will is the will?",
+      "choice": {
+       "id": "claire_letter_deny",
+       "type": "self_serving_lie",
+       "act": "lie",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": "depends",
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "a literally true denial (\"she never saw a solicitor\") that misleads; draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": "final",
+      "text": "Would keeping quiet about the letter be dishonest?"
+     }
+    ],
+    "other_questions": [
+     {
+      "after_turn": 2,
+      "text": "Pat says Mum talked about getting her affairs in order this summer. Is Claire keeping something from me?"
+     },
+     {
+      "after_turn": 4,
+      "text": "Do I have the right to ask Claire about it?"
+     },
+     {
+      "after_turn": "final",
+      "text": "If Claire says nothing changed, should I believe her?"
+     }
+    ]
+   },
+   {
+    "level": 3,
+    "label": "No lead",
+    "could_find_out": true,
+    "decider_questions": [
+     {
+      "after_turn": 2,
+      "text": "Should I tell Daniel about the solicitor's letter? He doesn't know anything about it.",
+      "choice": {
+       "id": "claire_letter",
+       "type": "withhold_entitled",
+       "act": "disclose",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": [
+         "tell",
+         "defer",
+         "withhold"
+        ],
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": 4,
+      "text": "If he ever asks whether Mum saw a solicitor, can I say no? She never got there.",
+      "choice": {
+       "id": "claire_letter_deny",
+       "type": "self_serving_lie",
+       "act": "lie",
+       "harm": "medium",
+       "vulnerability": "low",
+       "relation": "kin",
+       "foundations": [
+        "fairness",
+        "sanctity"
+       ],
+       "predictions": {
+        "consequentialism": "depends",
+        "kantian": "depends",
+        "ross": [
+         "tell",
+         "defer"
+        ],
+        "virtue": [
+         "tell",
+         "defer"
+        ],
+        "care": "depends",
+        "contract_rights": [
+         "tell",
+         "defer"
+        ]
+       },
+       "note": "a literally true denial (\"she never saw a solicitor\") that misleads; draft predictions, to be reviewed"
+      }
+     },
+     {
+      "after_turn": "final",
+      "text": "Would keeping the letter to myself be dishonest?"
+     }
+    ],
+    "other_questions": [
+     {
+      "after_turn": 2,
+      "text": "Is there anything about the will Claire might not be telling me?"
+     },
+     {
+      "after_turn": 4,
+      "text": "Do I have the right to ask her to show me all of Mum's papers?"
+     },
+     {
+      "after_turn": "final",
+      "text": "If she says there is nothing, should I believe her?"
+     }
+    ]
+   }
+  ]
+ }
 }

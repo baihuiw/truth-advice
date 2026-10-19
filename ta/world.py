@@ -60,7 +60,7 @@ def validate(w):
         if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(e.get('date', ''))) or str(e.get('date')) < tl_prev:
             errs.append(f"timeline entry {e.get('event', '')[:30]!r}: dates must be YYYY-MM-DD and in order")
         tl_prev = str(e.get('date', ''))
-    errs += choice_errors(w) + claim_errors(w)
+    errs += choice_errors(w) + claim_errors(w) + ladder_errors(w)
     readings = {u['id']: set(u.get('readings') or {}) for u in w['unknowable']}
     for u in w['unknowable']:
         if len(readings[u['id']]) < 2:
@@ -166,6 +166,27 @@ def choice_errors(w):
     return errs
 
 
+def ladder_errors(w):
+    """An information-asymmetry ladder: a decider and an other party who are both parties, levels 0..3 (0 = the other knows the
+    key fact, 3 = no lead), and each level must build a valid world."""
+    lad = w.get('ladder')
+    if not lad:
+        return []
+    errs = []
+    for role in ('decider', 'other'):
+        if lad.get(role) not in w['parties']:
+            errs.append(f"ladder: {role} must be a party")
+    levels = [x.get('level') for x in lad.get('levels') or []]
+    if sorted(levels) != list(range(len(levels))) or len(levels) < 2:
+        errs.append('ladder: levels must be numbered 0, 1, 2, ... with at least two')
+    if errs:
+        return errs
+    for lv in levels:
+        v = ladder_variant(w, lv)
+        errs += [f'ladder level {lv}: {e}' for e in validate(v)]
+    return errs
+
+
 def claim_errors(w):
     """Claims for follow-up conversations: what someone tells a party some days later, and whether it is true."""
     errs, ids = [], set()
@@ -195,6 +216,8 @@ def twin(w):
             out['settled'] = [s for s in out['settled'] if s['id'] != fid]
             for p in out['parties'].values():
                 p['view'] = [f for f in p['view'] if f != fid]
+                for r in p.get('reveal_policy') or []:
+                    r['facts'] = [f for f in r.get('facts') or [] if f != fid]
         else:
             for s in out['settled']:
                 if s['id'] == fid:
@@ -547,4 +570,59 @@ def relayed(w, name):
             r['cover'] = f"I'm not sure {first} would want me to go into that."
             r.pop('hint', None)
     out['neutral_friend'] = relay
+    return out
+
+
+def ladder_variant(w, level):
+    """One level of the world's information-asymmetry ladder: the other party holds more or less evidence about what the
+    decider holds, and the decider knows how much. Applies the level's fact changes (new text or "removed"), new facts,
+    known_by updates (adding facts to the views of those who now know them), and the two parties' questions for that
+    level; prunes past chats and timeline entries that mention a changed fact. Everything else stays as in the base
+    world. The variant's id is <world>_L<level>; only the decider and the other party consult in it (see gm.jobs)."""
+    lad = w.get('ladder') or {}
+    lv = next((x for x in lad.get('levels') or [] if x.get('level') == level), None)
+    if lv is None:
+        return None
+    out = copy.deepcopy(w)
+    out['id'] = f"{w['id']}_L{level}"; out['ladder_of'] = w['id']; out['ladder_level'] = level
+    for k in ('accident_twin', 'ladder', 'claims'):
+        out.pop(k, None)
+    out['ladder_roles'] = {'decider': lad['decider'], 'other': lad['other'], 'choice_id': lad.get('choice_id'), 'label': lv.get('label', ''),
+                           'could_find_out': lv.get('could_find_out')}
+    touched = set()
+    for fid, change in (lv.get('changes') or {}).items():
+        touched.add(fid)
+        if str(change).startswith('removed'):
+            out['settled'] = [s for s in out['settled'] if s['id'] != fid]
+            for name in list(out['parties']) + ['neutral']:
+                p = party_of(out, name)
+                p['view'] = [f for f in p.get('view') or [] if f != fid]
+                for r in p.get('reveal_policy') or []:
+                    r['facts'] = [f for f in r.get('facts') or [] if f != fid]
+        else:
+            for s in out['settled']:
+                if s['id'] == fid:
+                    s['fact'] = change
+    for s in lv.get('add') or []:
+        out['settled'].append(copy.deepcopy(s)); touched.add(s['id'])
+    for s in out['settled']:
+        for who, k in ((lv.get('known_by') or {}).get(s['id']) or {}).items():
+            s.setdefault('known_by', {})[who] = k
+    for s in out['settled']:                                            # whoever now knows a fact has it in view
+        for who in (s.get('known_by') or {}):
+            p = party_of(out, who) if (who in out['parties'] or who == 'neutral') else None
+            if p is not None and s['id'] not in (p.get('view') or []):
+                p.setdefault('view', []).append(s['id'])
+    out['settled'].sort(key=lambda s: str(s.get('date', '')))
+    for name, ch in (lv.get('party_changes') or {}).items():          # per-level text that must agree with the level (openings, reveal items)
+        for k, v in ch.items():
+            party_of(out, name)[k] = copy.deepcopy(v)
+    for role, key in (('decider', 'decider_questions'), ('other', 'other_questions')):
+        if lv.get(key):
+            out['parties'][lad[role]]['truth_questions'] = copy.deepcopy(lv[key])
+    for name in list(out['parties']) + ['neutral']:
+        p = party_of(out, name)
+        if p.get('history'):
+            p['history'] = [h for h in p['history'] if not set(h.get('facts') or []) & touched]
+    out['timeline'] = [e for e in out.get('timeline') or [] if e.get('fact') not in touched]
     return out

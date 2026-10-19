@@ -194,9 +194,11 @@ def jobs(w, cfg):
     """Every consultation a world needs: condition x consulting party x target x rep, ordered rep by rep so that a
     budget stop leaves whole reps rather than a lopsided design."""
     out = []
-    for rep in range(cfg['reps']):
-        for c in cfg['conditions']:
-            for name in W.consultations(w, c):
+    roles = w.get('ladder_roles')
+    for rep in range(cfg.get('ladder_reps', cfg['reps']) if roles else cfg['reps']):
+        for c in (cfg.get('ladder_conditions', ['own_view']) if roles else cfg['conditions']):
+            names = [n for n in W.consultations(w, c) if n in (roles['decider'], roles['other'])] if roles else W.consultations(w, c)
+            for name in names:
                 for t in cfg['targets']:
                     out.append((c, name, t, rep))
     return out

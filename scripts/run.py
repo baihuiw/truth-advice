@@ -33,6 +33,12 @@ def worlds_for(cfg):
     for wid in cfg['worlds']:
         if wid in base:
             out.append(base[wid]); continue
+        m = re.fullmatch(r'(.+)_L(\d+)', wid)
+        if m and m.group(1) in base and base[m.group(1)].get('ladder'):
+            out.append(W.ladder_variant(base[m.group(1)], int(m.group(2)))); continue
+        m = re.fullmatch(r'(.+)_ladder', wid)
+        if m and m.group(1) in base and base[m.group(1)].get('ladder'):
+            out += [W.ladder_variant(base[m.group(1)], lv['level']) for lv in base[m.group(1)]['ladder']['levels']]; continue
         src = next((w for w in base.values() if (w.get('accident_twin') or {}).get('id') == wid), None)
         if not src:
             raise SystemExit(f'unknown world {wid}')
