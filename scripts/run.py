@@ -71,7 +71,7 @@ def estimate(cfg, cat, worlds, routes=None):
                 n_jobs += 1
     per_t_jobs = n_jobs / len(cfg['targets']); per_t_reuse = n_reuse / len(cfg['targets'])
     conv_usd = sum(per_t_jobs * (per_target[t] + sim + judge) + per_t_reuse * judge for t in cfg['targets'])
-    scenes = len(worlds) * (len(cfg['targets']) * bool(cfg['phase2'].get('diagonal')) + len(cfg['phase2'].get('cross', []))) * cfg['phase2'].get('reps', 1)
+    scenes = sum(not w.get('ladder_roles') for w in worlds) * (len(cfg['targets']) * bool(cfg['phase2'].get('diagonal')) + len(cfg['phase2'].get('cross', []))) * cfg['phase2'].get('reps', 1)  # ladder levels get no scenes
     scene_usd = scenes * (cfg['scene_rounds'] * 4 * (2500 * sin + 200 * sout) + 4000 * jin + 1500 * jout)
     return {'conversations': n_jobs, 'reused_twin_conversations': n_reuse, 'per_conversation_usd': {t: round(per_target[t] + sim + judge, 3) for t in cfg['targets']}, 'conversations_usd': round(conv_usd, 2),
             'scenes': scenes, 'scenes_usd': round(scene_usd, 2), 'total_usd': round(conv_usd + scene_usd, 2),
