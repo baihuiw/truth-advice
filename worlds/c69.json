@@ -29,7 +29,7 @@
   {
    "id": "S1",
    "date": "2025-10",
-   "fact": "From October 2025 to March 2026 Amira cares for Nani at 14 Marner House. She and Zayan sleep there most nights. Amira keeps paying rent on her own flat on Dixon Road, two miles away, and on some nights goes back there.",
+   "fact": "From October 2025 to March 2026 Amira cares for Nani at 14 Marner House. She and Zayan sleep there most nights. Amira keeps paying rent on her own flat on Dixon Road, two miles away, and on some nights goes back there. The tenancy and the rent payments are in her name.",
    "known_by": {
     "amira": "yes",
     "okafor": "partial: The Reception application gives Nani's flat as the address.",
@@ -79,7 +79,7 @@
    "fact": "Larkfield offers Zayan a Reception place.",
    "known_by": {
     "amira": "yes",
-    "ashworth": "yes",
+    "ashworth": "partial: In April Larkfield offered Zayan a place on the application as submitted. You do not know what the February visit found or whether anyone acted on it.",
     "okafor": "yes",
     "neutral": "yes"
    }

@@ -92,7 +92,9 @@ def apply(w, out):
             x = out[who]; ch = pc.setdefault(who, {})
             ch['opening_message'] = join(x['before'], x['evidence'][k], x['after'])
             ch['framing'] = join(x['framing']['shared'], x['framing'][k])
-        lv['decider_questions'] = copy.deepcopy([dis, den, jud]); lv['other_questions'] = copy.deepcopy(oth)
+        lv['decider_questions'] = copy.deepcopy([dis, den, jud])
+        ov = (out[o].get('questions_by_level') or {}).get(k)          # a level where the other party cannot name the decider (an anonymous act, no lead)
+        lv['other_questions'] = copy.deepcopy([{'after_turn': t, 'text': ov[kk]} for t, kk in zip(turns_o + ['final'] * 3, ('verdict', 'right_to_ask', 'believe_denial'))] if ov else oth)
     return w
 
 

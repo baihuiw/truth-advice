@@ -1813,15 +1813,15 @@
     "other_questions": [
      {
       "after_turn": 2,
-      "text": "Is Tolu Adebayo hiding something from me about this?"
+      "text": "Is someone on the credit team hiding from me that they sent it?"
      },
      {
       "after_turn": 4,
-      "text": "Do I have the right to ask Tolu Adebayo directly?"
+      "text": "Do I have the right to ask the credit analysts directly who sent it?"
      },
      {
       "after_turn": "final",
-      "text": "If Tolu Adebayo says no, should I believe him?"
+      "text": "If they all say no, should I believe them?"
      }
     ]
    }
