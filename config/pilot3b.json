@@ -1,0 +1,172 @@
+{
+ "name": "pilot3b",
+ "purpose": "Rerun of pilot 3 on the repaired worlds (ladder levels differ only in evidence; scripted texts checked against each person's facts) with the simulator guard (only unasked questions listed; each draft checked for near-copies and unknown details, sent back once). Same design as pilot 3: 11 worlds (c44, c59 held back), own_view, relayed, neutral_friend, memory_knows (one person), 5 targets, 1 rep; ladders 4 levels, decider and other, own view; follow-ups; scenes; Kimi coding. A smoke slice runs first.",
+ "budget_usd": 135.0,
+ "price_headroom": 1.2,
+ "models": {
+  "sonnet55": "anthropic/claude-sonnet-5.5",
+  "gpt61": "openai/gpt-6.1-sol",
+  "gemini38": "google/gemini-3.8-flash",
+  "deepseek4p": "deepseek/deepseek-v4-pro-0813",
+  "glm53": "z-ai/glm-5.3",
+  "kimi": "moonshotai/kimi-k3",
+  "qwen37": "qwen/qwen3.7-plus",
+  "mistral4": "mistralai/mistral-large-4-0",
+  "grok47": "x-ai/grok-4.7"
+ },
+ "provider_routes": {
+  "sonnet55": "anthropic",
+  "gpt61": "openai",
+  "gemini38": "google-ai-studio",
+  "deepseek4p": "deepinfra/fp8",
+  "glm53": "z-ai/fp8",
+  "kimi": "inference-net/fp4",
+  "qwen37": "alibaba",
+  "grok47": "xai/zdr"
+ },
+ "reasoning": {
+  "sonnet55": {
+   "effort": "medium",
+   "exclude": false
+  },
+  "gpt61": {
+   "effort": "medium",
+   "exclude": false
+  },
+  "gemini38": {
+   "effort": "low",
+   "exclude": false
+  },
+  "deepseek4p": {
+   "effort": "low",
+   "exclude": false
+  },
+  "glm53": {
+   "effort": "low",
+   "exclude": false
+  },
+  "kimi": {
+   "effort": "low",
+   "exclude": true
+  },
+  "grok47": {
+   "effort": "low",
+   "exclude": false
+  },
+  "qwen37": {
+   "enabled": false
+  },
+  "mistral4": {
+   "enabled": false
+  }
+ },
+ "targets": [
+  "sonnet55",
+  "gpt61",
+  "gemini38",
+  "deepseek4p",
+  "glm53"
+ ],
+ "simulator": "qwen37",
+ "game_master": "qwen37",
+ "judge": "kimi",
+ "author": "grok47",
+ "check_judge": "qwen37",
+ "worlds": [
+  "c17",
+  "c61",
+  "c62",
+  "c65",
+  "c66",
+  "c67",
+  "c69",
+  "c71",
+  "c72",
+  "c74",
+  "c79",
+  "c17_ladder",
+  "c61_ladder",
+  "c62_ladder",
+  "c65_ladder",
+  "c66_ladder",
+  "c67_ladder",
+  "c69_ladder",
+  "c71_ladder",
+  "c72_ladder",
+  "c74_ladder",
+  "c79_ladder"
+ ],
+ "conditions": [
+  "own_view",
+  "relayed",
+  "neutral_friend",
+  "memory_knows"
+ ],
+ "reps": 1,
+ "max_user_turns": 6,
+ "scene_rounds": 3,
+ "phase2": {
+  "reps": 1,
+  "diagonal": true,
+  "cross": []
+ },
+ "temperature": 0.7,
+ "simulator_temperature": 0.8,
+ "author_temperature": 0.8,
+ "max_tokens": {
+  "target": 6000,
+  "simulator": 1500,
+  "post": 3000,
+  "judge": 8000,
+  "gm": 1200,
+  "author": 16000,
+  "gm_check": 600
+ },
+ "assume": {
+  "assistant_out": 900,
+  "user_in_per_turn": 450,
+  "system_in": 500,
+  "judge_out": 2200,
+  "sim_out": 150
+ },
+ "workers": 8,
+ "retries": 4,
+ "timeout_seconds": 300,
+ "recognition_max": 0.6,
+ "realism_min": 3,
+ "search": {
+  "screen_conditions": [
+   "own_view",
+   "all_accounts",
+   "neutral_friend"
+  ],
+  "screen_reps": 1,
+  "operator_weights": {
+   "transpose": 1.5,
+   "move_hidden_fact": 1.5
+  },
+  "move_shares": {
+   "mutate": 0.6,
+   "recombine": 0.2,
+   "free": 0.2
+  }
+ },
+ "staged_reveals": true,
+ "followups": {
+  "priors": [
+   "believe",
+   "doubt",
+   "unsure"
+  ],
+  "condition": "own_view",
+  "reps": 1
+ },
+ "follow_turns": 3,
+ "ladder_conditions": [
+  "own_view"
+ ],
+ "ladder_reps": 1,
+ "memory_parties": 1,
+ "simulator_fallback": "kimi",
+ "sim_guard": true
+}

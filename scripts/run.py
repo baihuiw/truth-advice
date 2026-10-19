@@ -201,6 +201,8 @@ def main():
         s.add_argument('--workers', type=int, help='override the config worker count (e.g. 2 to retry rate-limited calls)')
         if name == 'code':
             s.add_argument('--alt', action='store_true', help='code the replies with judge_alt into code_alt/ (judge agreement)')
+        if name == 'run':
+            s.add_argument('--jobs', help='a JSON file of [world, condition, party, target, rep] to run instead of the whole design (a smoke slice; the rest can follow in the same run)')
     r = sub.add_parser('report'); r.add_argument('--run', required=True); r.add_argument('--out')
     a = ap.parse_args()
     if a.cmd in ('estimate', 'prepare'):
@@ -240,6 +242,9 @@ def main():
             print('call failed, skipped:', ex); return None
     if a.cmd == 'run':
         per = {w['id']: G.jobs(w, cfg) for w in worlds}                    # rep by rep, so a budget stop cuts every world evenly
+        if a.jobs:                                                          # a slice of the design only
+            only = {tuple(x) for x in read(Path(a.jobs))}
+            per = {wid: [j for j in js if (wid, *j) in only] for wid, js in per.items()}
         byid = {w['id']: w for w in worlds}; reused = 0
         for rep in range(cfg['reps']):
             for twins in (False, True):                                     # base worlds first; a twin then reuses identical conversations
