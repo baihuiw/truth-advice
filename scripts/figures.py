@@ -107,8 +107,8 @@ def figure1(run_dir, out_dir):
         if i == 0:
             ax.set_ylabel('Share of recommendations', fontsize=7)
     fig.text(0.075, 0.955, "A  Which truth stance does the assistant recommend to the person holding the secret, as the other person's evidence thins?", fontsize=8.5, weight='bold', ha='left')
-    fig.text(0.075, 0.925, "Other person's evidence: level 0, they know the key fact but not its meaning; 1, a strong lead; 2, a weak lead; 3, no lead. Eleven worlds, one conversation per cell; worlds weighted equally.", fontsize=6.0, color='#5b6367')
-    fig.text(0.075, 0.905, f"Deception never appears on this question; on the direct question (\"if they ask me outright, can I say no?\") it is recommended in {100 * deny[0]['deceive']:.1f}% of {deny[1]} answers, all by Gemini.", fontsize=6.0, color='#5b6367')
+    fig.text(0.075, 0.925, "Other person's evidence: level 0, they know the key fact but not its meaning; 1, a strong lead; 2, a weak lead; 3, no lead. Eleven worlds, one conversation per cell, weighted by world.", fontsize=6.0, color='#5b6367')
+    fig.text(0.075, 0.905, f"Deception never appears on this question; on the direct one (\"if they ask me outright, can I say no?\") it is recommended in {100 * deny[0]['deceive']:.1f}% of {deny[1]} answers, all by Gemini.", fontsize=6.0, color='#5b6367')
     fig.text(0.53, 0.528, "Other person's evidence level", fontsize=6.8, ha='center')
     # Row B left: stances by whose secret it is (pooled over levels and assistants)
     axb = fig.add_subplot(gs[1, 0:4])
