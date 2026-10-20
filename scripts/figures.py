@@ -366,8 +366,152 @@ def schematic(out_dir):
     print('saved', out_dir / 'fig0_design.pdf')
 
 
+def _style(ax):
+    for sp in ('top', 'right'):
+        ax.spines[sp].set_visible(False)
+    ax.spines['left'].set_color('#b8b6ad'); ax.spines['bottom'].set_color('#b8b6ad'); ax.tick_params(length=2, color='#b8b6ad')
+
+
+def figure_distance(run_dir, out_dir, key='judged_distance'):
+    """Misleading effect of the advice to the secret-holder against the information distance between the two people. Each
+    point is one world at one ladder level (five assistants pooled); each world's four levels are joined, so the within-world
+    movement is visible against the between-world differences; the black line is a binned mean with a world bootstrap."""
+    import effect_report as ER
+    tell, _ = ER.load(run_dir); dist = json.loads((run_dir / 'info_distance.json').read_text())
+    cells = collections.defaultdict(list)
+    for it in tell:
+        if it['role'] == 'decider' and it['level'] is not None and it['world'] in dist:
+            cells[(it['world'], it['level'])].append(float(it.get('misled') == 'yes'))
+    pts = []
+    for (w, lv), ys in cells.items():
+        d = dist[w]['levels'][str(lv)].get(key)
+        if d is not None:
+            pts.append({'world': w, 'level': lv, 'x': d, 'y': sum(ys) / len(ys), 'n': len(ys)})
+    # within-world slopes (misled share per unit of distance), one per world with at least two distinct distances
+    slopes = []
+    for w in dist:
+        ws = sorted([p_ for p_ in pts if p_['world'] == w], key=lambda p_: p_['x'])
+        if len(ws) >= 2 and ws[-1]['x'] > ws[0]['x']:
+            mx = sum(p_['x'] for p_ in ws) / len(ws); my = sum(p_['y'] for p_ in ws) / len(ws)
+            slopes.append({'world': w, 'v': sum((p_['x'] - mx) * (p_['y'] - my) for p_ in ws) / sum((p_['x'] - mx) ** 2 for p_ in ws)})
+    sm, slo, shi = boot_mean(slopes, 'v')
+    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Helvetica', 'Arial', 'DejaVu Sans'], 'font.size': 7})
+    fig, ax = plt.subplots(figsize=(4.8, 3.6), gridspec_kw={'left': 0.125, 'right': 0.98, 'top': 0.84, 'bottom': 0.15})
+    LV_COLOR = {0: '#1c5cab', 1: '#5598e7', 2: '#9ec5f4', 3: '#c3c2b7'}
+    for w in dist:
+        ws = sorted([p_ for p_ in pts if p_['world'] == w], key=lambda p_: p_['level'])
+        if len(ws) >= 2:
+            ax.plot([p_['x'] for p_ in ws], [p_['y'] for p_ in ws], color='#b8b6ad', linewidth=0.7, alpha=0.9, zorder=1)
+            ax.text(ws[-1]['x'] + 0.012, ws[-1]['y'], w, fontsize=5.2, color='#5b6367', va='center')
+    for p_ in pts:
+        ax.scatter(p_['x'], p_['y'], s=8 + 2.0 * p_['n'], color=LV_COLOR[p_['level']], alpha=0.9, edgecolor='white', linewidth=0.5, zorder=3)
+    edges = [-0.01, 0.2, 0.45, 0.7, 1.01]; xs, ys, lo, hi = [], [], [], []
+    for a_, b_ in zip(edges[:-1], edges[1:]):
+        sub = [p_ for p_ in pts if a_ <= p_['x'] < b_]
+        if len(sub) < 3:
+            continue
+        m, l, h = boot_mean([{'world': p_['world'], 'v': p_['y']} for p_ in sub], 'v')
+        xs.append(sum(p_['x'] for p_ in sub) / len(sub)); ys.append(m); lo.append(l if l is not None else m); hi.append(h if h is not None else m)
+    ax.fill_between(xs, lo, hi, color='#15191b', alpha=0.08, linewidth=0); ax.plot(xs, ys, color='#15191b', linewidth=2, marker='o', markersize=3.5, zorder=4)
+    ax.set_xlim(-0.03, 1.08); ax.set_ylim(-0.03, 1.03); ax.set_xticks([0, 0.25, 0.5, 0.75, 1]); ax.set_yticks([0, 0.25, 0.5, 0.75, 1]); ax.set_yticklabels(['0', '25', '50', '75', '100%'])
+    ax.set_xticklabels(['0\nknows the\nkey fact', '0.25\nstrong\nevidence', '0.5\na live\npossibility', '0.75\na vague\nhint', '1\nnothing\npoints to it'], fontsize=6)
+    ax.set_xlabel("How far the other person is from the key fact (judged from what they know)", fontsize=6.6, labelpad=4)
+    ax.set_ylabel('Advice that would leave the other person misled', fontsize=6.6); _style(ax); ax.grid(color='#e4e1d8', linewidth=0.5); ax.set_axisbelow(True)
+    for lv in range(4):
+        ax.scatter([], [], s=24, color=LV_COLOR[lv], label=f'ladder level {lv}')
+    ax.legend(fontsize=5.6, frameon=False, loc='upper left', title='one point = one world at one level; grey lines join a world\'s levels', title_fontsize=5.6, ncol=2, handlelength=1.0, columnspacing=0.8)
+    fig.text(0.125, 0.955, 'Misleading advice and the information gap', fontsize=8, weight='bold')
+    fig.text(0.125, 0.905, f'Within a world, misleading advice rises with the gap: mean within-world slope {sm:+.2f} [{slo:+.2f}, {shi:+.2f}] per unit of distance ({len(slopes)} worlds).', fontsize=6.0, color='#5b6367')
+    fig.text(0.125, 0.875, 'Across worlds, the level of misleading is set by the kind of secret. Black: binned means with a 95% world-bootstrap band.', fontsize=6.0, color='#5b6367')
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for ext in ('pdf', 'png'):
+        fig.savefig(out_dir / f'fig2a_distance.{ext}', dpi=300)
+    print('saved', out_dir / 'fig2a_distance.pdf', '| points', len(pts), '| within-world slope', sm, slo, shi, '| binned', [round(y, 2) for y in ys])
+
+
+def figure_level(run_dir, out_dir):
+    """Standalone A2: the share of advice to the secret-holder that would leave the other person misled, by the other person's
+    evidence level; pooled line with a world-bootstrap band and one thin line per assistant."""
+    import effect_report as ER
+    tell, _ = ER.load(run_dir)
+    dec = [it for it in tell if it['role'] == 'decider' and it.get('misled') != 'already']
+    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Helvetica', 'Arial', 'DejaVu Sans'], 'font.size': 7})
+    fig, ax = plt.subplots(figsize=(4.6, 3.5), gridspec_kw={'left': 0.13, 'right': 0.97, 'top': 0.84, 'bottom': 0.2})
+    for t in T + ['all']:
+        ys, lo, hi = [], [], []
+        for lv in range(4):
+            m, l, h = boot_mean([{'world': it['world'], 'v': float(it.get('misled') == 'yes')} for it in dec if (t == 'all' or it['model'] == t) and it['level'] == lv], 'v')
+            ys.append(m); lo.append(l); hi.append(h)
+        if t == 'all':
+            ax.fill_between(range(4), [l if l is not None else y for l, y in zip(lo, ys)], [h if h is not None else y for h, y in zip(hi, ys)], color='#15191b', alpha=0.09, linewidth=0)
+            ax.plot(range(4), ys, color='#15191b', linewidth=2.4, marker='o', markersize=4.5, zorder=4, label='All five assistants')
+            for lv, y in enumerate(ys):
+                ax.text(lv + (0.06 if lv < 3 else -0.06), y + 0.045, f'{100 * y:.0f}%', fontsize=6.8, weight='bold', color='#15191b', ha='left' if lv < 3 else 'right')
+        else:
+            ax.plot(range(4), ys, color=MODEL_COLOR[t], linewidth=1.0, marker='o', markersize=2.6, alpha=0.9, zorder=2, label=NAME[t])
+    ax.set_ylim(0, 0.85); ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8]); ax.set_yticklabels(['0', '20', '40', '60', '80%'])
+    ax.set_xticks(range(4)); ax.set_xticklabels(['0\nknows the key fact,\nnot its meaning', '1\na strong lead', '2\na weak lead', '3\nno lead'], fontsize=6.4)
+    ax.set_xlabel("What the other person already has (the person who does not know the secret)", fontsize=6.6, labelpad=5)
+    ax.set_ylabel('Advice that would leave the other person misled', fontsize=6.6); _style(ax); ax.grid(axis='y', color='#e4e1d8', linewidth=0.5); ax.set_axisbelow(True)
+    ax.legend(fontsize=5.6, frameon=False, loc='upper left', ncol=2, handlelength=1.4, columnspacing=0.8)
+    fig.text(0.13, 0.955, 'The less the other person has, the more the advice misleads them', fontsize=8, weight='bold')
+    fig.text(0.13, 0.905, 'Advice to the person holding the secret, judged by its effect on the other person from the facts;', fontsize=6.0, color='#5b6367')
+    fig.text(0.13, 0.877, 'cases where they already know are excluded. 11 worlds, 1 conversation per cell; black: all assistants, 95% world bootstrap.', fontsize=6.0, color='#5b6367')
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for ext in ('pdf', 'png'):
+        fig.savefig(out_dir / f'fig2a_level.{ext}', dpi=300)
+    print('saved', out_dir / 'fig2a_level.pdf')
+
+
+def figure_acts(run_dir, out_dir):
+    """Which acts mislead: for each act the assistant recommends, the share that would leave the other person misled, with
+    the five assistants as dots and each act's share of all advice under its label."""
+    import effect_report as ER
+    tell, _ = ER.load(run_dir); ACTS = ER.ACTS
+    LABEL = {'plain': 'Disclose\nplainly', 'tactful': 'Disclose\ntactfully', 'partial': 'Partial\ntruth', 'defer': 'Defer', 'withhold': 'Withhold', 'deceive': 'Deceive'}
+    COLOR = {'plain': '#1c5cab', 'tactful': '#5598e7', 'partial': '#d9a441', 'defer': '#b7d3f6', 'withhold': '#b8b6ad', 'deceive': '#d03b3b'}
+    items = [it for it in tell if it.get('misled') != 'already']
+    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Helvetica', 'Arial', 'DejaVu Sans'], 'font.size': 7})
+    fig, ax = plt.subplots(figsize=(4.6, 3.4), gridspec_kw={'left': 0.13, 'right': 0.98, 'top': 0.84, 'bottom': 0.2})
+    freq = ER.share(tell, 'act', ACTS)[0]
+    for i, act in enumerate(ACTS):
+        sub = [{'world': it['world'], 'v': float(it.get('misled') == 'yes')} for it in items if it['act'] == act]
+        m, lo, hi = boot_mean(sub, 'v')
+        if m is None:
+            continue
+        ax.bar(i, m, color=COLOR[act], width=0.64, zorder=2)
+        if lo is not None:
+            ax.plot([i, i], [lo, hi], color='#15191b', linewidth=1.0, zorder=4)
+        if m > 0.25:
+            ax.text(i, m - 0.06, f'{100 * m:.0f}%', ha='center', fontsize=6.8, color='white', weight='bold', zorder=6)
+        else:
+            ax.text(i, (hi if hi is not None else m) + 0.03, f'{100 * m:.0f}%', ha='center', fontsize=6.8, color='#15191b')
+        for j, t in enumerate(T):
+            mt, _, _ = boot_mean([{'world': it['world'], 'v': float(it.get('misled') == 'yes')} for it in items if it['act'] == act and it['model'] == t], 'v')
+            if mt is not None:
+                ax.scatter(i - 0.22 + 0.11 * j, mt, s=9, color=MODEL_COLOR[t], edgecolor='white', linewidth=0.4, zorder=5)
+    ax.set_xticks(range(len(ACTS))); ax.set_xticklabels([LABEL[a] + f"\n{100 * (freq[a] or 0):.0f}% of advice" for a in ACTS], fontsize=6.2)
+    ax.set_ylim(0, 1.05); ax.set_yticks([0, 0.25, 0.5, 0.75, 1]); ax.set_yticklabels(['0', '25', '50', '75', '100%'])
+    ax.set_ylabel('Share that would leave the other person misled', fontsize=6.6); _style(ax); ax.grid(axis='y', color='#e4e1d8', linewidth=0.5); ax.set_axisbelow(True)
+    for t in T:
+        ax.scatter([], [], s=12, color=MODEL_COLOR[t], label=NAME[t])
+    ax.legend(fontsize=5.6, frameon=False, loc='upper left', ncol=2, handlelength=1.0, columnspacing=0.8)
+    fig.text(0.13, 0.955, 'Which acts mislead: nothing short of disclosure keeps the other person informed', fontsize=8, weight='bold')
+    fig.text(0.13, 0.905, 'All telling advice, excluding cases where the other person already knows. Bars: all assistants, with 95% world-bootstrap intervals; dots: each assistant.', fontsize=6.0, color='#5b6367')
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for ext in ('pdf', 'png'):
+        fig.savefig(out_dir / f'fig2b_acts.{ext}', dpi=300)
+    print('saved', out_dir / 'fig2b_acts.pdf')
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--out', default='figures'); ap.add_argument('--only', choices=['0', '1', '2', '3']); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--out', default='figures'); ap.add_argument('--only', choices=['0', '1', '2', '2a', '2b', '2d', '3']); a = ap.parse_args()
+    if a.only == '2a':
+        figure_level(Path(a.run), Path(a.out)); return
+    if a.only == '2d':
+        figure_distance(Path(a.run), Path(a.out)); return
+    if a.only == '2b':
+        figure_acts(Path(a.run), Path(a.out)); return
     if a.only in (None, '0'):
         schematic(Path(a.out))
     if a.only in (None, '1'):
