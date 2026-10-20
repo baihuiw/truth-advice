@@ -168,10 +168,16 @@ def guarded_turn(client, cfg, w, name, condition, transcript, n_next, max_turns,
     if not text or not cfg.get('sim_guard'):
         return text, ended
     note = None; dup = U.duplicate_of(text, transcript)
+    allowed = [m['content'] for m in U.messages(w, name, condition, transcript, n_next, max_turns, unlocked, mode=mode)] + [m['content'] for m in transcript]
+    new = U.new_specifics(text, allowed) if cfg.get('specifics_check', True) else []
     if dup:
         note = (f'Your draft repeats what you already wrote ("{dup[:200]}"). Write a different message: react to what the assistant just said, '
                 'or move on to your next question. Do not add new facts.')
         log.append({'turn': n_next, 'kind': 'repeat', 'detail': dup[:200]})
+    elif new:                                                            # a date, number or name not in anything the person was given
+        note = (f"Your draft contains details that are not in what you know: {', '.join(new[:6])}. Write the message again without them: "
+                'use the dates, numbers and names exactly as written above, say it vaguely, or say you do not know.')
+        log.append({'turn': n_next, 'kind': 'new_specifics', 'detail': ', '.join(new[:6])[:200]})
     else:
         g = sim_chat(client, cfg, U.guard_messages(w, name, condition, transcript, text, max_turns, unlocked), f'{label}/sg{n_next}', model=cfg['game_master'],
                      max_tokens=mt.get('gm_check', 600), temperature=0, json_mode=True)

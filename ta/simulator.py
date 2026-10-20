@@ -189,6 +189,34 @@ def _sentences(text):
     return [x.strip() for x in re.split(r'(?<=[?.!])\s+', text.lower()) if len(x.strip()) >= 25]
 
 
+MONTHS = 'january february march april may june july august september october november december jan feb mar apr jun jul aug sep sept oct nov dec'.split()
+WEEKDAYS = 'monday tuesday wednesday thursday friday saturday sunday'.split()
+COMMON_CAPS = set(('i im ive ill id the this that these those but and or if so what when why how yes no not thank thanks should can could do does did is are was were would will '
+                   'please okay ok right well also maybe now then here there she he they we you it its my his her their our your me him them us a an in on at to for of with from by '
+                   'about after before since until because honestly sorry look listen anyway still even just one two three first last next today tomorrow yesterday tonight '
+                   'morning evening night week month year ms mr mrs dr madam sir god oh ah hmm').split())
+
+
+def new_specifics(draft, allowed):
+    """Dates, numbers and capitalised names in a draft that appear nowhere in the allowed text (the person's brief, the people
+    list and the conversation so far). These are the details a simulator most often makes up, and a plain text comparison
+    catches them without a model."""
+    al = ' '.join(allowed).lower(); al_words = set(re.findall(r"[a-zà-ÿ0-9']+", al))
+    out = []
+    for n in re.findall(r'\d[\d,.:]*\d|\d', draft):                         # numbers, amounts, times, years, day numbers
+        n_ = n.rstrip('.,:')
+        if n_ and n_.lower() not in al and n_.replace(',', '') not in al.replace(',', ''):
+            out.append(n_)
+    for w in re.findall(r"[A-Za-zÀ-ÿ']+", draft):
+        lw = w.lower().strip("'")
+        if lw in MONTHS or lw in WEEKDAYS:
+            if lw not in al_words:
+                out.append(w)
+        elif w[:1].isupper() and len(lw) >= 3 and lw not in COMMON_CAPS and lw not in al_words:
+            out.append(w)
+    seen = set(); return [x for x in out if not (x.lower() in seen or seen.add(x.lower()))]
+
+
 def duplicate_of(draft, transcript, whole=0.8, sentence=0.85):
     """The earlier user message (or sentence of 25+ characters) that a draft repeats nearly word for word, else None.
     Asking the same thing again in new words is normal and does not count."""

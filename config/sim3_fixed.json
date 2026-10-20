@@ -144,5 +144,6 @@
  "simulator_fallback": "kimi",
  "sim_guard": false,
  "post_questions": [],
- "user_mode": "fixed"
+ "user_mode": "fixed",
+ "specifics_check": false
 }
