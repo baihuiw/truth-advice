@@ -373,60 +373,52 @@ def _style(ax):
 
 
 def figure_distance(run_dir, out_dir, key='judged_distance'):
-    """Misleading effect of the advice to the secret-holder against the information distance between the two people. Each
-    point is one world at one ladder level (five assistants pooled); each world's four levels are joined, so the within-world
-    movement is visible against the between-world differences; the black line is a binned mean with a world bootstrap."""
+    """Misleading effect of the advice to the secret-holder against the information distance between the two people: the
+    judge's rating of how far the other person is from the key fact, in three bands (knows it or has strong evidence; a
+    live possibility; a hint or nothing). Pooled trend in black with a world-bootstrap band, one line per assistant;
+    each world weighted once within a band."""
     import effect_report as ER
     tell, _ = ER.load(run_dir); dist = json.loads((run_dir / 'info_distance.json').read_text())
-    cells = collections.defaultdict(list)
+    items = []
     for it in tell:
-        if it['role'] == 'decider' and it['level'] is not None and it['world'] in dist:
-            cells[(it['world'], it['level'])].append(float(it.get('misled') == 'yes'))
-    pts = []
-    for (w, lv), ys in cells.items():
-        d = dist[w]['levels'][str(lv)].get(key)
-        if d is not None:
-            pts.append({'world': w, 'level': lv, 'x': d, 'y': sum(ys) / len(ys), 'n': len(ys)})
-    # within-world slopes (misled share per unit of distance), one per world with at least two distinct distances
-    slopes = []
-    for w in dist:
-        ws = sorted([p_ for p_ in pts if p_['world'] == w], key=lambda p_: p_['x'])
-        if len(ws) >= 2 and ws[-1]['x'] > ws[0]['x']:
-            mx = sum(p_['x'] for p_ in ws) / len(ws); my = sum(p_['y'] for p_ in ws) / len(ws)
-            slopes.append({'world': w, 'v': sum((p_['x'] - mx) * (p_['y'] - my) for p_ in ws) / sum((p_['x'] - mx) ** 2 for p_ in ws)})
-    sm, slo, shi = boot_mean(slopes, 'v')
+        if it['role'] == 'decider' and it['level'] is not None and it['world'] in dist and it.get('misled') != 'already':
+            d = dist[it['world']]['levels'][str(it['level'])].get(key)
+            if d is not None:
+                items.append({'world': it['world'], 'model': it['model'], 'x': d, 'v': float(it.get('misled') == 'yes')})
+    bands = [(-0.01, 0.3, 'Knows the key fact,\nor has strong evidence\n(0 – 0.25)'), (0.3, 0.6, 'Has a lead that makes it\na live possibility\n(0.5)'), (0.6, 1.01, 'Has a vague hint\nor nothing at all\n(0.75 – 1)')]
     plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Helvetica', 'Arial', 'DejaVu Sans'], 'font.size': 7})
-    fig, ax = plt.subplots(figsize=(4.8, 3.6), gridspec_kw={'left': 0.125, 'right': 0.98, 'top': 0.84, 'bottom': 0.15})
-    LV_COLOR = {0: '#1c5cab', 1: '#5598e7', 2: '#9ec5f4', 3: '#c3c2b7'}
-    for w in dist:
-        ws = sorted([p_ for p_ in pts if p_['world'] == w], key=lambda p_: p_['level'])
-        if len(ws) >= 2:
-            ax.plot([p_['x'] for p_ in ws], [p_['y'] for p_ in ws], color='#b8b6ad', linewidth=0.7, alpha=0.9, zorder=1)
-            ax.text(ws[-1]['x'] + 0.012, ws[-1]['y'], w, fontsize=5.2, color='#5b6367', va='center')
-    for p_ in pts:
-        ax.scatter(p_['x'], p_['y'], s=8 + 2.0 * p_['n'], color=LV_COLOR[p_['level']], alpha=0.9, edgecolor='white', linewidth=0.5, zorder=3)
-    edges = [-0.01, 0.2, 0.45, 0.7, 1.01]; xs, ys, lo, hi = [], [], [], []
-    for a_, b_ in zip(edges[:-1], edges[1:]):
-        sub = [p_ for p_ in pts if a_ <= p_['x'] < b_]
-        if len(sub) < 3:
-            continue
-        m, l, h = boot_mean([{'world': p_['world'], 'v': p_['y']} for p_ in sub], 'v')
-        xs.append(sum(p_['x'] for p_ in sub) / len(sub)); ys.append(m); lo.append(l if l is not None else m); hi.append(h if h is not None else m)
-    ax.fill_between(xs, lo, hi, color='#15191b', alpha=0.08, linewidth=0); ax.plot(xs, ys, color='#15191b', linewidth=2, marker='o', markersize=3.5, zorder=4)
-    ax.set_xlim(-0.03, 1.08); ax.set_ylim(-0.03, 1.03); ax.set_xticks([0, 0.25, 0.5, 0.75, 1]); ax.set_yticks([0, 0.25, 0.5, 0.75, 1]); ax.set_yticklabels(['0', '25', '50', '75', '100%'])
-    ax.set_xticklabels(['0\nknows the\nkey fact', '0.25\nstrong\nevidence', '0.5\na live\npossibility', '0.75\na vague\nhint', '1\nnothing\npoints to it'], fontsize=6)
-    ax.set_xlabel("How far the other person is from the key fact (judged from what they know)", fontsize=6.6, labelpad=4)
-    ax.set_ylabel('Advice that would leave the other person misled', fontsize=6.6); _style(ax); ax.grid(color='#e4e1d8', linewidth=0.5); ax.set_axisbelow(True)
-    for lv in range(4):
-        ax.scatter([], [], s=24, color=LV_COLOR[lv], label=f'ladder level {lv}')
-    ax.legend(fontsize=5.6, frameon=False, loc='upper left', title='one point = one world at one level; grey lines join a world\'s levels', title_fontsize=5.6, ncol=2, handlelength=1.0, columnspacing=0.8)
-    fig.text(0.125, 0.955, 'Misleading advice and the information gap', fontsize=8, weight='bold')
-    fig.text(0.125, 0.905, f'Within a world, misleading advice rises with the gap: mean within-world slope {sm:+.2f} [{slo:+.2f}, {shi:+.2f}] per unit of distance ({len(slopes)} worlds).', fontsize=6.0, color='#5b6367')
-    fig.text(0.125, 0.875, 'Across worlds, the level of misleading is set by the kind of secret. Black: binned means with a 95% world-bootstrap band.', fontsize=6.0, color='#5b6367')
+    fig, ax = plt.subplots(figsize=(4.8, 3.6), gridspec_kw={'left': 0.125, 'right': 0.975, 'top': 0.84, 'bottom': 0.22})
+    counts = []
+    for t in T + ['all']:
+        xs, ys, lo, hi = [], [], [], []
+        for i, (lo_, hi_, _) in enumerate(bands):
+            sub = [it for it in items if lo_ < it['x'] <= hi_ and (t == 'all' or it['model'] == t)]
+            if len({it['world'] for it in sub}) < 3:
+                continue
+            m, l, h = boot_mean(sub, 'v'); xs.append(i); ys.append(m); lo.append(l if l is not None else m); hi.append(h if h is not None else m)
+            if t == 'all':
+                counts.append((len({it['world'] for it in sub}), len(sub)))
+        if t == 'all':
+            ax.fill_between(xs, lo, hi, color='#15191b', alpha=0.09, linewidth=0)
+            ax.plot(xs, ys, color='#15191b', linewidth=2.4, marker='o', markersize=4.5, zorder=4, label='All five assistants')
+            for x_, y_ in zip(xs, ys):
+                ax.text(x_ + 0.04, y_ + 0.045, f'{100 * y_:.0f}%', fontsize=7, weight='bold', color='#15191b', ha='left')
+        else:
+            ax.plot(xs, ys, color=MODEL_COLOR[t], linewidth=1.0, marker='o', markersize=2.8, alpha=0.9, zorder=2, label=NAME[t])
+    ax.set_xlim(-0.3, 2.3); ax.set_ylim(0, 0.85); ax.set_yticks([0, 0.2, 0.4, 0.6, 0.8]); ax.set_yticklabels(['0', '20', '40', '60', '80%'])
+    ax.set_xticks(range(3)); ax.set_xticklabels([b[2] + (f'\n{counts[i][0]} worlds · {counts[i][1]} recommendations' if i < len(counts) else '') for i, b in enumerate(bands)], fontsize=6.3)
+    for lab in ax.get_xticklabels():
+        lab.set_linespacing(1.25)
+    ax.set_xlabel("How far the other person is from the key fact, judged from what they know", fontsize=6.6, labelpad=6)
+    ax.set_ylabel('Advice that would leave the other person misled', fontsize=6.6); _style(ax); ax.grid(axis='y', color='#e4e1d8', linewidth=0.5); ax.set_axisbelow(True)
+    ax.legend(fontsize=5.6, frameon=False, loc='upper left', ncol=2, handlelength=1.4, columnspacing=0.8)
+    fig.text(0.125, 0.955, 'The further the other person is from the truth, the more the advice misleads them', fontsize=8, weight='bold')
+    fig.text(0.125, 0.905, 'Advice to the person holding the secret, judged by its effect on the other person from the facts; cases where', fontsize=6.0, color='#5b6367')
+    fig.text(0.125, 0.877, 'they already know are excluded. Each world weighted once per band; black: all assistants, 95% world bootstrap.', fontsize=6.0, color='#5b6367')
     out_dir.mkdir(parents=True, exist_ok=True)
     for ext in ('pdf', 'png'):
         fig.savefig(out_dir / f'fig2a_distance.{ext}', dpi=300)
-    print('saved', out_dir / 'fig2a_distance.pdf', '| points', len(pts), '| within-world slope', sm, slo, shi, '| binned', [round(y, 2) for y in ys])
+    print('saved', out_dir / 'fig2a_distance.pdf', '| bands', counts)
 
 
 def figure_level(run_dir, out_dir):
