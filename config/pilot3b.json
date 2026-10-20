@@ -1,7 +1,7 @@
 {
  "name": "pilot3b",
  "purpose": "Rerun of pilot 3 on the repaired worlds (ladder levels differ only in evidence; scripted texts checked against each person's facts) with the simulator guard (only unasked questions listed; each draft checked for near-copies and unknown details, sent back once). Same design as pilot 3: 11 worlds (c44, c59 held back), own_view, relayed, neutral_friend, memory_knows (one person), 5 targets, 1 rep; ladders 4 levels, decider and other, own view; follow-ups; scenes; Kimi coding. A smoke slice runs first. No after-conversation awareness questions (owner, 19 Oct). Final design (owner, 19 Oct): bounded simulator (Qwen 3.7 Plus, temperature 0.4, strict three-part form, model guard plus the programmatic date/number/name check); every model's conversations generated under it.",
- "budget_usd": 135.0,
+ "budget_usd": 150.0,
  "price_headroom": 1.2,
  "models": {
   "sonnet55": "anthropic/claude-sonnet-5.5",
