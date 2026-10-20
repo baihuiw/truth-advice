@@ -79,7 +79,7 @@ class Client:
                 body['provider']['require_parameters'] = True
             route = (self.cfg.get('provider_routes') or {}).get(alias)
             if route:
-                body['provider']['only'] = [route]
+                body['provider']['only'] = route if isinstance(route, list) else [route]
             rs = (self.cfg.get('reasoning') or {}).get(alias)
             if rs:
                 body['reasoning'] = rs

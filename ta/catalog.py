@@ -29,10 +29,15 @@ def routes_for(cfg):
     for alias, tag in (cfg.get('provider_routes') or {}).items():
         if alias not in cfg['models']:
             continue
-        model = cfg['models'][alias]; eps = endpoints(model); e = next((x for x in eps if x.get('tag') == tag), None)
-        if e is None:
-            raise KeyError(f"{alias}: route {tag} does not serve {model}; available: {sorted(str(x.get('tag')) for x in eps)[:15]}")
-        sp = e.get('supported_parameters') or []
-        out[alias] = {'model': model, 'tag': tag, 'prompt': e['pricing']['prompt'], 'completion': e['pricing']['completion'], 'quantization': e.get('quantization'),
+        tags = tag if isinstance(tag, list) else [tag]                   # a list: OpenRouter tries the next host when one is rate-limited
+        model = cfg['models'][alias]; eps = endpoints(model); chosen = []
+        for t in tags:
+            e = next((x for x in eps if x.get('tag') == t), None)
+            if e is None:
+                raise KeyError(f"{alias}: route {t} does not serve {model}; available: {sorted(str(x.get('tag')) for x in eps)[:15]}")
+            chosen.append(e)
+        sp = set.intersection(*(set(e.get('supported_parameters') or []) for e in chosen))
+        out[alias] = {'model': model, 'tag': tag, 'prompt': str(max(float(e['pricing']['prompt']) for e in chosen)), 'completion': str(max(float(e['pricing']['completion']) for e in chosen)),
+                      'quantization': chosen[0].get('quantization') if len({e.get('quantization') for e in chosen}) == 1 else 'mixed',
                       'supports_temperature': 'temperature' in sp, 'supports_json': 'response_format' in sp, 'supports_reasoning': 'reasoning' in sp}
     return out

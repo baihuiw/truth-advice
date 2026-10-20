@@ -18,7 +18,11 @@
   "sonnet55": "anthropic",
   "gpt61": "openai",
   "gemini38": "google-ai-studio",
-  "deepseek4p": "deepinfra/fp8",
+  "deepseek4p": [
+   "deepinfra/fp8",
+   "novita/fp8",
+   "baidu/fp8"
+  ],
   "glm53": "z-ai/fp8",
   "kimi": "inference-net/fp4",
   "qwen37": "alibaba",
