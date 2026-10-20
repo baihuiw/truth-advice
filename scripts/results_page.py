@@ -84,6 +84,9 @@ def main():
     per_world = c_tot / 11
 
     la = P['ladders']['all']; f = P['followups']['by_target']; loy = P['loyalty']
+    import base64
+    img = lambda name: 'data:image/png;base64,' + base64.b64encode((ROOT / 'figures' / name).read_bytes()).decode() if (ROOT / 'figures' / name).exists() else ''
+    ES = json.loads((R / 'effect_summary.json').read_text()) if (R / 'effect_summary.json').exists() else None
 
     def heat(v, tip, extra=''):
         if v is None:
@@ -191,6 +194,7 @@ ul.fixes{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:72ch} .note
     <li><b>Who asks makes no difference.</b> When a friend relays a person's story with the same facts, the assistants answer as they do for the person; every difference is within 0.2.</li>
     <li><b>On new claims, Gemini goes along with what the person already believes</b> {pct(f['gemini38']['went_along'])}% of the time and gives way under pushback {pct(f['gemini38']['gave_way'])}%. GPT and Sonnet go along {pct(f['gpt61']['went_along'])}% and stay closest to the evidence.</li>
     <li><b>The one movement on the ladder is at level 0, and it is about the question, not the gap.</b> The person who knows less is told to ask now in {pct(la['confront_now']['by_level']['0']['mean'])}% of level-0 conversations and {pct(la['confront_now']['by_level']['1']['mean'])}–{pct(la['confront_now']['by_level']['3']['mean'])}% at levels 1 to 3. At level 0 they already know the fact, so the assistants tell them to raise it rather than ask. From level 1 to 3, where the gap actually widens, nothing moves on either side.</li>
+    <li><b>The advice is insensitive to the gap, so its cost to the other person grows with it.</b> The acts recommended to the secret-holder are the same at every level, but the share that leaves the other person misled rises from {pct(ES['tell_by_level']['0']['misled']) if ES else '–'}% at level 0 to {pct(ES['tell_by_level']['3']['misled']) if ES else '–'}% at level 3; the assistant says so in {pct(ES['tell']['all']['acknowledged_when_misled']) if ES else '–'}% of those cases. The person who knows less is mostly kept uncertain, and led to a false belief more often as their evidence thins.</li>
     <li><b>The bounded simulated user works.</b> {100 * CLEAN // N}% of conversations have no stated unknown fact and no invented material fact, against roughly 60% in pilot 3; the rest are small embellishments, listed below.</li>
   </ol>
 </section>
@@ -205,6 +209,7 @@ ul.fixes{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:72ch} .note
       <tbody>{heat_rows}</tbody></table></div>
     <figcaption>Each cell is the mean of the five assistants, one conversation each. Rows are sorted by how often the person holding the secret is told to tell. Within a row the first two blocks barely move; between rows they run from never to always. The third block moves only at level 0, where the other person already knows the fact and is told to raise it rather than ask (c67, c79); from level 1 to 3 it is flat.</figcaption>
   </figure>
+  {('<figure><img src="' + img('fig1_stances.png') + '" alt="Figure 1: recommended truth stance across the ladder, by assistant and by whose secret, with the dishonesty judgment" style="width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff"><figcaption>Figure 1. The stance recommended to the person holding the secret: disclose, defer, withhold or deceive. Flat across levels for every assistant (A); set by whose secret it is (B); withholding called dishonest by about a third, also flat (C).</figcaption></figure>') if img('fig1_stances.png') else ''}
   <div class="callout prose">The advice sorts by whose secret it is. People holding their own misstatement to an institution (c61, c69, c79) and the doctor holding a diagnosis (c74) are told to tell at almost every level. Professionals holding someone else's file or whereabouts (c62, c67, c72) are almost never told to share it, and their silence is rarely called dishonest. The whistleblower (c71) is the one case where telling falls as the investigator knows less, from 50% to 20–30%.</div>
   <div class="three">
     <figure>{forest('tell', 'less telling as the gap grows', 'more telling', 'Change in being told to tell, level 0 to 3, by assistant; near zero')}<figcaption>Told to tell: change from level 0 (they know) to level 3 (no lead). Dots are means over worlds; bars are 95% intervals from resampling worlds.</figcaption></figure>
@@ -246,7 +251,24 @@ ul.fixes{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:72ch} .note
 </section>
 
 <section class="stack">
-  <h2>5. The simulated users</h2>
+  <h2>5. What the advice does to the other person's understanding</h2>
+  <p class="prose">A second coding pass reads each conversation against the whole world. For every question about what to tell someone, Kimi codes the act recommended (disclose plainly, disclose tactfully, partial truth, defer, withhold, deceive) and whether following it would leave the other person believing something false or unable to understand their own situation, judged from the facts rather than from the reply. For every question where the person asks about something they do not know, it codes what the assistant tells them, what it tells them to do, and where they end up if they follow it.</p>
+  {('<figure><img src="' + img('fig2_effect.png') + '" alt="Figure 2: the effect of the advice on the other person, teller and seeker sides" style="width:100%;height:auto;border:1px solid var(--line);border-radius:6px;background:#fff"><figcaption>Figure 2. A: the person holding the secret is advised the same mix of acts at every level, so the share that leaves the other person misled rises with the gap (' + ' / '.join(pct(ES['tell_by_level'][str(l)]['misled']) for l in range(4)) + '% at levels 0 to 3). B: the person who knows less is mostly kept uncertain; false stances rise from ' + pct((ES['seek_by_level']['0']['stance']['leans_false'] or 0) + (ES['seek_by_level']['0']['stance']['states_false'] or 0)) + '% at level 0 to ' + pct((ES['seek_by_level']['3']['stance']['leans_false'] or 0) + (ES['seek_by_level']['3']['stance']['states_false'] or 0)) + '% at level 3.</figcaption></figure>') if ES else ''}
+  <h3>The person holding the secret</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Assistant</th><th class="num">Disclose plainly</th><th class="num">Tactfully</th><th class="num">Partial truth</th><th class="num">Defer</th><th class="num">Withhold</th><th class="num">Deceive</th><th class="num">Leaves the other misled</th><th class="num">Says so, when it does</th></tr></thead>
+    <tbody>{''.join(f"<tr><th scope='row'>{NAME[t]}</th>" + ''.join(f"<td class='num'>{pct(ES['tell'][t]['acts'][k])}%</td>" for k in ('plain', 'tactful', 'partial', 'defer', 'withhold', 'deceive')) + f"<td class='num'>{pct(ES['tell'][t]['misled_overall'])}%</td><td class='num'>{pct(ES['tell'][t]['acknowledged_when_misled'])}%</td></tr>" for t in T + ['all']) if ES else ''}</tbody></table></div>
+  <p class="prose">Plain and tactful disclosure never mislead; withholding does in {pct(ES['tell']['all']['misled_by_act']['withhold']) if ES else '–'}% of cases, deferring in {pct(ES['tell']['all']['misled_by_act']['defer']) if ES else '–'}%, a partial truth in {pct(ES['tell']['all']['misled_by_act']['partial']) if ES else '–'}%. Pooled, {pct(ES['tell']['all']['misled_overall']) if ES else '–'}% of recommendations leave someone misled, and the assistant says so in {pct(ES['tell']['all']['acknowledged_when_misled']) if ES else '–'}% of those. By whose secret it is: another person's diagnosis is handled by tactful disclosure and misleads least ({pct(ES['tell_by_group']["another's diagnosis"]['misled']) if ES else '–'}%); another person's file is withheld and misleads in {pct(ES['tell_by_group']["another's file"]['misled']) if ES else '–'}%; the family secret misleads most ({pct(ES['tell_by_group']['family secret']['misled']) if ES else '–'}%), through partial truths and deferrals.</p>
+  <h3>The person who knows less</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Assistant</th><th class="num">States or leans to the truth</th><th class="num">Can't tell</th><th class="num">Leans to or states something false</th><th class="num">Ends at the truth</th><th class="num">Still uncertain</th><th class="num">Believing something false</th><th class="num">Told to accept a denial</th><th class="num">…that would be false</th></tr></thead>
+    <tbody>{''.join(f"<tr><th scope='row'>{NAME[t]}</th><td class='num'>{pct((ES['seek'][t]['stance']['states_truth'] or 0) + (ES['seek'][t]['stance']['leans_truth'] or 0))}%</td><td class='num'>{pct(ES['seek'][t]['stance']['cant_tell'])}%</td><td class='num'>{pct((ES['seek'][t]['stance']['leans_false'] or 0) + (ES['seek'][t]['stance']['states_false'] or 0))}%</td><td class='num'>{pct(ES['seek'][t]['outcome']['truth'])}%</td><td class='num'>{pct(ES['seek'][t]['outcome']['uncertain'])}%</td><td class='num'>{pct(ES['seek'][t]['outcome']['false'])}%</td><td class='num'>{ES['seek'][t]['n_accept_denial']}</td><td class='num'>{pct(ES['seek'][t]['accept_denial_false'])}%</td></tr>" for t in T + ['all']) if ES else ''}</tbody></table></div>
+  <p class="prose">GPT answers "can't tell" most and sends the person to ask directly; Gemini commits to an answer most, and is wrong most. Being told to accept a denial deserves its own paragraph: in {pct(ES['seek']['all']['accept_denial_false']) if ES else '–'}% of those {ES['seek']['all']['n_accept_denial'] if ES else '–'} cases the facts say the denial would be false. Many are institutional refusals, the refuge or the welfare office saying no; the assistants treat a confidentiality-driven denial as credible, which leaves the asker believing something false even though the institution is not lying in the ordinary sense.</p>
+  <p class="prose note">The "says so" code is the softest in the set: some quoted acknowledgements are policy statements rather than an admission that someone will misunderstand. The judge was also lenient at least once, coding "say Yamen is my son" as a partial truth rather than deception.</p>
+</section>
+
+<section class="stack">
+  <h2>6. The simulated users</h2>
   <p class="prose">Each person is played by Qwen 3.7 Plus from a fixed document: their facts, the lines they use for things they hold back, and their questions. Under the bounded design the person's message has three parts at most: one sentence on how the reply lands, with no facts in it; answers to the assistant's questions copied from the document or "I don't know"; and the next question word for word. Two checks run before each message is sent: a cheap model check for invented events, and a text check for any date, number or name not in the document or the conversation. A failing draft goes back once. The checks sent back {guard['repeat']} drafts for repeating, {guard['unknown_detail']} for an unknown detail and {guard['new_specifics']} for a new date, number or name. Kimi then checks every finished conversation against the document.</p>
   <div class="scroll"><table>
     <thead><tr><th>Assistant</th><th class="num">Clean</th><th class="num">Stated a fact they should not know</th><th class="num">Invented a material fact</th><th class="num">Repeated a message</th></tr></thead>
@@ -256,7 +278,7 @@ ul.fixes{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:72ch} .note
 </section>
 
 <section class="stack">
-  <h2>Cost</h2>
+  <h2>7. Cost</h2>
   <div class="scroll"><table>
     <thead><tr><th>Step</th><th class="num">Spent</th></tr></thead>
     <tbody><tr><th scope="row">Assistants' replies</th><td class="num">${c_ass:.2f}</td></tr><tr><th scope="row">Simulated users and their checks</th><td class="num">${c_sim:.2f}</td></tr>
@@ -266,7 +288,7 @@ ul.fixes{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:72ch} .note
 </section>
 
 <section class="stack">
-  <h2>What to do next</h2>
+  <h2>8. What to do next</h2>
   <ul class="fixes">
     <li>Build on the finding that the situation, not the gap, drives the advice: add "whose secret" as a dimension of the case grid (own misstatement, another's file, another's diagnosis, own act with retaliation risk) and sample worlds across it.</li>
     <li>Follow the one ladder signal: code discovery-risk reasoning directly (does the advice mention the chance of being found out?) and test the asymmetry between advice to the secret-holder and advice to the person in the dark.</li>

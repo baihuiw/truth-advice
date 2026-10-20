@@ -141,9 +141,108 @@ def figure1(run_dir, out_dir):
     print('cells', len(cells), 'pooled by level:', [{s: round(v, 2) for s, v in shares([c for c in cells if c['level'] == lv])[0].items()} for lv in range(4)])
 
 
+def figure2(run_dir, out_dir):
+    """The effect of the advice on the other person: teller side (acts flat across the ladder, misled share rising, awareness by
+    assistant) and seeker side (what the person in the dark is told and where they end up, by level and by assistant)."""
+    import effect_report as ER
+    tell, seek = ER.load(run_dir); ACTS = ER.ACTS
+    ACT_COLOR = {'plain': '#1c5cab', 'tactful': '#5598e7', 'partial': '#d9a441', 'defer': '#b7d3f6', 'withhold': '#b8b6ad', 'deceive': '#d03b3b'}
+    ACT_LABEL = {'plain': 'Disclose plainly', 'tactful': 'Disclose tactfully', 'partial': 'Partial truth', 'defer': 'Defer', 'withhold': 'Withhold', 'deceive': 'Deceive'}
+    ST_COLOR = {'truth': '#1c5cab', 'cant': '#b8b6ad', 'false': '#d03b3b', 'none': '#e8e6df'}
+    ST_LABEL = {'truth': 'States or leans to the truth', 'cant': "Says it can't be known", 'false': 'Leans to or states something false', 'none': 'Does not address it'}
+    OUT_COLOR = {'truth': '#1c5cab', 'uncertain': '#b8b6ad', 'false': '#d03b3b'}
+    OUT_LABEL = {'truth': 'At the truth', 'uncertain': 'Still uncertain', 'false': 'Believing something false'}
+
+    def stack(ax, dists, labels, keys, colors, title):
+        x = range(len(dists)); bottom = [0.0] * len(dists)
+        for k in keys:
+            vals = [d.get(k) or 0.0 for d in dists]
+            ax.bar(x, vals, bottom=bottom, color=colors[k], width=0.78, edgecolor='white', linewidth=0.6)
+            for i, (v, b) in enumerate(zip(vals, bottom)):
+                if v >= 0.1:
+                    ax.text(i, b + v / 2, f'{100 * v:.0f}', ha='center', va='center', fontsize=6.3, color='white' if k in ('plain', 'truth', 'false', 'deceive') else '#15191b')
+            bottom = [b + v for b, v in zip(bottom, vals)]
+        ax.set_xticks(list(x)); ax.set_xticklabels(labels, fontsize=6.5); ax.set_ylim(0, 1); ax.set_yticks([0, 0.5, 1]); ax.set_yticklabels(['0', '50', '100%'], fontsize=6.5)
+        ax.set_title(title, fontsize=7.8, loc='left', pad=4)
+        for sp in ('top', 'right'):
+            ax.spines[sp].set_visible(False)
+        ax.spines['left'].set_color('#b8b6ad'); ax.spines['bottom'].set_color('#b8b6ad'); ax.tick_params(length=2, color='#b8b6ad')
+
+    def lines(ax, items, pred, title, ylabel):
+        for t in T + ['all']:
+            ys, lo, hi = [], [], []
+            for lv in range(4):
+                sub = [{'world': it['world'], 'v': float(pred(it))} for it in items if (t == 'all' or it['model'] == t) and it['level'] == lv]
+                m, l, h = boot_mean(sub, 'v'); ys.append(m); lo.append(l); hi.append(h)
+            if t == 'all':
+                ax.fill_between(range(4), [l if l is not None else y for l, y in zip(lo, ys)], [h if h is not None else y for h, y in zip(hi, ys)], color='#15191b', alpha=0.08, linewidth=0)
+            ax.plot(range(4), ys, color=MODEL_COLOR[t], linewidth=2.2 if t == 'all' else 1.1, marker='o', markersize=3.5 if t == 'all' else 2.5, label=NAME[t], zorder=3 if t == 'all' else 2)
+        ax.set_ylim(0, 1); ax.set_yticks([0, 0.5, 1]); ax.set_yticklabels(['0', '50', '100%'], fontsize=6.5); ax.set_xticks(range(4)); ax.set_xticklabels(['0', '1', '2', '3'], fontsize=6.5)
+        ax.set_title(title, fontsize=7.8, loc='left', pad=4); ax.set_ylabel(ylabel, fontsize=6.5)
+        for sp in ('top', 'right'):
+            ax.spines[sp].set_visible(False)
+        ax.spines['left'].set_color('#b8b6ad'); ax.spines['bottom'].set_color('#b8b6ad'); ax.tick_params(length=2, color='#b8b6ad')
+
+    plt.rcParams.update({'font.family': 'sans-serif', 'font.sans-serif': ['Helvetica', 'Arial', 'DejaVu Sans'], 'font.size': 7})
+    fig = plt.figure(figsize=(7.2, 7.2))
+    gs = fig.add_gridspec(2, 3, hspace=0.7, wspace=0.42, left=0.075, right=0.985, top=0.865, bottom=0.175)
+    dec = [it for it in tell if it['role'] == 'decider']
+    # A1 acts by level
+    ax = fig.add_subplot(gs[0, 0]); dists = [ER.share([it for it in dec if it['level'] == lv], 'act', ACTS)[0] for lv in range(4)]
+    stack(ax, dists, ['0', '1', '2', '3'], ACTS, ACT_COLOR, 'A1  The advised act, by level'); ax.set_xlabel("Other person's evidence level", fontsize=6.5, labelpad=2); ax.set_ylabel('Share of recommendations', fontsize=6.5)
+    # A2 misled by level
+    ax = fig.add_subplot(gs[0, 1]); notalready = [it for it in dec if it.get('misled') != 'already']
+    lines(ax, notalready, lambda it: it.get('misled') == 'yes', 'A2  Share leaving the other person misled', 'Misled if the advice is followed'); ax.set_xlabel("Other person's evidence level", fontsize=6.5, labelpad=2)
+    ax.legend(fontsize=5.4, frameon=False, loc='upper left', ncol=2, handlelength=1.3, columnspacing=0.7)
+    # A3 acknowledged when misled, by assistant
+    ax = fig.add_subplot(gs[0, 2]); vals = []
+    for t in T:
+        m, l, h = boot_mean([{'world': it['world'], 'v': float(it.get('acknowledged') == 'yes')} for it in tell if it['model'] == t and it.get('misled') == 'yes'], 'v'); vals.append((m or 0, l, h))
+    ax.barh(range(len(T)), [v[0] for v in vals], color=[MODEL_COLOR[t] for t in T], height=0.62)
+    for i, (m, l, h) in enumerate(vals):
+        if l is not None:
+            ax.plot([l, h], [i, i], color='#15191b', linewidth=0.9)
+        ax.text(0.02, i, f'{100 * m:.0f}%', va='center', fontsize=6.3, color='white')
+    ax.set_yticks(range(len(T))); ax.set_yticklabels([NAME[t] for t in T], fontsize=6.3); ax.invert_yaxis(); ax.set_xlim(0, 1); ax.set_xticks([0, 0.5, 1]); ax.set_xticklabels(['0', '50', '100%'], fontsize=6.5)
+    ax.set_title('A3  When misleading, says so', fontsize=7.8, loc='left', pad=4)
+    for sp in ('top', 'right'):
+        ax.spines[sp].set_visible(False)
+    ax.spines['left'].set_color('#b8b6ad'); ax.spines['bottom'].set_color('#b8b6ad'); ax.tick_params(length=2, color='#b8b6ad')
+    # B1 stance by level (the person who knows less)
+    oth = [it for it in seek if it['role'] == 'other']
+    coll = lambda it: 'truth' if it.get('stance') in ('states_truth', 'leans_truth') else 'cant' if it.get('stance') == 'cant_tell' else 'false' if it.get('stance') in ('leans_false', 'states_false') else 'none'
+    for it in oth:
+        it['_st'] = coll(it)
+    ax = fig.add_subplot(gs[1, 0]); dists = [ER.share([it for it in oth if it['level'] == lv], '_st', ['truth', 'cant', 'false', 'none'])[0] for lv in range(4)]
+    stack(ax, dists, ['0', '1', '2', '3'], ['truth', 'cant', 'false', 'none'], ST_COLOR, 'B1  What they are told, by level'); ax.set_xlabel("Their evidence level", fontsize=6.5, labelpad=2); ax.set_ylabel('Share of answers', fontsize=6.5)
+    # B2 outcome by level
+    ax = fig.add_subplot(gs[1, 1]); dists = [ER.share([it for it in oth if it['level'] == lv and it.get('outcome') != 'na'], 'outcome', ['truth', 'uncertain', 'false'])[0] for lv in range(4)]
+    stack(ax, dists, ['0', '1', '2', '3'], ['truth', 'uncertain', 'false'], OUT_COLOR, 'B2  Where they end up, by level'); ax.set_xlabel("Their evidence level", fontsize=6.5, labelpad=2)
+    # B3 outcome by assistant (all seeking questions)
+    ax = fig.add_subplot(gs[1, 2]); dists = [ER.share([it for it in seek if it['model'] == t and it.get('outcome') != 'na'], 'outcome', ['truth', 'uncertain', 'false'])[0] for t in T]
+    stack(ax, dists, [NAME[t].replace(' ', '\n', 1) for t in T], ['truth', 'uncertain', 'false'], OUT_COLOR, 'B3  Where they end up, by assistant'); ax.tick_params(axis='x', labelsize=5.6)
+    fig.text(0.075, 0.955, 'A  The person holding the secret: the advised act is the same at every level, so its effect on the other person grows with the gap', fontsize=8.3, weight='bold')
+    fig.text(0.075, 0.930, "A1: what they are advised to say. A2: share of that advice that would leave the other person believing something false or unable to understand their situation,", fontsize=6.0, color='#5b6367')
+    fig.text(0.075, 0.913, "judged from the facts, excluding cases where they already know; band = 95% world bootstrap. A3: of the misleading advice, the share where the assistant says so.", fontsize=6.0, color='#5b6367')
+    fig.text(0.075, 0.515, 'B  The person who knows less: mostly kept uncertain, and led to a false belief more often as their evidence thins', fontsize=8.3, weight='bold')
+    fig.text(0.075, 0.49, "B1: what the assistant tells them about the hidden matter. B2, B3: where they most likely end up on it if they follow the advice and believe what it says (judged from the facts).", fontsize=6.0, color='#5b6367')
+    h1 = [Patch(color=ACT_COLOR[k], label=ACT_LABEL[k]) for k in ACTS]; h2 = [Patch(color=ST_COLOR[k], label=ST_LABEL[k]) for k in ('truth', 'cant', 'false', 'none')]
+    h3 = [Patch(color=OUT_COLOR[k], label=OUT_LABEL[k]) for k in ('truth', 'uncertain', 'false')]
+    fig.legend(handles=h1, loc='lower center', ncol=6, frameon=False, fontsize=6.2, bbox_to_anchor=(0.5, 0.082), handlelength=1.2, columnspacing=1.0, title='A1, acts', title_fontsize=6.2)
+    fig.legend(handles=h2, loc='lower center', ncol=4, frameon=False, fontsize=6.2, bbox_to_anchor=(0.5, 0.041), handlelength=1.2, columnspacing=1.0, title='B1, what they are told', title_fontsize=6.2)
+    fig.legend(handles=h3, loc='lower center', ncol=3, frameon=False, fontsize=6.2, bbox_to_anchor=(0.5, 0.0), handlelength=1.2, columnspacing=1.0, title='B2, B3, where they end up', title_fontsize=6.2)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for ext in ('pdf', 'png'):
+        fig.savefig(out_dir / f'fig2_effect.{ext}', dpi=300)
+    print('saved', out_dir / 'fig2_effect.pdf')
+
+
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--out', default='figures'); a = ap.parse_args()
-    figure1(Path(a.run), Path(a.out))
+    ap = argparse.ArgumentParser(); ap.add_argument('--run', required=True); ap.add_argument('--out', default='figures'); ap.add_argument('--only', choices=['1', '2']); a = ap.parse_args()
+    if a.only != '2':
+        figure1(Path(a.run), Path(a.out))
+    if a.only != '1':
+        figure2(Path(a.run), Path(a.out))
 
 
 if __name__ == '__main__':
