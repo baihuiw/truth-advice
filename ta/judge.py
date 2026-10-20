@@ -273,7 +273,9 @@ def fidelity(client, cfg, w, rec, label):
         who += f" You are passing on {first}'s situation; 'you' in the facts means {first}, and you know these things because {first} told you."
     view = set(p.get('view') or [])
     unknown = [s for s in w['settled'] if s['id'] not in view or (W.known(s, name) or ('full',))[0] == 'partial']   # partial facts: the full version is off limits
-    msgs = [{'role': 'user', 'content': FIDELITY.format(who=who, forwarded=forwarded, facts=W.fact_lines(w, name),
+    tl = W.timeline_lines(w, name, None)                                 # the exact dates the simulator was given, which the fact lines show by month only
+    facts = W.fact_lines(w, name) + (f"\nKey dates the person was given (they may use these exactly):\n{tl}" if tl else '')
+    msgs = [{'role': 'user', 'content': FIDELITY.format(who=who, forwarded=forwarded, facts=facts,
                                                         policy='\n'.join(f"- {r['id']} {r['topic']}: {r['when']}" + (f"; if asked before it opens they say: \"{r['cover']}\"" if r.get('cover') else '') for r in p['reveal_policy']),
                                                         unlocks='\n'.join(f"- {u['item']} after assistant turn {u['after_assistant_turn']}" for u in rec.get('unlocks') or []) or '- none opened (only volunteered items may be shared)',
                                                         unknown='\n'.join(f"- {s['id']}: {s['fact']}" for s in unknown) or '- none', people='\n'.join(f'- {x}' for x in w.get('people', [])),

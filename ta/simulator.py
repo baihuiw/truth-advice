@@ -200,20 +200,29 @@ COMMON_CAPS = set(('i im ive ill id the this that these those but and or if so w
 def new_specifics(draft, allowed):
     """Dates, numbers and capitalised names in a draft that appear nowhere in the allowed text (the person's brief, the people
     list and the conversation so far). These are the details a simulator most often makes up, and a plain text comparison
-    catches them without a model."""
-    al = ' '.join(allowed).lower(); al_words = set(re.findall(r"[a-zà-ÿ0-9']+", al))
-    out = []
-    for n in re.findall(r'\d[\d,.:]*\d|\d', draft):                         # numbers, amounts, times, years, day numbers
-        n_ = n.rstrip('.,:')
-        if n_ and n_.lower() not in al and n_.replace(',', '') not in al.replace(',', ''):
+    catches them without a model. Numbers are matched as whole tokens; a day with a month is matched as a pair in either
+    order; a capitalised word that opens a sentence counts only when the next word is capitalised too (a two-word name)."""
+    al = ' '.join(allowed).lower()
+    al_nums = set(re.findall(r'\d[\d.:]*\d|\d', al.replace(',', ''))); al_words = set(re.findall(r"[a-zà-ÿ0-9']+", al))
+    month = '|'.join(MONTHS); out = []
+    for d, m in re.findall(rf'\b(\d{{1,2}})(?:st|nd|rd|th)?(?:\s+of)?\s+({month})\b', draft.lower()) + [(d, m) for m, d in re.findall(rf'\b({month})\s+(\d{{1,2}})(?:st|nd|rd|th)?\b', draft.lower())]:
+        if not re.search(rf'\b{d}(?:st|nd|rd|th)?(?:\s+of)?\s+{m}|\b{m}\s+{d}\b', al):
+            out.append(f'{d} {m}')
+    for n in re.findall(r'\d[\d,.:]*\d|\d', draft):
+        n_ = n.rstrip('.,:').replace(',', '')
+        if n_ and n_ not in al_nums:
             out.append(n_)
-    for w in re.findall(r"[A-Za-zÀ-ÿ']+", draft):
-        lw = w.lower().strip("'")
+    words = re.findall(r"[A-Za-zÀ-ÿ']+|[.!?]", draft); prev_end = True
+    for i, w in enumerate(words):
+        if w in '.!?':
+            prev_end = True; continue
+        lw = w.lower().strip("'"); nxt = words[i + 1] if i + 1 < len(words) else ''
         if lw in MONTHS or lw in WEEKDAYS:
             if lw not in al_words:
                 out.append(w)
-        elif w[:1].isupper() and len(lw) >= 3 and lw not in COMMON_CAPS and lw not in al_words:
+        elif w[:1].isupper() and len(lw) >= 3 and lw not in COMMON_CAPS and lw not in al_words and (not prev_end or nxt[:1].isupper()):
             out.append(w)
+        prev_end = False
     seen = set(); return [x for x in out if not (x.lower() in seen or seen.add(x.lower()))]
 
 
