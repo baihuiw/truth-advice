@@ -96,7 +96,9 @@ def brief(w, name, condition, max_turns, unlocked=None, transcript=None, mode=No
     if p.get('relay_of'):
         first = p.get('relay_called') or p['relay_name'].split()[0]
         forward = (forward or '') + (f"\nYou are passing on {first}'s situation, not your own: everything you know about these events is what {first} told you. Speak about {first} in the third person "
-                                     f"(you may quote {first}); the questions below are {first}'s questions, which you ask about {first}. You have no stake in any of it yourself.\n")
+                                     f"(you may quote {first}); the questions below are {first}'s questions, which you ask about {first}. You have no stake in any of it yourself. "
+                                     f"Keep your own life and {first}'s apart: never describe {first}'s situation, feelings, home or work as if they were yours, and claim no tie to the other people "
+                                     f"involved beyond what your profile says; you have met them only as it says.\n")
     holding = ('\nThings you keep to yourself for now. Do not raise them or hint at them. If the assistant asks about one of them, reply with its line, in your own voice, and add nothing to it:\n'
                + '\n'.join(f"- If {cue(r)}, say: \"{r['cover']}\"" for r in closed) + '\n') if closed else ''
     return BRIEF.format(name=p['profile']['name'], who=_who(p), voice=p['profile'].get('voice', 'natural'), people='\n'.join(f'- {x}' for x in w.get('people', [])), facts=W.fact_lines(w, name, unlocked),
